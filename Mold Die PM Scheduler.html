@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>MoldDie PM System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0A0E1A;font-family:'DM Sans',sans-serif;color:#fff;min-height:100vh}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0A0E1A}::-webkit-scrollbar-thumb{background:#374151;border-radius:3px}
+  input,select,button{font-family:'DM Sans',sans-serif}
+  input:focus,select:focus{outline:none;border-color:#FF9500!important;box-shadow:0 0 0 3px rgba(255,149,0,0.12)!important}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .fade-in{animation:fadeIn 0.3s ease}
+  .pulse{animation:pulse 2s infinite}
+  .page{display:none}.page.active{display:block}
+  @media(max-width:640px){#header-tabs{display:none!important}#bottom-nav{display:flex!important}#main-content{padding-bottom:80px!important}}
+  #bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0D1117;border-top:1px solid #1F2937;z-index:100;padding:8px 0 12px}
+  .btn-primary{background:linear-gradient(135deg,#FF9500,#FF6B00);border:none;border-radius:10px;padding:11px 20px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .btn-ghost{background:transparent;border:1px solid #374151;border-radius:10px;padding:10px 16px;color:#9CA3AF;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+  .badge{font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:6px;text-transform:uppercase;display:inline-block}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);padding:16px}
+  .modal-box{background:#111827;border:1px solid #1F2937;border-radius:20px;padding:28px;width:100%;max-width:520px;animation:fadeIn 0.2s ease;max-height:90vh;overflow-y:auto}
+  .form-label{color:#9CA3AF;font-size:12px;font-weight:600;letter-spacing:0.5px;display:block;margin-bottom:6px}
+  .form-input{background:#1F2937;border:1px solid #374151;border-radius:10px;padding:11px 14px;color:#fff;font-size:14px;width:100%}
+  .mold-row{background:#111827;border:1px solid #1F2937;border-radius:12px;padding:14px 16px;border-left:3px solid #374151;animation:fadeIn 0.3s ease}
+  .stat-card{background:#111827;border:1px solid #1F2937;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px}
+  .stat-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .filter-btn{padding:6px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:transparent;color:#6B7280;white-space:nowrap}
+  .filter-btn.active{background:#1F2937;color:#fff}
+  .cal-week{background:#111827;border:1px solid #1F2937;border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+  .cal-week.current-wk{border-color:#FF9500;background:#1a1500}
+  .tab-btn{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;background:transparent;border:none;cursor:pointer;padding:4px;color:#6B7280;font-size:10px;font-weight:600}
+  .tab-btn.active{color:#FF9500}
+  .qtr-btn{padding:7px 16px;border-radius:20px;border:none;cursor:pointer;font-weight:600;font-size:13px;background:#1F2937;color:#9CA3AF}
+  .qtr-btn.active{background:linear-gradient(135deg,#FF9500,#FF6B00);color:#fff}
+  .history-row{background:#111827;border:1px solid #1F2937;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+  .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:900px){.stats-grid{grid-template-columns:repeat(5,1fr)}}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:400px){.two-col{grid-template-columns:1fr}}
+  .tab-hdr{padding:7px 13px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:transparent;color:#6B7280;transition:all 0.15s}
+  .tab-hdr.active{background:#1F2937;color:#fff}
+  #sync-indicator{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px}
+  .sync-ok{background:#30D15818;color:#30D158;border:1px solid #30D15833}
+  .sync-busy{background:#FF950018;color:#FF9500;border:1px solid #FF950033}
+  .sync-err{background:#FF3B3018;color:#FF3B30;border:1px solid #FF3B3033}
+  #setup-screen{position:fixed;inset:0;background:#0A0E1A;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+  .dash-card{background:#111827;border:1px solid #1F2937;border-radius:14px;overflow:hidden;margin-bottom:14px}
+  .dash-card-header{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none;transition:background 0.15s}
+  .dash-card-header:hover{background:#161e2e}
+  .dash-card-body.open{display:grid;gap:8px;border-top:1px solid #1F2937;padding:14px}
+  .dash-card-body.closed{display:none}
+  .dash-chevron{margin-left:auto;transition:transform 0.2s;color:#4B5563;display:flex}
+  .dash-chevron.open{transform:rotate(180deg)}
+  .group-header{background:#1F2937;border-radius:8px;padding:8px 14px;margin:8px 0 4px;font-size:12px;font-weight:700;color:#9CA3AF;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+  .dash-count{font-size:32px;font-weight:800;line-height:1;min-width:44px;text-align:center}
+  .dash-chevron{margin-left:auto;transition:transform 0.2s;color:#4B5563}
+  .dash-chevron.open{transform:rotate(180deg)}
+  .search-box{background:#1F2937;border:1px solid #374151;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;width:100%;margin-bottom:14px}
+  .search-box:focus{outline:none;border-color:#FF9500!important}
+  /* Edit modal */
+  #edit-modal .modal-box{max-width:460px}
+</style>
+</head>
+<body>
+
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="setup-screen" style="display:none">
+  <div style="width:100%;max-width:480px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;background:linear-gradient(135deg,#FF9500,#FF6B00);border-radius:16px;margin-bottom:14px;box-shadow:0 8px 28px rgba(255,149,0,0.35)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <h1 style="font-size:22px;font-weight:700">Connect Cloud Database</h1>
+      <p style="color:#6B7280;font-size:13px;margin-top:6px">One-time setup — data syncs across all devices</p>
+    </div>
+    <div style="background:#111827;border:1px solid #1F2937;border-radius:16px;padding:24px;margin-bottom:16px">
+      <div style="background:#1F2937;border-radius:10px;padding:14px;margin-bottom:20px;font-size:13px;color:#9CA3AF;line-height:1.8">
+        <b style="color:#FF9500">Setup steps (3 min):</b><br>
+        1. Go to <b style="color:#fff">jsonbin.io</b> → Sign Up (free)<br>
+        2. Click <b style="color:#fff">API Keys</b> → copy your <b style="color:#fff">X-Master-Key</b><br>
+        3. Click <b style="color:#fff">Bins</b> → <b style="color:#fff">Create Bin</b><br>
+        4. Paste <code style="color:#FF9500">{"molds":[],"history":[]}</code> → Save → copy <b style="color:#fff">BIN ID</b>
+      </div>
+      <div style="display:grid;gap:14px">
+        <div>
+          <label class="form-label">X-Master-Key (Secret Key)</label>
+          <input id="setup-apikey" class="form-input" placeholder="$2b$10$xxxxxxxxxxxxxxxxxxxx" type="password"/>
+        </div>
+        <div>
+          <label class="form-label">Bin ID</label>
+          <input id="setup-binid" class="form-input" placeholder="6650abc1ad19ca34f8xxxxxx"/>
+        </div>
+        <div id="setup-err" style="color:#FF3B30;font-size:13px;display:none"></div>
+        <button onclick="doSetup()" class="btn-primary" style="width:100%;justify-content:center" id="setup-btn">Connect & Start</button>
+      </div>
+    </div>
+    <p style="text-align:center;color:#4B5563;font-size:12px">Keys stored only in this browser. JSONBin free tier: 10,000 req/month.</p>
+  </div>
+</div>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="login-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,149,0,0.04)1px,transparent 1px),linear-gradient(90deg,rgba(255,149,0,0.04)1px,transparent 1px);background-size:40px 40px;pointer-events:none"></div>
+  <div style="position:absolute;top:20%;left:50%;transform:translateX(-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(255,149,0,0.08)0%,transparent 70%);pointer-events:none"></div>
+  <div style="width:100%;max-width:420px;position:relative">
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;background:linear-gradient(135deg,#FF9500,#FF6B00);border-radius:18px;margin-bottom:14px;box-shadow:0 8px 28px rgba(255,149,0,0.4)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <h1 style="font-size:26px;font-weight:700;letter-spacing:-0.5px">MoldDie PM System</h1>
+      <p style="color:#6B7280;margin-top:6px;font-size:14px">E.O.L. Master PM Schedule — ADI FY2026</p>
+    </div>
+    <div id="login-card" style="background:#111827;border:1px solid #1F2937;border-radius:16px;padding:26px;margin-bottom:14px">
+      <div style="color:#FF9500;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px">Admin Access</div>
+      <div style="display:grid;gap:12px">
+        <input id="login-user" class="form-input" placeholder="Username" autocomplete="username"/>
+        <input id="login-pass" class="form-input" placeholder="Password" type="password" autocomplete="current-password"/>
+        <div id="login-err" style="color:#FF3B30;font-size:13px;display:none"></div>
+        <button onclick="doAdminLogin()" class="btn-primary" style="width:100%;justify-content:center">Sign In as Admin</button>
+      </div>
+    </div>
+    <div style="background:#111827;border:1px solid #1F2937;border-radius:16px;padding:22px">
+      <div style="color:#30D158;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">View Only Access</div>
+      <p style="color:#6B7280;font-size:13px;margin-bottom:14px">No login required — view dashboard &amp; schedules.</p>
+      <button onclick="doViewerLogin()" style="width:100%;background:transparent;border:1px solid #30D158;border-radius:10px;padding:11px;color:#30D158;font-weight:600;font-size:14px;cursor:pointer">Continue as Viewer</button>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button onclick="showSetup()" style="background:transparent;border:none;color:#374151;font-size:12px;cursor:pointer;text-decoration:underline">⚙ Change database settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app-screen" style="display:none;min-height:100vh">
+  <div style="border-bottom:1px solid #1F2937;background:#0D1117;position:sticky;top:0;z-index:50">
+    <div style="max-width:1200px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:10px;height:56px">
+      <div style="display:flex;align-items:center;gap:8px;margin-right:auto;min-width:0">
+        <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#FF9500,#FF6B00);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <span style="font-weight:700;font-size:15px;white-space:nowrap">MoldDie PM</span>
+        <span id="sync-indicator" class="sync-ok">● Synced</span>
+      </div>
+      <div id="header-tabs" style="display:flex;gap:2px;flex-shrink:0">
+        <button onclick="showTab('dashboard')" id="htab-dashboard" class="tab-hdr active">📊 Dashboard</button>
+        <button onclick="showTab('molds')" id="htab-molds" class="tab-hdr">🔧 All Molds</button>
+        <button onclick="showTab('calendar')" id="htab-calendar" class="tab-hdr">📅 Calendar</button>
+        <button onclick="showTab('history')" id="htab-history" class="tab-hdr">📋 History</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0">
+        <span id="role-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #FF950044;background:#FF950022;color:#FF9500"></span>
+        <button onclick="doLogout()" class="btn-ghost" style="padding:6px 10px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="main-content" style="max-width:1200px;margin:0 auto;padding:24px 16px">
+    <div id="loading-overlay" style="display:none;text-align:center;padding:80px 20px">
+      <div style="width:40px;height:40px;border:3px solid #1F2937;border-top-color:#FF9500;border-radius:50%;margin:0 auto 16px;animation:spin 0.8s linear infinite"></div>
+      <div style="color:#6B7280;font-size:14px">Syncing data from cloud...</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active fade-in">
+      <div id="wk-banner" style="background:linear-gradient(135deg,#1A1F2E,#111827);border:1px solid #FF950033;border-radius:14px;padding:18px 22px;margin-bottom:22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap"></div>
+      <div id="dash-content"></div>
+    </div>
+
+    <!-- ALL MOLDS -->
+    <div id="page-molds" class="page fade-in">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <h2 style="font-size:18px;font-weight:700;flex:1">All Mold Dies</h2>
+        <div id="admin-add-btn-molds"></div>
+      </div>
+      <input id="mold-search" class="search-box" placeholder="🔍  Search mold die name..." oninput="renderMolds()"/>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px" id="filter-btns"></div>
+      <div id="molds-list" style="display:grid;gap:8px"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="page-calendar" class="page fade-in">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:18px">PM Calendar — FY2026</h2>
+      <div id="qtr-tabs" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap"></div>
+      <div id="calendar-content"></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="page-history" class="page fade-in">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+        <h2 style="font-size:18px;font-weight:700;flex:1">PM Completion History</h2>
+        <div id="history-count" style="color:#6B7280;font-size:13px"></div>
+      </div>
+      <div id="history-list" style="display:grid;gap:8px"></div>
+    </div>
+  </div>
+
+  <nav id="bottom-nav">
+    <button onclick="showTab('dashboard')" id="btab-dashboard" class="tab-btn active">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button onclick="showTab('molds')" id="btab-molds" class="tab-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      Molds
+    </button>
+    <button onclick="showTab('calendar')" id="btab-calendar" class="tab-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendar
+    </button>
+    <button onclick="showTab('history')" id="btab-history" class="tab-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+      History
+    </button>
+  </nav>
+</div>
+
+<!-- ═══ ADD MOLD MODAL ═══ -->
+<div id="add-modal" style="display:none" class="modal-overlay">
+  <div class="modal-box">
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:22px">Add New Mold Die</h2>
+    <div style="display:grid;gap:14px">
+      <div>
+        <label class="form-label">Mold Die Name *</label>
+        <input id="add-name" class="form-input" placeholder="e.g. QFN CU # 6"/>
+      </div>
+      <div>
+        <label class="form-label">Group / Type</label>
+        <input id="add-group" class="form-input" placeholder="e.g. QFN CU"/>
+      </div>
+      <div class="two-col">
+        <div>
+          <label class="form-label">Machine</label>
+          <input id="add-machine" class="form-input" placeholder="e.g. IDEAL, TOWA"/>
+        </div>
+        <div>
+          <label class="form-label">PM Interval (weeks)</label>
+          <input id="add-interval" class="form-input" type="number" min="1" max="52" value="4"/>
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Last PM Work Week</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button onclick="setWkMode('add','fy')" id="add-mode-fy" style="flex:1;padding:7px;border-radius:8px;border:1px solid #FF9500;background:#FF950022;color:#FF9500;cursor:pointer;font-size:12px;font-weight:700">FY2026 (601–652)</button>
+          <button onclick="setWkMode('add','prev')" id="add-mode-prev" style="flex:1;padding:7px;border-radius:8px;border:1px solid #374151;background:transparent;color:#6B7280;cursor:pointer;font-size:12px;font-weight:700">Previous FY (5xx)</button>
+        </div>
+        <select id="add-lastwk" class="form-input"></select>
+        <input id="add-lastwk-manual" class="form-input" type="number" placeholder="e.g. 548 or 448" style="display:none;margin-top:0" min="401" max="599"/>
+        <div id="add-lastwk-hint" style="display:none;color:#6B7280;font-size:11px;margin-top:5px">FY2025: WK501–WK552 &nbsp;·&nbsp; FY2024: WK401–WK452 &nbsp;·&nbsp; Max is x52 per year</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button onclick="closeAddModal()" class="btn-ghost" style="flex:1;justify-content:center">Cancel</button>
+      <button onclick="doAddMold()" id="add-submit-btn" class="btn-primary" style="flex:2;justify-content:center">Add Mold Die</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EDIT MOLD MODAL ═══ -->
+<div id="edit-modal" style="display:none" class="modal-overlay">
+  <div class="modal-box">
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:22px">Edit Mold Die</h2>
+    <input type="hidden" id="edit-id"/>
+    <div style="display:grid;gap:14px">
+      <div>
+        <label class="form-label">Mold Die Name</label>
+        <input id="edit-name" class="form-input"/>
+      </div>
+      <div>
+        <label class="form-label">Group / Type</label>
+        <input id="edit-group" class="form-input"/>
+      </div>
+      <div class="two-col">
+        <div>
+          <label class="form-label">Machine</label>
+          <input id="edit-machine" class="form-input"/>
+        </div>
+        <div>
+          <label class="form-label">PM Interval (weeks)</label>
+          <input id="edit-interval" class="form-input" type="number" min="1" max="52"/>
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Last PM Work Week</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button onclick="setWkMode('edit','fy')" id="edit-mode-fy" style="flex:1;padding:7px;border-radius:8px;border:1px solid #FF9500;background:#FF950022;color:#FF9500;cursor:pointer;font-size:12px;font-weight:700">FY2026 (601–652)</button>
+          <button onclick="setWkMode('edit','prev')" id="edit-mode-prev" style="flex:1;padding:7px;border-radius:8px;border:1px solid #374151;background:transparent;color:#6B7280;cursor:pointer;font-size:12px;font-weight:700">Previous FY (5xx)</button>
+        </div>
+        <select id="edit-lastwk" class="form-input"></select>
+        <input id="edit-lastwk-manual" class="form-input" type="number" placeholder="e.g. 548 or 448" style="display:none;margin-top:0" min="401" max="599"/>
+        <div id="edit-lastwk-hint" style="display:none;color:#6B7280;font-size:11px;margin-top:5px">FY2025: WK501–WK552 &nbsp;·&nbsp; FY2024: WK401–WK452 &nbsp;·&nbsp; Max is x52 per year</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button onclick="closeEditModal()" class="btn-ghost" style="flex:1;justify-content:center">Cancel</button>
+      <button onclick="doEditMold()" id="edit-submit-btn" class="btn-primary" style="flex:2;justify-content:center">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════════════════════════════════
+const CALENDAR = [
+  {wk:601,qtr:"1Q26",mth:"NOV",period:"P1",sun:1,mon:2,tue:3,wed:4,thu:5,fri:6,sat:7},
+  {wk:602,qtr:"1Q26",mth:"NOV",period:"P1",sun:8,mon:9,tue:10,wed:11,thu:12,fri:13,sat:14},
+  {wk:603,qtr:"1Q26",mth:"NOV",period:"P1",sun:15,mon:16,tue:17,wed:18,thu:19,fri:20,sat:21},
+  {wk:604,qtr:"1Q26",mth:"NOV",period:"P1",sun:22,mon:23,tue:24,wed:25,thu:26,fri:27,sat:28},
+  {wk:605,qtr:"1Q26",mth:"DEC",period:"P2",sun:29,mon:30,tue:1,wed:2,thu:3,fri:4,sat:5},
+  {wk:606,qtr:"1Q26",mth:"DEC",period:"P2",sun:6,mon:7,tue:8,wed:9,thu:10,fri:11,sat:12},
+  {wk:607,qtr:"1Q26",mth:"DEC",period:"P2",sun:13,mon:14,tue:15,wed:16,thu:17,fri:18,sat:19},
+  {wk:608,qtr:"1Q26",mth:"DEC",period:"P2",sun:20,mon:21,tue:22,wed:23,thu:24,fri:25,sat:26},
+  {wk:609,qtr:"1Q26",mth:"JAN",period:"P3",sun:27,mon:28,tue:29,wed:30,thu:31,fri:1,sat:2},
+  {wk:610,qtr:"1Q26",mth:"JAN",period:"P3",sun:3,mon:4,tue:5,wed:6,thu:7,fri:8,sat:9},
+  {wk:611,qtr:"1Q26",mth:"JAN",period:"P3",sun:10,mon:11,tue:12,wed:13,thu:14,fri:15,sat:16},
+  {wk:612,qtr:"1Q26",mth:"JAN",period:"P3",sun:17,mon:18,tue:19,wed:20,thu:21,fri:22,sat:23},
+  {wk:613,qtr:"1Q26",mth:"JAN",period:"P3",sun:24,mon:25,tue:26,wed:27,thu:28,fri:29,sat:30},
+  {wk:614,qtr:"2Q26",mth:"FEB",period:"P4",sun:1,mon:2,tue:3,wed:4,thu:5,fri:6,sat:7},
+  {wk:615,qtr:"2Q26",mth:"FEB",period:"P4",sun:8,mon:9,tue:10,wed:11,thu:12,fri:13,sat:14},
+  {wk:616,qtr:"2Q26",mth:"FEB",period:"P4",sun:15,mon:16,tue:17,wed:18,thu:19,fri:20,sat:21},
+  {wk:617,qtr:"2Q26",mth:"FEB",period:"P4",sun:22,mon:23,tue:24,wed:25,thu:26,fri:27,sat:28},
+  {wk:618,qtr:"2Q26",mth:"MAR",period:"P5",sun:1,mon:2,tue:3,wed:4,thu:5,fri:6,sat:7},
+  {wk:619,qtr:"2Q26",mth:"MAR",period:"P5",sun:8,mon:9,tue:10,wed:11,thu:12,fri:13,sat:14},
+  {wk:620,qtr:"2Q26",mth:"MAR",period:"P5",sun:15,mon:16,tue:17,wed:18,thu:19,fri:20,sat:21},
+  {wk:621,qtr:"2Q26",mth:"MAR",period:"P5",sun:22,mon:23,tue:24,wed:25,thu:26,fri:27,sat:28},
+  {wk:622,qtr:"2Q26",mth:"APR",period:"P6",sun:29,mon:30,tue:31,wed:1,thu:2,fri:3,sat:4},
+  {wk:623,qtr:"2Q26",mth:"APR",period:"P6",sun:5,mon:6,tue:7,wed:8,thu:9,fri:10,sat:11},
+  {wk:624,qtr:"2Q26",mth:"APR",period:"P6",sun:12,mon:13,tue:14,wed:15,thu:16,fri:17,sat:18},
+  {wk:625,qtr:"2Q26",mth:"APR",period:"P6",sun:19,mon:20,tue:21,wed:22,thu:23,fri:24,sat:25},
+  {wk:626,qtr:"2Q26",mth:"APR",period:"P6",sun:26,mon:27,tue:28,wed:29,thu:30,fri:1,sat:2},
+  {wk:627,qtr:"3Q26",mth:"MAY",period:"P7",sun:3,mon:4,tue:5,wed:6,thu:7,fri:8,sat:9},
+  {wk:628,qtr:"3Q26",mth:"MAY",period:"P7",sun:10,mon:11,tue:12,wed:13,thu:14,fri:15,sat:16},
+  {wk:629,qtr:"3Q26",mth:"MAY",period:"P7",sun:17,mon:18,tue:19,wed:20,thu:21,fri:22,sat:23},
+  {wk:630,qtr:"3Q26",mth:"MAY",period:"P7",sun:24,mon:25,tue:26,wed:27,thu:28,fri:29,sat:30},
+  {wk:631,qtr:"3Q26",mth:"JUN",period:"P8",sun:31,mon:1,tue:2,wed:3,thu:4,fri:5,sat:6},
+  {wk:632,qtr:"3Q26",mth:"JUN",period:"P8",sun:7,mon:8,tue:9,wed:10,thu:11,fri:12,sat:13},
+  {wk:633,qtr:"3Q26",mth:"JUN",period:"P8",sun:14,mon:15,tue:16,wed:17,thu:18,fri:19,sat:20},
+  {wk:634,qtr:"3Q26",mth:"JUN",period:"P8",sun:21,mon:22,tue:23,wed:24,thu:25,fri:26,sat:27},
+  {wk:635,qtr:"3Q26",mth:"JUL",period:"P9",sun:28,mon:29,tue:30,wed:1,thu:2,fri:3,sat:4},
+  {wk:636,qtr:"3Q26",mth:"JUL",period:"P9",sun:5,mon:6,tue:7,wed:8,thu:9,fri:10,sat:11},
+  {wk:637,qtr:"3Q26",mth:"JUL",period:"P9",sun:12,mon:13,tue:14,wed:15,thu:16,fri:17,sat:18},
+  {wk:638,qtr:"3Q26",mth:"JUL",period:"P9",sun:19,mon:20,tue:21,wed:22,thu:23,fri:24,sat:25},
+  {wk:639,qtr:"3Q26",mth:"JUL",period:"P9",sun:26,mon:27,tue:28,wed:29,thu:30,fri:31,sat:1},
+  {wk:640,qtr:"4Q26",mth:"AUG",period:"P10",sun:2,mon:3,tue:4,wed:5,thu:6,fri:7,sat:8},
+  {wk:641,qtr:"4Q26",mth:"AUG",period:"P10",sun:9,mon:10,tue:11,wed:12,thu:13,fri:14,sat:15},
+  {wk:642,qtr:"4Q26",mth:"AUG",period:"P10",sun:16,mon:17,tue:18,wed:19,thu:20,fri:21,sat:22},
+  {wk:643,qtr:"4Q26",mth:"AUG",period:"P10",sun:23,mon:24,tue:25,wed:26,thu:27,fri:28,sat:29},
+  {wk:644,qtr:"4Q26",mth:"SEP",period:"P11",sun:30,mon:31,tue:1,wed:2,thu:3,fri:4,sat:5},
+  {wk:645,qtr:"4Q26",mth:"SEP",period:"P11",sun:6,mon:7,tue:8,wed:9,thu:10,fri:11,sat:12},
+  {wk:646,qtr:"4Q26",mth:"SEP",period:"P11",sun:13,mon:14,tue:15,wed:16,thu:17,fri:18,sat:19},
+  {wk:647,qtr:"4Q26",mth:"SEP",period:"P11",sun:20,mon:21,tue:22,wed:23,thu:24,fri:25,sat:26},
+  {wk:648,qtr:"4Q26",mth:"OCT",period:"P12",sun:27,mon:28,tue:29,wed:30,thu:1,fri:2,sat:3},
+  {wk:649,qtr:"4Q26",mth:"OCT",period:"P12",sun:4,mon:5,tue:6,wed:7,thu:8,fri:9,sat:10},
+  {wk:650,qtr:"4Q26",mth:"OCT",period:"P12",sun:11,mon:12,tue:13,wed:14,thu:15,fri:16,sat:17},
+  {wk:651,qtr:"4Q26",mth:"OCT",period:"P12",sun:18,mon:19,tue:20,wed:21,thu:22,fri:23,sat:24},
+  {wk:652,qtr:"4Q26",mth:"OCT",period:"P12",sun:25,mon:26,tue:27,wed:28,thu:29,fri:30,sat:31},
+];
+
+const CURRENT_WK = 620;
+const ADMIN_USER = "molddiePM";
+const ADMIN_PASS = "molddiePM123";
+
+// ══════════════════════════════════════════════════════════════════
+// SEED DATA — Real mold dies from PDF (scrapped ones excluded)
+// ══════════════════════════════════════════════════════════════════
+const SEED_MOLDS = [
+  // DD/TO CU (x on #1 = scrap, skip #1)
+  {id:101,name:"DD / TO CU # 2",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:102,name:"DD / TO CU # 3",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:103,name:"DD / TO CU # 4",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:104,name:"DD / TO CU # 5",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:105,name:"DD / TO CU # 6",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:106,name:"DD / TO CU # 7",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:107,name:"DD / TO CU # 8",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:108,name:"DD / TO CU # 9",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // ETSSOP 16L
+  {id:201,name:"ETSSOP 16L # 1",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:202,name:"ETSSOP 16L # 2",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:203,name:"ETSSOP 16L # 3",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:204,name:"ETSSOP 16L # 4",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:205,name:"ETSSOP 16L # 5",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:206,name:"ETSSOP 16L # 6",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:207,name:"ETSSOP 16L # 7",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:208,name:"ETSSOP 16L # 8",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // ETSSOP 20L
+  {id:211,name:"ETSSOP 20L # 1",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:212,name:"ETSSOP 20L # 2",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:213,name:"ETSSOP 20L # 3",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:214,name:"ETSSOP 20L # 4",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:215,name:"ETSSOP 20L # 5",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // G20 CU (x on #3 = scrap)
+  {id:301,name:"G20 CU # 1",group:"G20 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:302,name:"G20 CU # 2",group:"G20 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // G24 CU
+  {id:311,name:"G24 CU # 1",group:"G24 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:312,name:"G24 CU # 2",group:"G24 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:313,name:"G24 CU # 3",group:"G24 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // G28 CU (x on #1 = scrap)
+  {id:321,name:"G28 CU # 2",group:"G28 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:322,name:"G28 CU # 3",group:"G28 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:323,name:"G28 CU # 4",group:"G28 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:324,name:"G28 CU # 5",group:"G28 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // G36/44 CU
+  {id:331,name:"G36/44 CU #2 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:332,name:"G36/44 CU #3 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:333,name:"G36/44 CU #4 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:334,name:"G36/44 CU #5 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:335,name:"G36/44 CU #6 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:336,name:"G36/44 CU #7 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:337,name:"G36/44 CU #8 ASM",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // MSOP 12/16 CU (x on #5 = scrap)
+  {id:401,name:"MSOP 12/16 CU # 1 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:402,name:"MSOP 12/16 CU # 2 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:403,name:"MSOP 12/16 CU # 4 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  // MSOP 8/10 A42 (x on #5 = scrap)
+  {id:411,name:"MSOP 8/10 A42 # 4 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:412,name:"MSOP 8/10 A42 # 6 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:413,name:"MSOP 8/10 A42 # 7 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  // MSOP 8/10 CU (x on #10 and #9 = scrap)
+  {id:421,name:"MSOP 8/10 CU # 11 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:422,name:"MSOP 8/10 CU # 12 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:423,name:"MSOP 8/10 CU # 3 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:424,name:"MSOP 8/10 CU # 4 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:425,name:"MSOP 8/10 CU # 6 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:426,name:"MSOP 8/10 CU # 7 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:427,name:"MSOP 8/10 CU # 8 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  // N14/16 PDIP
+  {id:501,name:"N14/16 PDIP A42 # 1 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:502,name:"N14/16 PDIP CU # 1 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:503,name:"N14/16 PDIP CU # 2 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,lastPmWeek:null},
+  // N8 PDIP (x on A42 #3 = scrap)
+  {id:511,name:"N8 PDIP CU # 3 TOWA",group:"N8 PDIP",machine:"TOWA",pmIntervalWeeks:null,lastPmWeek:null},
+  // QFN CU
+  {id:601,name:"QFN CU # 1",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:602,name:"QFN CU # 2",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:603,name:"QFN CU # 3",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:604,name:"QFN CU # 4",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:605,name:"QFN CU # 5",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // S14N (x on CU#3 and CU#4 = scrap)
+  {id:701,name:"S14N A42 #2 IDEAL",group:"S14N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:702,name:"S14N/GN20/24 CU # 5 IDEAL",group:"S14N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  // S16N
+  {id:711,name:"S16N A42#2 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:712,name:"S16N/GN28 CU # 1 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:713,name:"S16N/GN28 CU # 2 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:714,name:"S16N/GN28 CU # 3 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  // S16W
+  {id:721,name:"S16W CU # 1 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:722,name:"S16W CU # 2 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:723,name:"S16W CU # 3 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
+  // S18W
+  {id:731,name:"S18W CU # 1 ES629",group:"S18W",machine:"ES629",pmIntervalWeeks:null,lastPmWeek:null},
+  // S20W
+  {id:741,name:"S20W CU # 2",group:"S20W",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:742,name:"S20W CU # 3",group:"S20W",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // S24/G36W
+  {id:751,name:"S24/G36W CU # 2",group:"S24/G36W",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:752,name:"S24/G36W CU # 3",group:"S24/G36W",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // S8 / 16GN
+  {id:761,name:"S8 / 16GN CU # 10",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:762,name:"S8 / 16GN CU # 11",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:763,name:"S8 / 16GN CU # 12",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:764,name:"S8 / 16GN CU # 5",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:765,name:"S8 / 16GN CU # 6",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:766,name:"S8 / 16GN CU # 7",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:767,name:"S8 / 16GN CU # 8",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:768,name:"S8 / 16GN CU # 9",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // S8 A42 (x on #3 and #4 = scrap)
+  {id:771,name:"S8 EXPOSE CU#1",group:"S8 EXPOSE",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:772,name:"S8 EXPOSE CU#2",group:"S8 EXPOSE",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // SOT 23 (x on CU#4 and CU#7 = scrap)
+  {id:801,name:"SOT 23 A42 # 1",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:802,name:"SOT 23 A42 # 2",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:803,name:"SOT 23 CU # 1",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:804,name:"SOT 23 CU # 2",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:805,name:"SOT 23 CU # 3",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:806,name:"SOT 23 CU # 5",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:807,name:"SOT 23 CU # 6",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
+  // SIP IDEAL
+  {id:901,name:"SIP MC37 #16 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:902,name:"SIP IDEAL 4633 MC37 #13 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:903,name:"SIP IDEAL 4637 MC37 #12 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:904,name:"SIP IDEAL MC#37 #20 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:905,name:"SIP IDEAL MC37 #10 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:906,name:"SIP IDEAL MC37 #11 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:907,name:"SIP IDEAL MC37 #14 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:908,name:"SIP IDEAL MC37 #15 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:909,name:"SIP IDEAL MC37 #2 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:910,name:"SIP IDEAL MC37 #3 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:911,name:"SIP IDEAL MC37 #4 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:912,name:"SIP IDEAL MC37 #4 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  // x on #5 2.0MM CAP = scrap
+  {id:913,name:"SIP IDEAL MC37 #5 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:914,name:"SIP IDEAL MC37 #6 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:915,name:"SIP IDEAL MC37 #6 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:916,name:"SIP IDEAL MC37 #6 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:917,name:"SIP IDEAL MC37 #7 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:918,name:"SIP IDEAL MC37 #7 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:919,name:"SIP IDEAL MC37 #8 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:920,name:"SIP IDEAL MC37 #8 2.5MM (FF) CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:921,name:"SIP IDEAL MC37 #9 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:922,name:"SIP IDEAL MC37 #9 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:923,name:"SIP IDEAL MC37,41 #1 1.2MM (FF)",group:"SIP IDEAL",machine:"MC37/41",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:924,name:"SIP IDEAL MC37,41 #1 0.7MM (FF)",group:"SIP IDEAL",machine:"MC37/41",pmIntervalWeeks:null,lastPmWeek:null},
+  // SIP TOWA (x on many = scrap)
+  {id:951,name:"SIP TOWA #7 1.5MM MC43,44,45",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:952,name:"SIP TOWA MC43,44 #10 2.0MM CAP",group:"SIP TOWA",machine:"MC43/44",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:953,name:"SIP TOWA MC43/44/45 #19 4.0MM CAP",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:954,name:"SIP TOWA MC43/44/45 #2 1.2MM (FF)",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,lastPmWeek:null},
+];
+
+// ══════════════════════════════════════════════════════════════════
+// JSONBIN
+// ══════════════════════════════════════════════════════════════════
+let API_KEY="", BIN_ID="";
+function loadConfig(){ API_KEY=localStorage.getItem("pm_apikey")||""; BIN_ID=localStorage.getItem("pm_binid")||""; }
+function saveConfig(k,b){ localStorage.setItem("pm_apikey",k); localStorage.setItem("pm_binid",b); API_KEY=k; BIN_ID=b; }
+
+async function dbRead(){
+  const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{"X-Master-Key":API_KEY,"X-Bin-Meta":"false"}});
+  if(!res.ok) throw new Error("Read failed: "+res.status);
+  return await res.json();
+}
+async function dbWrite(data){
+  const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":API_KEY},body:JSON.stringify(data)});
+  if(!res.ok) throw new Error("Write failed: "+res.status);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════
+let role=null, molds=[], history=[], activeTab="dashboard", activeFilter="all", activeQtr="2Q26", isSaving=false;
+
+function setSyncStatus(s,msg){
+  const el=document.getElementById("sync-indicator"); if(!el)return;
+  el.className="sync-"+(s==="ok"?"ok":s==="busy"?"busy":"err");
+  el.textContent=s==="busy"?"↻ "+msg:s==="ok"?"● "+msg:"✕ "+msg;
+}
+
+async function loadFromCloud(){
+  try{
+    setSyncStatus("busy","Loading...");
+    const data=await dbRead();
+    // First time: bin is empty, push seed data
+    if(!data.molds || data.molds.length===0){
+      molds=[...SEED_MOLDS]; history=[];
+      await dbWrite({molds,history});
+    } else {
+      molds=data.molds||[]; history=data.history||[];
+    }
+    setSyncStatus("ok","Synced");
+  }catch(e){ setSyncStatus("err","Sync error"); console.error(e); }
+}
+
+async function saveToCloud(){
+  if(isSaving)return; isSaving=true;
+  try{
+    setSyncStatus("busy","Saving...");
+    await dbWrite({molds,history});
+    setSyncStatus("ok","Saved ✓");
+    setTimeout(()=>setSyncStatus("ok","Synced"),1500);
+  }catch(e){ setSyncStatus("err","Save failed"); console.error(e); }
+  finally{ isSaving=false; }
+}
+
+// Full ordered week sequence across all known fiscal years
+// FY2024: 401-452, FY2025: 501-552, FY2026: 601-652
+function buildFullWeekSequence(){
+  const fy2024 = Array.from({length:52},(_,i)=>400+(i+1)); // 401..452
+  const fy2025 = Array.from({length:52},(_,i)=>500+(i+1)); // 501..552
+  const fy2026 = CALENDAR.map(w=>w.wk);                    // 601..652
+  return [...fy2024,...fy2025,...fy2026];
+}
+const WEEK_SEQUENCE = buildFullWeekSequence();
+
+function calcDueWeek(lastPmWeek, intervalWeeks){
+  const idx = WEEK_SEQUENCE.indexOf(lastPmWeek);
+  if(idx === -1){
+    // Week not in sequence (very old), fall back to arithmetic but capped to known range
+    const raw = lastPmWeek + intervalWeeks;
+    // Map raw number across fiscal year boundaries
+    return raw;
+  }
+  const dueIdx = idx + intervalWeeks;
+  if(dueIdx < WEEK_SEQUENCE.length) return WEEK_SEQUENCE[dueIdx];
+  // Beyond our known calendar — return a virtual week number for display
+  const overflow = dueIdx - WEEK_SEQUENCE.length;
+  return 652 + overflow + 1; // beyond FY2026
+}
+
+function calcWeekDiff(wkA, wkB){
+  // How many weeks is wkA ahead of wkB in the sequence? Positive = wkA is later
+  const idxA = WEEK_SEQUENCE.indexOf(wkA);
+  const idxB = WEEK_SEQUENCE.indexOf(wkB);
+  if(idxA !== -1 && idxB !== -1) return idxA - idxB;
+  return wkA - wkB; // fallback
+}
+
+function getWk(n){ return CALENDAR.find(w=>w.wk===n); }
+
+function getMoldStatus(m){
+  if(m.lastPmWeek==null||m.pmIntervalWeeks==null)
+    return{label:"NOT SET",color:"#6B7280",bg:"#6B728018",weeks:null,due:null};
+  const due = calcDueWeek(m.lastPmWeek, m.pmIntervalWeeks);
+  const diff = calcWeekDiff(CURRENT_WK, due); // positive = current is past due
+  if(diff > 0)  return{label:"OVERDUE",  color:"#FF3B30",bg:"#FF3B3018",weeks:diff,  due};
+  if(diff === 0) return{label:"DUE NOW",  color:"#FF9500", bg:"#FF950018",weeks:0,    due};
+  if(diff >= -1) return{label:"DUE SOON", color:"#FFCC00",bg:"#FFCC0018",weeks:1,    due};
+  return             {label:"OK",       color:"#30D158",bg:"#30D15818",weeks:-diff, due};
+}
+function iSVG(t,s=16){
+  const a=`width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+  return{
+    wrench:`<svg ${a}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+    check:`<svg ${a}><polyline points="20 6 9 17 4 12"/></svg>`,
+    trash:`<svg ${a}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+    bell:`<svg ${a}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+    plus:`<svg ${a} stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+    calendar:`<svg ${a}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    edit:`<svg ${a}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  }[t]||"";
+}
+
+function getGroups(){ return[...new Set(molds.map(m=>m.group||"Other"))].sort(); }
+
+// ══════════════════════════════════════════════════════════════════
+// SETUP
+// ══════════════════════════════════════════════════════════════════
+function showSetup(){ document.getElementById("login-screen").style.display="none"; document.getElementById("setup-screen").style.display="flex"; }
+async function doSetup(){
+  const k=document.getElementById("setup-apikey").value.trim();
+  const b=document.getElementById("setup-binid").value.trim();
+  const err=document.getElementById("setup-err"); const btn=document.getElementById("setup-btn");
+  if(!k||!b){err.textContent="Please fill in both fields.";err.style.display="block";return;}
+  btn.textContent="Testing...";btn.disabled=true;
+  try{
+    const res=await fetch(`https://api.jsonbin.io/v3/b/${b}/latest`,{headers:{"X-Master-Key":k,"X-Bin-Meta":"false"}});
+    if(!res.ok) throw new Error("Cannot connect. Check your API Key and Bin ID.");
+    saveConfig(k,b);
+    document.getElementById("setup-screen").style.display="none";
+    document.getElementById("login-screen").style.display="flex";
+    err.style.display="none";
+  }catch(e){err.textContent=e.message;err.style.display="block";}
+  finally{btn.textContent="Connect & Start";btn.disabled=false;}
+}
+
+// ══════════════════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════════════════
+function doAdminLogin(){
+  const u=document.getElementById("login-user").value.trim();
+  const p=document.getElementById("login-pass").value;
+  const err=document.getElementById("login-err"); const card=document.getElementById("login-card");
+  if(u===ADMIN_USER&&p===ADMIN_PASS){enterApp("admin");}
+  else{err.textContent="Invalid credentials";err.style.display="block";card.style.animation="shake 0.4s ease";setTimeout(()=>{card.style.animation="";},500);}
+}
+document.getElementById("login-pass").addEventListener("keydown",e=>{if(e.key==="Enter")doAdminLogin();});
+function doViewerLogin(){enterApp("user");}
+
+async function enterApp(r){
+  role=r;
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("app-screen").style.display="block";
+  const badge=document.getElementById("role-badge");
+  badge.textContent=r==="admin"?"ADMIN":"VIEWER";
+  badge.style.background=r==="admin"?"#FF950022":"#30D15822";
+  badge.style.color=r==="admin"?"#FF9500":"#30D158";
+  badge.style.borderColor=r==="admin"?"#FF950044":"#30D15844";
+  populateWkSelects();
+  document.getElementById("loading-overlay").style.display="block";
+  document.getElementById("dash-content").innerHTML="";
+  await loadFromCloud();
+  document.getElementById("loading-overlay").style.display="none";
+  showTab("dashboard");
+  if(r==="user") setInterval(async()=>{await loadFromCloud();renderTab(activeTab);},60000);
+}
+function doLogout(){
+  role=null;
+  document.getElementById("app-screen").style.display="none";
+  document.getElementById("login-screen").style.display="flex";
+  document.getElementById("login-user").value="";
+  document.getElementById("login-pass").value="";
+  document.getElementById("login-err").style.display="none";
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════════
+function showTab(t){
+  activeTab=t;
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+t).classList.add("active");
+  document.querySelectorAll(".tab-hdr").forEach(b=>b.classList.remove("active"));
+  const ht=document.getElementById("htab-"+t); if(ht)ht.classList.add("active");
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  const bt=document.getElementById("btab-"+t); if(bt)bt.classList.add("active");
+  renderTab(t);
+}
+function renderTab(t){
+  if(t==="dashboard")renderDashboard();
+  else if(t==="molds")renderMolds();
+  else if(t==="calendar")renderCalendar();
+  else if(t==="history")renderHistory();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════════════════
+const dashOpen = {overdue:true, duenow:true, duesoon:false, ok:false, notset:false};
+
+function toggleDash(key){
+  dashOpen[key] = !dashOpen[key];
+  const body = document.getElementById("dash-body-"+key);
+  const chev = document.getElementById("dash-chev-"+key);
+  if(body){ body.className = "dash-card-body " + (dashOpen[key]?"open":"closed"); }
+  if(chev){ chev.className = "dash-chevron " + (dashOpen[key]?"open":""); }
+}
+
+function renderDashboard(){
+  const cur = getWk(CURRENT_WK);
+  const addBtn = role==="admin"
+    ? `<button onclick="openAddModal()" class="btn-primary" style="margin-left:auto;white-space:nowrap">${iSVG("plus",16)} Add Mold</button>`
+    : "";
+
+  document.getElementById("wk-banner").innerHTML = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div style="flex:1">
+      <div style="color:#FF9500;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Current Company Work Week</div>
+      <div style="font-size:18px;font-weight:700;margin-top:3px">WK ${CURRENT_WK} &nbsp;·&nbsp; ${cur.mth} ${cur.period} &nbsp;·&nbsp; ${cur.qtr}</div>
+      <div style="color:#6B7280;font-size:13px;margin-top:2px">Sun ${cur.sun} – Sat ${cur.sat} &nbsp;·&nbsp; Total molds: <b style="color:#fff">${molds.length}</b></div>
+    </div>${addBtn}`;
+
+  // Categorise all molds
+  const overdue = molds.filter(m=>getMoldStatus(m).label==="OVERDUE");
+  const dueNow  = molds.filter(m=>getMoldStatus(m).label==="DUE NOW");
+  const dueSoon = molds.filter(m=>getMoldStatus(m).label==="DUE SOON");
+  const ok      = molds.filter(m=>getMoldStatus(m).label==="OK");
+  const notSet  = molds.filter(m=>getMoldStatus(m).label==="NOT SET");
+
+  const chevSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+
+  function dashCard(key, label, emoji, color, bg, list, showDone){
+    const isOpen = dashOpen[key];
+    const emptyMsg = key==="notset"
+      ? "All molds are configured ✓"
+      : key==="ok"
+      ? "No molds in this category."
+      : "No molds in this category — great! 🎉";
+    const rows = list.length
+      ? list.map(m=>dashboardRowHTML(m, showDone)).join("")
+      : `<div style="padding:20px;text-align:center;color:#4B5563;font-size:13px">${emptyMsg}</div>`;
+
+    return `
+      <div class="dash-card" style="border-left:4px solid ${color}">
+        <div class="dash-card-header" onclick="toggleDash('${key}')">
+          <div style="width:48px;height:48px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${emoji}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px">${label}</div>
+            <div style="font-size:30px;font-weight:800;color:${list.length>0?color:"#374151"};line-height:1.1;margin-top:2px">${list.length} <span style="font-size:14px;font-weight:500;color:#6B7280">mold die${list.length!==1?"s":""}</span></div>
+          </div>
+          <div id="dash-chev-${key}" class="dash-chevron ${isOpen?"open":""}">${chevSVG}</div>
+        </div>
+        <div id="dash-body-${key}" class="dash-card-body ${isOpen?"open":"closed"}">${rows}</div>
+      </div>`;
+  }
+
+  document.getElementById("dash-content").innerHTML =
+    dashCard("overdue", "⛔ Overdue PM",      "⛔", "#FF3B30", "#FF3B3018", overdue, true) +
+    dashCard("duenow",  "🔧 Due This Week",   "🔧", "#FF9500", "#FF950018", dueNow,  true) +
+    dashCard("duesoon", "⏰ Due Soon",         "⏰", "#FFCC00", "#FFCC0018", dueSoon, false) +
+    dashCard("ok",      "✅ Up to Date",       "✅", "#30D158", "#30D15818", ok,      false) +
+    dashCard("notset",  "⚙ Not Configured",   "⚙", "#6B7280", "#6B728018", notSet,  false);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DASHBOARD ROW
+// ══════════════════════════════════════════════════════════════════
+function dashboardRowHTML(m, showDone=false){
+  const st=getMoldStatus(m);
+  const isNotSet=st.label==="NOT SET";
+  const dueE=st.due?getWk(st.due):null;
+  const lastE=m.lastPmWeek?getWk(m.lastPmWeek):null;
+  const machBadge=m.machine?`<span style="font-size:11px;background:#1F2937;color:#9CA3AF;padding:2px 7px;border-radius:6px">${m.machine}</span>`:"";
+  const overdueTag=st.label==="OVERDUE"?`<span style="color:#FF3B30;font-size:11px;font-weight:700">⚠ ${st.weeks} wk${st.weeks>1?"s":""} overdue</span>`:"";
+  const doneBtn=showDone&&!isNotSet
+    ?`<button onclick="openPMDoneModal(${m.id})" style="background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:8px 16px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">${iSVG("check",13)} Mark Done</button>`
+    :"";
+  const schedInfo=isNotSet
+    ?`<span style="color:#6B7280;font-style:italic">Not configured — interval &amp; last PM not set</span>`
+    :`<span>Last PM: <b style="color:#fff">WK${m.lastPmWeek}</b>${lastE?` (${lastE.mth})`:""}</span>
+      <span style="color:#374151">·</span>
+      <span>Due: <b style="color:${st.color}">WK${st.due}</b>${dueE?` (${dueE.mth})`:""}</span>
+      <span>Every <b style="color:#fff">${m.pmIntervalWeeks}wk</b></span>
+      ${overdueTag}`;
+  return `
+    <div style="background:#0D1117;border:1px solid #1F2937;border-left:3px solid ${st.color};border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:160px">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
+          <span style="font-weight:700;font-size:13px;font-family:'DM Mono',monospace">${m.name}</span>
+          ${machBadge}
+          ${isNotSet&&role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#FF950022;border:1px solid #FF950044;color:#FF9500;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;font-weight:600">⚙ Configure</button>`:""}
+        </div>
+        <div style="color:#9CA3AF;font-size:11px;display:flex;gap:8px;flex-wrap:wrap">${schedInfo}</div>
+      </div>
+      ${doneBtn}
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ALL MOLDS
+// ══════════════════════════════════════════════════════════════════
+function renderMolds(){
+  document.getElementById("admin-add-btn-molds").innerHTML=role==="admin"?`<button onclick="openAddModal()" class="btn-primary">${iSVG("plus",16)} Add</button>`:"";
+  const filters=[{k:"all",l:"All ("+molds.length+")"},{k:"overdue",l:"Overdue"},{k:"duenow",l:"Due Now"},{k:"duesoon",l:"Due Soon"},{k:"ok",l:"OK"},{k:"notset",l:"Not Set"}];
+  document.getElementById("filter-btns").innerHTML=filters.map(f=>`<button onclick="setFilter('${f.k}')" class="filter-btn${activeFilter===f.k?" active":""}">${f.l}</button>`).join("");
+  const search=(document.getElementById("mold-search")||{}).value||"";
+  const order={OVERDUE:0,"DUE NOW":1,"DUE SOON":2,OK:3};
+  let filtered=[...molds]
+    .filter(m=>{if(activeFilter==="all")return true; const lbl=getMoldStatus(m).label.toLowerCase().replace(/ /g,""); return lbl===activeFilter;})
+    .filter(m=>!search||m.name.toLowerCase().includes(search.toLowerCase())||( m.group&&m.group.toLowerCase().includes(search.toLowerCase())))
+    .sort((a,b)=>order[getMoldStatus(a).label]-order[getMoldStatus(b).label]);
+
+  // Group by mold group
+  const groups=[...new Set(filtered.map(m=>m.group||"Other"))].sort();
+  let html="";
+  groups.forEach(g=>{
+    const gMolds=filtered.filter(m=>(m.group||"Other")===g);
+    html+=`<div class="group-header"><span>${g}</span><span style="color:#6B7280;font-size:11px;font-weight:500">${gMolds.length} die${gMolds.length>1?"s":""}</span></div>`;
+    html+=gMolds.map(m=>moldRowHTML(m)).join("");
+  });
+  document.getElementById("molds-list").innerHTML=html||`<div style="background:#111827;border-radius:12px;padding:40px;text-align:center;color:#4B5563">No results found.</div>`;
+}
+function setFilter(f){activeFilter=f;renderMolds();}
+
+// ══════════════════════════════════════════════════════════════════
+// MOLD ROW
+// ══════════════════════════════════════════════════════════════════
+function moldRowHTML(m){
+  const st=getMoldStatus(m);
+  const isNotSet=st.label==="NOT SET";
+  const dueE=st.due?getWk(st.due):null;
+  const lastE=m.lastPmWeek?getWk(m.lastPmWeek):null;
+  const stText=st.label==="OVERDUE"?`⚠ ${st.weeks} wk${st.weeks>1?"s":""} overdue`:st.label==="OK"?`✓ ${st.weeks} wk${st.weeks>1?"s":""} left`:"";
+  const machBadge=m.machine?`<span style="font-size:11px;background:#1F2937;color:#9CA3AF;padding:2px 7px;border-radius:6px">${m.machine}</span>`:"";
+  const schedInfo=isNotSet
+    ?`<span style="color:#6B7280;font-style:italic">Interval: not set</span><span style="color:#374151">·</span><span style="color:#6B7280;font-style:italic">Last PM: not set</span><span style="color:#374151">·</span><span style="color:#6B7280;font-style:italic">Due: not set</span>`
+    :`<span>Interval: <b style="color:#fff">${m.pmIntervalWeeks}wk</b></span><span style="color:#374151">·</span><span>Last PM: <b style="color:#fff">WK${m.lastPmWeek}</b>${lastE?` (${lastE.mth})`:""}</span><span style="color:#374151">·</span><span>Due: <b style="color:${st.color}">WK${st.due}</b>${dueE?` (${dueE.mth})`:""}</span>${stText?`<span style="color:${st.color}">${stText}</span>`:""}`;
+  const actionBtns=`
+    <div style="display:flex;gap:6px;flex-shrink:0;margin-top:8px">
+      ${!isNotSet?`<button onclick="openPMDoneModal(${m.id})" style="background:#30D15822;border:1px solid #30D15844;color:#30D158;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px">${iSVG("check",13)} Done</button>`:""}
+      ${role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#3B82F622;border:1px solid #3B82F644;color:#60A5FA;border-radius:8px;padding:6px 9px;cursor:pointer" title="Edit / Configure">${iSVG("edit",13)}</button>
+      <button onclick="deleteMold(${m.id})" style="background:#FF3B3022;border:1px solid #FF3B3044;color:#FF3B30;border-radius:8px;padding:6px 9px;cursor:pointer">${iSVG("trash",13)}</button>`:""}
+    </div>`;  return `
+    <div class="mold-row" style="border-left-color:${st.color}${isNotSet?";opacity:0.7":""}">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:38px;height:38px;border-radius:9px;background:${st.bg};display:flex;align-items:center;justify-content:center;color:${st.color};flex-shrink:0;margin-top:2px">${iSVG("wrench",16)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-weight:700;font-size:13px;font-family:'DM Mono',monospace">${m.name}</span>
+            <span class="badge" style="background:${st.bg};color:${st.color};border:1px solid ${st.color}44">${st.label}</span>
+            ${machBadge}
+            ${isNotSet&&role==="admin"?`<span style="font-size:11px;color:#FF9500;font-style:italic">← click ✏ to configure</span>`:""}
+          </div>
+          <div style="color:#9CA3AF;font-size:11px;display:flex;gap:8px;flex-wrap:wrap">${schedInfo}</div>
+          ${actionBtns}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PM DONE MODAL
+// ══════════════════════════════════════════════════════════════════
+let pmDoneMoldId = null;
+
+function openPMDoneModal(id){
+  const m = molds.find(x=>x.id===id); if(!m) return;
+  const st = getMoldStatus(m);
+  pmDoneMoldId = id;
+  // Clear all fields — user must enter date manually
+  document.getElementById("pmdone-date").value = "";
+  document.getElementById("pmdone-person").value = "";
+  document.getElementById("pmdone-notes").value = "";
+  document.getElementById("pmdone-moldname").textContent = m.name;
+  const isOverdue = st.label === "OVERDUE";
+  // Show overdue warning if applicable
+  document.getElementById("pmdone-overdue-note").style.display = isOverdue ? "" : "none";
+  // Show due week info
+  const dueE = st.due ? getWk(st.due) : null;
+  document.getElementById("pmdone-due-info").textContent =
+    st.due ? `Scheduled due: WK${st.due}${dueE?" ("+dueE.mth+")":""}` : "";
+  document.getElementById("pm-done-modal").style.display = "flex";
+  // Focus date field so user knows to fill it
+  setTimeout(()=>document.getElementById("pmdone-date").focus(), 100);
+}
+
+function closePMDoneModal(){
+  document.getElementById("pm-done-modal").style.display = "none";
+  pmDoneMoldId = null;
+}
+
+async function doConfirmPMDone(){
+  const id = pmDoneMoldId; if(!id) return;
+  const m = molds.find(x=>x.id===id); if(!m) return;
+  const dateVal = document.getElementById("pmdone-date").value;
+  const person  = document.getElementById("pmdone-person").value.trim();
+  const notes   = document.getElementById("pmdone-notes").value.trim();
+  if(!dateVal){ alert("Please enter the actual PM date."); return; }
+  if(!person){ alert("Please enter the name of the person who performed the PM."); return; }
+
+  // Find which work week the PM date falls in
+  const pmDate = new Date(dateVal);
+  const pmWk = dateToWorkWeek(pmDate);
+
+  const btn = document.getElementById("pmdone-confirm-btn");
+  btn.textContent = "Saving..."; btn.disabled = true;
+
+  molds = molds.map(x => x.id===id ? {...x, lastPmWeek: pmWk} : x);
+  history.push({
+    moldId: id,
+    moldName: m.name,
+    moldGroup: m.group||"",
+    doneWeek: pmWk,
+    doneDate: dateVal,
+    doneBy: person || "—",
+    notes: notes || "",
+    recordedAt: new Date().toLocaleDateString("en-SG")
+  });
+
+  await saveToCloud();
+  btn.textContent = "Confirm PM Done"; btn.disabled = false;
+  closePMDoneModal();
+  renderTab(activeTab);
+}
+
+// Convert a JS Date to the nearest company work week number
+function dateToWorkWeek(date){
+  // Find the work week whose Sunday–Saturday range contains this date
+  // We match by checking if the date falls within each week
+  // For FY2026 weeks we have full data; for older weeks we estimate
+  for(const w of CALENDAR){
+    // Each week runs Sun to Sat; we need the actual year for the dates
+    // Since the calendar only stores day numbers, we infer year from month+qtr
+    const yr = w.qtr.includes("26") ? 2025 : 2024; // fiscal year offset
+    // NOV/DEC of FY2026 are in calendar year 2025, rest in 2026
+    const calYr = (w.mth==="NOV"||w.mth==="DEC") ? 2025 : 2026;
+    const months = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+    const sunDate = new Date(calYr, months[w.mth], w.sun);
+    const satDate = new Date(calYr, months[w.mth], w.sat);
+    // Handle month-crossing (e.g. sun=29 DEC, sat=4 JAN next month)
+    if(w.sat < w.sun) satDate.setMonth(satDate.getMonth()+1);
+    if(date >= sunDate && date <= satDate) return w.wk;
+  }
+  // Fallback: return current week
+  return CURRENT_WK;
+}
+
+async function markPMDone(id){ openPMDoneModal(id); }
+
+async function deleteMold(id){
+  if(!confirm("Delete this mold die?")) return;
+  molds=molds.filter(x=>x.id!==id);
+  renderTab(activeTab);
+  await saveToCloud();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ADD MODAL
+// ══════════════════════════════════════════════════════════════════
+function setWkMode(form, mode){
+  const sel=document.getElementById(form+"-lastwk");
+  const manual=document.getElementById(form+"-lastwk-manual");
+  const hint=document.getElementById(form+"-lastwk-hint");
+  const btnFy=document.getElementById(form+"-mode-fy");
+  const btnPrev=document.getElementById(form+"-mode-prev");
+  if(mode==="fy"){
+    sel.style.display=""; manual.style.display="none"; hint.style.display="none";
+    btnFy.style.border="1px solid #FF9500"; btnFy.style.background="#FF950022"; btnFy.style.color="#FF9500";
+    btnPrev.style.border="1px solid #374151"; btnPrev.style.background="transparent"; btnPrev.style.color="#6B7280";
+  } else {
+    sel.style.display="none"; manual.style.display=""; hint.style.display="";
+    btnPrev.style.border="1px solid #FF9500"; btnPrev.style.background="#FF950022"; btnPrev.style.color="#FF9500";
+    btnFy.style.border="1px solid #374151"; btnFy.style.background="transparent"; btnFy.style.color="#6B7280";
+  }
+}
+
+function getWkValue(form){
+  const manual=document.getElementById(form+"-lastwk-manual");
+  if(manual.style.display!=="none"){
+    const v=parseInt(manual.value);
+    if(isNaN(v)) return null;
+    // Validate: last 2 digits must be 01–52
+    const seq = v % 100;
+    if(seq < 1 || seq > 52){ alert("Invalid work week! Week number must be between x01 and x52 (e.g. 501–552 for FY2025, 401–452 for FY2024)."); return null; }
+    return v;
+  }
+  const v=parseInt(document.getElementById(form+"-lastwk").value);
+  return isNaN(v)?null:v;
+}
+
+function populateWkSelects(){
+  const opts=CALENDAR.map(w=>`<option value="${w.wk}"${w.wk===CURRENT_WK?" selected":""}>WK${w.wk} — ${w.mth} ${w.period} (${w.qtr})</option>`).join("");
+  document.getElementById("add-lastwk").innerHTML=opts;
+  document.getElementById("edit-lastwk").innerHTML=opts;
+}
+function openAddModal(){
+  document.getElementById("add-modal").style.display="flex";
+  document.getElementById("add-name").value="";
+  document.getElementById("add-group").value="";
+  document.getElementById("add-machine").value="";
+  document.getElementById("add-interval").value="";
+  document.getElementById("add-lastwk-manual").value="";
+  setWkMode("add","fy");
+}
+function closeAddModal(){document.getElementById("add-modal").style.display="none";}
+document.getElementById("add-modal").addEventListener("click",function(e){if(e.target===this)closeAddModal();});
+
+async function doAddMold(){
+  const name=document.getElementById("add-name").value.trim();
+  if(!name){alert("Please enter a Mold Die name");return;}
+  const btn=document.getElementById("add-submit-btn"); btn.textContent="Saving...";btn.disabled=true;
+  molds.push({
+    id:Date.now(),name,
+    group:document.getElementById("add-group").value.trim(),
+    machine:document.getElementById("add-machine").value.trim(),
+    pmIntervalWeeks:parseInt(document.getElementById("add-interval").value)||null,
+    lastPmWeek:getWkValue("add"),
+  });
+  await saveToCloud();
+  btn.textContent="Add Mold Die";btn.disabled=false;
+  closeAddModal(); renderTab(activeTab);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// EDIT MODAL
+// ══════════════════════════════════════════════════════════════════
+function openEditModal(id){
+  const m=molds.find(x=>x.id===id); if(!m)return;
+  document.getElementById("edit-id").value=id;
+  document.getElementById("edit-name").value=m.name;
+  document.getElementById("edit-group").value=m.group||"";
+  document.getElementById("edit-machine").value=m.machine||"";
+  document.getElementById("edit-interval").value=m.pmIntervalWeeks!=null?m.pmIntervalWeeks:"";
+  // Auto-detect mode: anything below 601 = previous fiscal year
+  if(m.lastPmWeek!=null && m.lastPmWeek < 601){
+    setWkMode("edit","prev");
+    document.getElementById("edit-lastwk-manual").value=m.lastPmWeek;
+  } else {
+    setWkMode("edit","fy");
+    document.getElementById("edit-lastwk").value=m.lastPmWeek!=null?m.lastPmWeek:CURRENT_WK;
+  }
+  document.getElementById("edit-modal").style.display="flex";
+}
+function closeEditModal(){document.getElementById("edit-modal").style.display="none";}
+document.getElementById("edit-modal").addEventListener("click",function(e){if(e.target===this)closeEditModal();});
+
+async function doEditMold(){
+  const id=parseInt(document.getElementById("edit-id").value);
+  const btn=document.getElementById("edit-submit-btn"); btn.textContent="Saving...";btn.disabled=true;
+  const intVal=document.getElementById("edit-interval").value;
+  const lwVal=document.getElementById("edit-lastwk").value;
+  molds=molds.map(x=>x.id===id?{...x,
+    name:document.getElementById("edit-name").value.trim(),
+    group:document.getElementById("edit-group").value.trim(),
+    machine:document.getElementById("edit-machine").value.trim(),
+    pmIntervalWeeks:intVal?parseInt(intVal):null,
+    lastPmWeek:getWkValue("edit"),
+  }:x);
+  await saveToCloud();
+  btn.textContent="Save Changes";btn.disabled=false;
+  closeEditModal(); renderTab(activeTab);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════════════════════════════════
+function renderCalendar(){
+  const qtrs=[...new Set(CALENDAR.map(w=>w.qtr))];
+  document.getElementById("qtr-tabs").innerHTML=qtrs.map(q=>`<button onclick="setQtr('${q}')" class="qtr-btn${activeQtr===q?" active":""}">${q}</button>`).join("");
+  const qtrWeeks=CALENDAR.filter(w=>w.qtr===activeQtr);
+  const months=[...new Set(qtrWeeks.map(w=>w.mth))];
+  document.getElementById("calendar-content").innerHTML=months.map(mth=>{
+    const mthWeeks=qtrWeeks.filter(w=>w.mth===mth);
+    return `<div style="margin-bottom:22px">
+      <div style="color:#9CA3AF;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">${mth}</div>
+      <div style="display:grid;gap:8px">${mthWeeks.map(w=>{
+        const pmDue=molds.filter(m=>(m.lastPmWeek+m.pmIntervalWeeks)===w.wk);
+        const isCur=w.wk===CURRENT_WK;
+        const badges=pmDue.length
+          ?pmDue.map(m=>{const st=getMoldStatus(m);return`<span style="background:${st.bg};color:${st.color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;border:1px solid ${st.color}44;font-family:'DM Mono',monospace;white-space:nowrap">${m.name}</span>`;}).join("")
+          :`<span style="color:#374151;font-size:12px">No PM scheduled</span>`;
+        return `<div class="cal-week${isCur?" current-wk":""}">
+          <div style="text-align:center;min-width:44px">
+            <div style="color:${isCur?"#FF9500":"#6B7280"};font-size:10px;font-weight:600;letter-spacing:1px">WK</div>
+            <div style="color:${isCur?"#FF9500":"#fff"};font-size:18px;font-weight:700;font-family:'DM Mono',monospace;line-height:1.1">${w.wk}</div>
+            ${isCur?`<div style="color:#FF9500;font-size:9px;font-weight:700;letter-spacing:1px">NOW</div>`:""}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="color:#6B7280;font-size:11px;margin-bottom:6px">Sun ${w.sun} – Sat ${w.sat} · ${w.period}</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">${badges}</div>
+          </div>
+        </div>`;
+      }).join("")}</div>
+    </div>`;
+  }).join("");
+}
+function setQtr(q){activeQtr=q;renderCalendar();}
+
+// ══════════════════════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════════════════════
+function renderHistory(){
+  document.getElementById("history-count").textContent=history.length+" records";
+  const el=document.getElementById("history-list");
+  if(!history.length){el.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#4B5563"><div style="font-size:36px;margin-bottom:12px">📋</div>No PM history yet.</div>`;return;}
+  el.innerHTML=[...history].reverse().map(h=>`
+    <div class="history-row" style="flex-wrap:wrap;gap:10px;align-items:flex-start">
+      <div style="width:34px;height:34px;border-radius:8px;background:#30D15822;display:flex;align-items:center;justify-content:center;color:#30D158;flex-shrink:0;margin-top:2px">${iSVG("check",13)}</div>
+      <div style="flex:1;min-width:160px">
+        <div style="font-weight:700;font-family:'DM Mono',monospace;font-size:12px">${h.moldName}</div>
+        ${h.moldGroup?`<div style="color:#6B7280;font-size:11px">${h.moldGroup}</div>`:""}
+        ${h.notes?`<div style="color:#9CA3AF;font-size:11px;margin-top:3px;font-style:italic">"${h.notes}"</div>`:""}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="color:#30D158;font-size:12px;font-weight:600">PM Completed</div>
+        <div style="color:#fff;font-size:12px;margin-top:1px">WK${h.doneWeek}${h.doneDate?" · "+h.doneDate:""}</div>
+        <div style="color:#6B7280;font-size:11px;margin-top:1px">By: ${h.doneBy||"—"}</div>
+      </div>
+    </div>`).join("");
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+loadConfig();
+document.getElementById("pm-done-modal").addEventListener("click",function(e){if(e.target===this)closePMDoneModal();});
+if(!API_KEY||!BIN_ID){
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("setup-screen").style.display="flex";
+} else {
+  document.getElementById("login-screen").style.display="flex";
+  document.getElementById("setup-screen").style.display="none";
+}
+</script>
+<!-- ═══ PM DONE MODAL ═══ -->
+<div id="pm-done-modal" style="display:none" class="modal-overlay">
+  <div class="modal-box" style="max-width:440px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="width:36px;height:36px;border-radius:9px;background:#30D15822;display:flex;align-items:center;justify-content:center;color:#30D158;flex-shrink:0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 style="font-size:17px;font-weight:700">Mark PM as Done</h2>
+    </div>
+    <p style="color:#6B7280;font-size:13px;margin-bottom:4px">Mold: <b id="pmdone-moldname" style="color:#fff"></b></p>
+    <p id="pmdone-due-info" style="color:#FF9500;font-size:12px;margin-bottom:16px"></p>
+    <div id="pmdone-overdue-note" style="display:none;background:#FF3B3015;border:1px solid #FF3B3030;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#FF6B6B">
+      ⚠ This mold is <b>overdue</b>. Please enter the actual date the PM was performed.
+    </div>
+    <div style="display:grid;gap:14px">
+      <div id="pmdone-date-row">
+        <label class="form-label">Actual PM Date <span style="color:#FF3B30">*</span></label>
+        <input id="pmdone-date" class="form-input" type="date"/>
+        <div style="color:#6B7280;font-size:11px;margin-top:5px">Enter the date PM was actually performed. Work week is auto-detected.</div>
+      </div>
+      <div>
+        <label class="form-label">Performed By <span style="color:#FF3B30">*</span></label>
+        <input id="pmdone-person" class="form-input" placeholder="e.g. Ahmad, Ravi, Technician 1"/>
+      </div>
+      <div>
+        <label class="form-label">Notes / Remarks</label>
+        <input id="pmdone-notes" class="form-input" placeholder="Optional — any observations during PM"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button onclick="closePMDoneModal()" class="btn-ghost" style="flex:1;justify-content:center">Cancel</button>
+      <button onclick="doConfirmPMDone()" id="pmdone-confirm-btn" style="flex:2;background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirm PM Done
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
