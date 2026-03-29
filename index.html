@@ -9,14 +9,13 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#0A0E1A;font-family:'DM Sans',sans-serif;color:#fff;min-height:100vh}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0A0E1A}::-webkit-scrollbar-thumb{background:#374151;border-radius:3px}
-  input,select,button{font-family:'DM Sans',sans-serif}
-  input:focus,select:focus{outline:none;border-color:#FF9500!important;box-shadow:0 0 0 3px rgba(255,149,0,0.12)!important}
+  input,select,button,textarea{font-family:'DM Sans',sans-serif}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#FF9500!important;box-shadow:0 0 0 3px rgba(255,149,0,0.12)!important}
   @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
   @keyframes spin{to{transform:rotate(360deg)}}
   .fade-in{animation:fadeIn 0.3s ease}
-  .pulse{animation:pulse 2s infinite}
   .page{display:none}.page.active{display:block}
   @media(max-width:640px){#header-tabs{display:none!important}#bottom-nav{display:flex!important}#main-content{padding-bottom:80px!important}}
   #bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0D1117;border-top:1px solid #1F2937;z-index:100;padding:8px 0 12px}
@@ -28,8 +27,6 @@
   .form-label{color:#9CA3AF;font-size:12px;font-weight:600;letter-spacing:0.5px;display:block;margin-bottom:6px}
   .form-input{background:#1F2937;border:1px solid #374151;border-radius:10px;padding:11px 14px;color:#fff;font-size:14px;width:100%}
   .mold-row{background:#111827;border:1px solid #1F2937;border-radius:12px;padding:14px 16px;border-left:3px solid #374151;animation:fadeIn 0.3s ease}
-  .stat-card{background:#111827;border:1px solid #1F2937;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px}
-  .stat-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .filter-btn{padding:6px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:transparent;color:#6B7280;white-space:nowrap}
   .filter-btn.active{background:#1F2937;color:#fff}
   .cal-week{background:#111827;border:1px solid #1F2937;border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
@@ -39,9 +36,6 @@
   .qtr-btn{padding:7px 16px;border-radius:20px;border:none;cursor:pointer;font-weight:600;font-size:13px;background:#1F2937;color:#9CA3AF}
   .qtr-btn.active{background:linear-gradient(135deg,#FF9500,#FF6B00);color:#fff}
   .history-row{background:#111827;border:1px solid #1F2937;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px}
-  .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-  @media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
-  @media(min-width:900px){.stats-grid{grid-template-columns:repeat(5,1fr)}}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:400px){.two-col{grid-template-columns:1fr}}
   .tab-hdr{padding:7px 13px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:transparent;color:#6B7280;transition:all 0.15s}
@@ -59,13 +53,14 @@
   .dash-chevron{margin-left:auto;transition:transform 0.2s;color:#4B5563;display:flex}
   .dash-chevron.open{transform:rotate(180deg)}
   .group-header{background:#1F2937;border-radius:8px;padding:8px 14px;margin:8px 0 4px;font-size:12px;font-weight:700;color:#9CA3AF;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
-  .dash-count{font-size:32px;font-weight:800;line-height:1;min-width:44px;text-align:center}
-  .dash-chevron{margin-left:auto;transition:transform 0.2s;color:#4B5563}
-  .dash-chevron.open{transform:rotate(180deg)}
   .search-box{background:#1F2937;border:1px solid #374151;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;width:100%;margin-bottom:14px}
   .search-box:focus{outline:none;border-color:#FF9500!important}
-  /* Edit modal */
-  #edit-modal .modal-box{max-width:460px}
+  /* Week tag chips */
+  .wk-chip{display:inline-flex;align-items:center;gap:5px;background:#1F2937;border:1px solid #374151;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;color:#fff;font-family:'DM Mono',monospace}
+  .wk-chip-remove{background:none;border:none;color:#6B7280;cursor:pointer;padding:0;font-size:14px;line-height:1;display:flex;align-items:center}
+  .wk-chip-remove:hover{color:#FF3B30}
+  .week-tags-container{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#1F2937;border:1px solid #374151;border-radius:10px;padding:8px 10px;align-items:center}
+  .week-add-row{display:flex;gap:8px;align-items:center;margin-top:8px}
 </style>
 </head>
 <body>
@@ -243,19 +238,22 @@
           <input id="add-machine" class="form-input" placeholder="e.g. IDEAL, TOWA"/>
         </div>
         <div>
-          <label class="form-label">PM Interval (weeks)</label>
-          <input id="add-interval" class="form-input" type="number" min="1" max="52" value="4"/>
+          <label class="form-label">PM Interval (weeks) — Reference</label>
+          <input id="add-interval" class="form-input" type="number" min="1" max="52" placeholder="e.g. 4"/>
         </div>
       </div>
       <div>
-        <label class="form-label">Last PM Work Week</label>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <button onclick="setWkMode('add','fy')" id="add-mode-fy" style="flex:1;padding:7px;border-radius:8px;border:1px solid #FF9500;background:#FF950022;color:#FF9500;cursor:pointer;font-size:12px;font-weight:700">FY2026 (601–652)</button>
-          <button onclick="setWkMode('add','prev')" id="add-mode-prev" style="flex:1;padding:7px;border-radius:8px;border:1px solid #374151;background:transparent;color:#6B7280;cursor:pointer;font-size:12px;font-weight:700">Previous FY (5xx)</button>
+        <label class="form-label">Fixed PM Weeks (week numbers 1–52, repeat every year)</label>
+        <div class="week-tags-container" id="add-week-tags">
+          <span style="color:#4B5563;font-size:12px" id="add-week-empty">No weeks added yet</span>
         </div>
-        <select id="add-lastwk" class="form-input"></select>
-        <input id="add-lastwk-manual" class="form-input" type="number" placeholder="e.g. 548 or 448" style="display:none;margin-top:0" min="401" max="599"/>
-        <div id="add-lastwk-hint" style="display:none;color:#6B7280;font-size:11px;margin-top:5px">FY2025: WK501–WK552 &nbsp;·&nbsp; FY2024: WK401–WK452 &nbsp;·&nbsp; Max is x52 per year</div>
+        <div class="week-add-row">
+          <select id="add-week-select" class="form-input" style="flex:1">
+            <option value="">— Select week number —</option>
+          </select>
+          <button onclick="addWeekTag('add')" class="btn-primary" style="padding:10px 16px;white-space:nowrap">+ Add</button>
+        </div>
+        <div style="color:#6B7280;font-size:11px;margin-top:6px">Week 1–52 repeats every fiscal year. E.g. Week 16 = WK616 in FY2026, WK516 in FY2025.</div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:22px">
@@ -285,19 +283,22 @@
           <input id="edit-machine" class="form-input"/>
         </div>
         <div>
-          <label class="form-label">PM Interval (weeks)</label>
+          <label class="form-label">PM Interval (weeks) — Reference</label>
           <input id="edit-interval" class="form-input" type="number" min="1" max="52"/>
         </div>
       </div>
       <div>
-        <label class="form-label">Last PM Work Week</label>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <button onclick="setWkMode('edit','fy')" id="edit-mode-fy" style="flex:1;padding:7px;border-radius:8px;border:1px solid #FF9500;background:#FF950022;color:#FF9500;cursor:pointer;font-size:12px;font-weight:700">FY2026 (601–652)</button>
-          <button onclick="setWkMode('edit','prev')" id="edit-mode-prev" style="flex:1;padding:7px;border-radius:8px;border:1px solid #374151;background:transparent;color:#6B7280;cursor:pointer;font-size:12px;font-weight:700">Previous FY (5xx)</button>
+        <label class="form-label">Fixed PM Weeks (week numbers 1–52, repeat every year)</label>
+        <div class="week-tags-container" id="edit-week-tags">
+          <span style="color:#4B5563;font-size:12px" id="edit-week-empty">No weeks added yet</span>
         </div>
-        <select id="edit-lastwk" class="form-input"></select>
-        <input id="edit-lastwk-manual" class="form-input" type="number" placeholder="e.g. 548 or 448" style="display:none;margin-top:0" min="401" max="599"/>
-        <div id="edit-lastwk-hint" style="display:none;color:#6B7280;font-size:11px;margin-top:5px">FY2025: WK501–WK552 &nbsp;·&nbsp; FY2024: WK401–WK452 &nbsp;·&nbsp; Max is x52 per year</div>
+        <div class="week-add-row">
+          <select id="edit-week-select" class="form-input" style="flex:1">
+            <option value="">— Select week number —</option>
+          </select>
+          <button onclick="addWeekTag('edit')" class="btn-primary" style="padding:10px 16px;white-space:nowrap">+ Add</button>
+        </div>
+        <div style="color:#6B7280;font-size:11px;margin-top:6px">Week 1–52 repeats every fiscal year. E.g. Week 16 = WK616 in FY2026, WK516 in FY2025.</div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:22px">
@@ -307,216 +308,297 @@
   </div>
 </div>
 
+<!-- ═══ PM DONE MODAL ═══ -->
+<div id="pm-done-modal" style="display:none" class="modal-overlay">
+  <div class="modal-box" style="max-width:440px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="width:36px;height:36px;border-radius:9px;background:#30D15822;display:flex;align-items:center;justify-content:center;color:#30D158;flex-shrink:0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 style="font-size:17px;font-weight:700">Mark PM as Done</h2>
+    </div>
+    <p style="color:#6B7280;font-size:13px;margin-bottom:4px">Mold: <b id="pmdone-moldname" style="color:#fff"></b></p>
+    <p id="pmdone-due-info" style="color:#FF9500;font-size:12px;margin-bottom:16px"></p>
+    <div id="pmdone-overdue-note" style="display:none;background:#FF3B3015;border:1px solid #FF3B3030;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#FF6B6B">
+      ⚠ This mold is <b>overdue</b>. Please enter the actual date the PM was performed.
+    </div>
+    <div style="display:grid;gap:14px">
+      <div>
+        <label class="form-label">Scheduled PM Week Being Completed</label>
+        <select id="pmdone-sched-week" class="form-input"></select>
+      </div>
+      <div>
+        <label class="form-label">Actual PM Date <span style="color:#FF3B30">*</span></label>
+        <input id="pmdone-date" class="form-input" type="date"/>
+        <div style="color:#6B7280;font-size:11px;margin-top:5px">Enter the date PM was actually performed.</div>
+      </div>
+      <div>
+        <label class="form-label">Performed By <span style="color:#FF3B30">*</span></label>
+        <input id="pmdone-person" class="form-input" placeholder="e.g. Ahmad, Ravi, Technician 1"/>
+      </div>
+      <div>
+        <label class="form-label">Notes / Remarks</label>
+        <input id="pmdone-notes" class="form-input" placeholder="Optional — any observations during PM"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button onclick="closePMDoneModal()" class="btn-ghost" style="flex:1;justify-content:center">Cancel</button>
+      <button onclick="doConfirmPMDone()" id="pmdone-confirm-btn" style="flex:2;background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirm PM Done
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════════════════════
-// CALENDAR
+// CALENDAR — FY2026 (week number 1–52 → fiscal week codes 601–652)
 // ══════════════════════════════════════════════════════════════════
 const CALENDAR = [
-  {wk:601,qtr:"1Q26",mth:"NOV",period:"P1",sun:1,mon:2,tue:3,wed:4,thu:5,fri:6,sat:7},
-  {wk:602,qtr:"1Q26",mth:"NOV",period:"P1",sun:8,mon:9,tue:10,wed:11,thu:12,fri:13,sat:14},
-  {wk:603,qtr:"1Q26",mth:"NOV",period:"P1",sun:15,mon:16,tue:17,wed:18,thu:19,fri:20,sat:21},
-  {wk:604,qtr:"1Q26",mth:"NOV",period:"P1",sun:22,mon:23,tue:24,wed:25,thu:26,fri:27,sat:28},
-  {wk:605,qtr:"1Q26",mth:"DEC",period:"P2",sun:29,mon:30,tue:1,wed:2,thu:3,fri:4,sat:5},
-  {wk:606,qtr:"1Q26",mth:"DEC",period:"P2",sun:6,mon:7,tue:8,wed:9,thu:10,fri:11,sat:12},
-  {wk:607,qtr:"1Q26",mth:"DEC",period:"P2",sun:13,mon:14,tue:15,wed:16,thu:17,fri:18,sat:19},
-  {wk:608,qtr:"1Q26",mth:"DEC",period:"P2",sun:20,mon:21,tue:22,wed:23,thu:24,fri:25,sat:26},
-  {wk:609,qtr:"1Q26",mth:"JAN",period:"P3",sun:27,mon:28,tue:29,wed:30,thu:31,fri:1,sat:2},
-  {wk:610,qtr:"1Q26",mth:"JAN",period:"P3",sun:3,mon:4,tue:5,wed:6,thu:7,fri:8,sat:9},
-  {wk:611,qtr:"1Q26",mth:"JAN",period:"P3",sun:10,mon:11,tue:12,wed:13,thu:14,fri:15,sat:16},
-  {wk:612,qtr:"1Q26",mth:"JAN",period:"P3",sun:17,mon:18,tue:19,wed:20,thu:21,fri:22,sat:23},
-  {wk:613,qtr:"1Q26",mth:"JAN",period:"P3",sun:24,mon:25,tue:26,wed:27,thu:28,fri:29,sat:30},
-  {wk:614,qtr:"2Q26",mth:"FEB",period:"P4",sun:1,mon:2,tue:3,wed:4,thu:5,fri:6,sat:7},
-  {wk:615,qtr:"2Q26",mth:"FEB",period:"P4",sun:8,mon:9,tue:10,wed:11,thu:12,fri:13,sat:14},
-  {wk:616,qtr:"2Q26",mth:"FEB",period:"P4",sun:15,mon:16,tue:17,wed:18,thu:19,fri:20,sat:21},
-  {wk:617,qtr:"2Q26",mth:"FEB",period:"P4",sun:22,mon:23,tue:24,wed:25,thu:26,fri:27,sat:28},
-  {wk:618,qtr:"2Q26",mth:"MAR",period:"P5",sun:1,mon:2,tue:3,wed:4,thu:5,fri:6,sat:7},
-  {wk:619,qtr:"2Q26",mth:"MAR",period:"P5",sun:8,mon:9,tue:10,wed:11,thu:12,fri:13,sat:14},
-  {wk:620,qtr:"2Q26",mth:"MAR",period:"P5",sun:15,mon:16,tue:17,wed:18,thu:19,fri:20,sat:21},
-  {wk:621,qtr:"2Q26",mth:"MAR",period:"P5",sun:22,mon:23,tue:24,wed:25,thu:26,fri:27,sat:28},
-  {wk:622,qtr:"2Q26",mth:"APR",period:"P6",sun:29,mon:30,tue:31,wed:1,thu:2,fri:3,sat:4},
-  {wk:623,qtr:"2Q26",mth:"APR",period:"P6",sun:5,mon:6,tue:7,wed:8,thu:9,fri:10,sat:11},
-  {wk:624,qtr:"2Q26",mth:"APR",period:"P6",sun:12,mon:13,tue:14,wed:15,thu:16,fri:17,sat:18},
-  {wk:625,qtr:"2Q26",mth:"APR",period:"P6",sun:19,mon:20,tue:21,wed:22,thu:23,fri:24,sat:25},
-  {wk:626,qtr:"2Q26",mth:"APR",period:"P6",sun:26,mon:27,tue:28,wed:29,thu:30,fri:1,sat:2},
-  {wk:627,qtr:"3Q26",mth:"MAY",period:"P7",sun:3,mon:4,tue:5,wed:6,thu:7,fri:8,sat:9},
-  {wk:628,qtr:"3Q26",mth:"MAY",period:"P7",sun:10,mon:11,tue:12,wed:13,thu:14,fri:15,sat:16},
-  {wk:629,qtr:"3Q26",mth:"MAY",period:"P7",sun:17,mon:18,tue:19,wed:20,thu:21,fri:22,sat:23},
-  {wk:630,qtr:"3Q26",mth:"MAY",period:"P7",sun:24,mon:25,tue:26,wed:27,thu:28,fri:29,sat:30},
-  {wk:631,qtr:"3Q26",mth:"JUN",period:"P8",sun:31,mon:1,tue:2,wed:3,thu:4,fri:5,sat:6},
-  {wk:632,qtr:"3Q26",mth:"JUN",period:"P8",sun:7,mon:8,tue:9,wed:10,thu:11,fri:12,sat:13},
-  {wk:633,qtr:"3Q26",mth:"JUN",period:"P8",sun:14,mon:15,tue:16,wed:17,thu:18,fri:19,sat:20},
-  {wk:634,qtr:"3Q26",mth:"JUN",period:"P8",sun:21,mon:22,tue:23,wed:24,thu:25,fri:26,sat:27},
-  {wk:635,qtr:"3Q26",mth:"JUL",period:"P9",sun:28,mon:29,tue:30,wed:1,thu:2,fri:3,sat:4},
-  {wk:636,qtr:"3Q26",mth:"JUL",period:"P9",sun:5,mon:6,tue:7,wed:8,thu:9,fri:10,sat:11},
-  {wk:637,qtr:"3Q26",mth:"JUL",period:"P9",sun:12,mon:13,tue:14,wed:15,thu:16,fri:17,sat:18},
-  {wk:638,qtr:"3Q26",mth:"JUL",period:"P9",sun:19,mon:20,tue:21,wed:22,thu:23,fri:24,sat:25},
-  {wk:639,qtr:"3Q26",mth:"JUL",period:"P9",sun:26,mon:27,tue:28,wed:29,thu:30,fri:31,sat:1},
-  {wk:640,qtr:"4Q26",mth:"AUG",period:"P10",sun:2,mon:3,tue:4,wed:5,thu:6,fri:7,sat:8},
-  {wk:641,qtr:"4Q26",mth:"AUG",period:"P10",sun:9,mon:10,tue:11,wed:12,thu:13,fri:14,sat:15},
-  {wk:642,qtr:"4Q26",mth:"AUG",period:"P10",sun:16,mon:17,tue:18,wed:19,thu:20,fri:21,sat:22},
-  {wk:643,qtr:"4Q26",mth:"AUG",period:"P10",sun:23,mon:24,tue:25,wed:26,thu:27,fri:28,sat:29},
-  {wk:644,qtr:"4Q26",mth:"SEP",period:"P11",sun:30,mon:31,tue:1,wed:2,thu:3,fri:4,sat:5},
-  {wk:645,qtr:"4Q26",mth:"SEP",period:"P11",sun:6,mon:7,tue:8,wed:9,thu:10,fri:11,sat:12},
-  {wk:646,qtr:"4Q26",mth:"SEP",period:"P11",sun:13,mon:14,tue:15,wed:16,thu:17,fri:18,sat:19},
-  {wk:647,qtr:"4Q26",mth:"SEP",period:"P11",sun:20,mon:21,tue:22,wed:23,thu:24,fri:25,sat:26},
-  {wk:648,qtr:"4Q26",mth:"OCT",period:"P12",sun:27,mon:28,tue:29,wed:30,thu:1,fri:2,sat:3},
-  {wk:649,qtr:"4Q26",mth:"OCT",period:"P12",sun:4,mon:5,tue:6,wed:7,thu:8,fri:9,sat:10},
-  {wk:650,qtr:"4Q26",mth:"OCT",period:"P12",sun:11,mon:12,tue:13,wed:14,thu:15,fri:16,sat:17},
-  {wk:651,qtr:"4Q26",mth:"OCT",period:"P12",sun:18,mon:19,tue:20,wed:21,thu:22,fri:23,sat:24},
-  {wk:652,qtr:"4Q26",mth:"OCT",period:"P12",sun:25,mon:26,tue:27,wed:28,thu:29,fri:30,sat:31},
+  // FY2026: Week 1 starts Sun 2 Nov 2025
+  {wk:601,wkNum:1, qtr:"1Q26",mth:"NOV",period:"P1", sun:2, mon:3, tue:4, wed:5, thu:6, fri:7, sat:8},
+  {wk:602,wkNum:2, qtr:"1Q26",mth:"NOV",period:"P1", sun:9, mon:10,tue:11,wed:12,thu:13,fri:14,sat:15},
+  {wk:603,wkNum:3, qtr:"1Q26",mth:"NOV",period:"P1", sun:16,mon:17,tue:18,wed:19,thu:20,fri:21,sat:22},
+  {wk:604,wkNum:4, qtr:"1Q26",mth:"NOV",period:"P1", sun:23,mon:24,tue:25,wed:26,thu:27,fri:28,sat:29},
+  {wk:605,wkNum:5, qtr:"1Q26",mth:"DEC",period:"P2", sun:30,mon:1, tue:2, wed:3, thu:4, fri:5, sat:6},
+  {wk:606,wkNum:6, qtr:"1Q26",mth:"DEC",period:"P2", sun:7, mon:8, tue:9, wed:10,thu:11,fri:12,sat:13},
+  {wk:607,wkNum:7, qtr:"1Q26",mth:"DEC",period:"P2", sun:14,mon:15,tue:16,wed:17,thu:18,fri:19,sat:20},
+  {wk:608,wkNum:8, qtr:"1Q26",mth:"DEC",period:"P2", sun:21,mon:22,tue:23,wed:24,thu:25,fri:26,sat:27},
+  {wk:609,wkNum:9, qtr:"1Q26",mth:"JAN",period:"P3", sun:28,mon:29,tue:30,wed:31,thu:1, fri:2, sat:3},
+  {wk:610,wkNum:10,qtr:"1Q26",mth:"JAN",period:"P3", sun:4, mon:5, tue:6, wed:7, thu:8, fri:9, sat:10},
+  {wk:611,wkNum:11,qtr:"1Q26",mth:"JAN",period:"P3", sun:11,mon:12,tue:13,wed:14,thu:15,fri:16,sat:17},
+  {wk:612,wkNum:12,qtr:"1Q26",mth:"JAN",period:"P3", sun:18,mon:19,tue:20,wed:21,thu:22,fri:23,sat:24},
+  {wk:613,wkNum:13,qtr:"1Q26",mth:"JAN",period:"P3", sun:25,mon:26,tue:27,wed:28,thu:29,fri:30,sat:31},
+  {wk:614,wkNum:14,qtr:"2Q26",mth:"FEB",period:"P4", sun:1, mon:2, tue:3, wed:4, thu:5, fri:6, sat:7},
+  {wk:615,wkNum:15,qtr:"2Q26",mth:"FEB",period:"P4", sun:8, mon:9, tue:10,wed:11,thu:12,fri:13,sat:14},
+  {wk:616,wkNum:16,qtr:"2Q26",mth:"FEB",period:"P4", sun:15,mon:16,tue:17,wed:18,thu:19,fri:20,sat:21},
+  {wk:617,wkNum:17,qtr:"2Q26",mth:"FEB",period:"P4", sun:22,mon:23,tue:24,wed:25,thu:26,fri:27,sat:28},
+  {wk:618,wkNum:18,qtr:"2Q26",mth:"MAR",period:"P5", sun:1, mon:2, tue:3, wed:4, thu:5, fri:6, sat:7},
+  {wk:619,wkNum:19,qtr:"2Q26",mth:"MAR",period:"P5", sun:8, mon:9, tue:10,wed:11,thu:12,fri:13,sat:14},
+  {wk:620,wkNum:20,qtr:"2Q26",mth:"MAR",period:"P5", sun:15,mon:16,tue:17,wed:18,thu:19,fri:20,sat:21},
+  {wk:621,wkNum:21,qtr:"2Q26",mth:"MAR",period:"P5", sun:22,mon:23,tue:24,wed:25,thu:26,fri:27,sat:28},
+  {wk:622,wkNum:22,qtr:"2Q26",mth:"APR",period:"P6", sun:29,mon:30,tue:31,wed:1, thu:2, fri:3, sat:4},
+  {wk:623,wkNum:23,qtr:"2Q26",mth:"APR",period:"P6", sun:5, mon:6, tue:7, wed:8, thu:9, fri:10,sat:11},
+  {wk:624,wkNum:24,qtr:"2Q26",mth:"APR",period:"P6", sun:12,mon:13,tue:14,wed:15,thu:16,fri:17,sat:18},
+  {wk:625,wkNum:25,qtr:"2Q26",mth:"APR",period:"P6", sun:19,mon:20,tue:21,wed:22,thu:23,fri:24,sat:25},
+  {wk:626,wkNum:26,qtr:"2Q26",mth:"APR",period:"P6", sun:26,mon:27,tue:28,wed:29,thu:30,fri:1, sat:2},
+  {wk:627,wkNum:27,qtr:"3Q26",mth:"MAY",period:"P7", sun:3, mon:4, tue:5, wed:6, thu:7, fri:8, sat:9},
+  {wk:628,wkNum:28,qtr:"3Q26",mth:"MAY",period:"P7", sun:10,mon:11,tue:12,wed:13,thu:14,fri:15,sat:16},
+  {wk:629,wkNum:29,qtr:"3Q26",mth:"MAY",period:"P7", sun:17,mon:18,tue:19,wed:20,thu:21,fri:22,sat:23},
+  {wk:630,wkNum:30,qtr:"3Q26",mth:"MAY",period:"P7", sun:24,mon:25,tue:26,wed:27,thu:28,fri:29,sat:30},
+  {wk:631,wkNum:31,qtr:"3Q26",mth:"JUN",period:"P8", sun:31,mon:1, tue:2, wed:3, thu:4, fri:5, sat:6},
+  {wk:632,wkNum:32,qtr:"3Q26",mth:"JUN",period:"P8", sun:7, mon:8, tue:9, wed:10,thu:11,fri:12,sat:13},
+  {wk:633,wkNum:33,qtr:"3Q26",mth:"JUN",period:"P8", sun:14,mon:15,tue:16,wed:17,thu:18,fri:19,sat:20},
+  {wk:634,wkNum:34,qtr:"3Q26",mth:"JUN",period:"P8", sun:21,mon:22,tue:23,wed:24,thu:25,fri:26,sat:27},
+  {wk:635,wkNum:35,qtr:"3Q26",mth:"JUL",period:"P9", sun:28,mon:29,tue:30,wed:1, thu:2, fri:3, sat:4},
+  {wk:636,wkNum:36,qtr:"3Q26",mth:"JUL",period:"P9", sun:5, mon:6, tue:7, wed:8, thu:9, fri:10,sat:11},
+  {wk:637,wkNum:37,qtr:"3Q26",mth:"JUL",period:"P9", sun:12,mon:13,tue:14,wed:15,thu:16,fri:17,sat:18},
+  {wk:638,wkNum:38,qtr:"3Q26",mth:"JUL",period:"P9", sun:19,mon:20,tue:21,wed:22,thu:23,fri:24,sat:25},
+  {wk:639,wkNum:39,qtr:"3Q26",mth:"JUL",period:"P9", sun:26,mon:27,tue:28,wed:29,thu:30,fri:31,sat:1},
+  {wk:640,wkNum:40,qtr:"4Q26",mth:"AUG",period:"P10",sun:2, mon:3, tue:4, wed:5, thu:6, fri:7, sat:8},
+  {wk:641,wkNum:41,qtr:"4Q26",mth:"AUG",period:"P10",sun:9, mon:10,tue:11,wed:12,thu:13,fri:14,sat:15},
+  {wk:642,wkNum:42,qtr:"4Q26",mth:"AUG",period:"P10",sun:16,mon:17,tue:18,wed:19,thu:20,fri:21,sat:22},
+  {wk:643,wkNum:43,qtr:"4Q26",mth:"AUG",period:"P10",sun:23,mon:24,tue:25,wed:26,thu:27,fri:28,sat:29},
+  {wk:644,wkNum:44,qtr:"4Q26",mth:"SEP",period:"P11",sun:30,mon:31,tue:1, wed:2, thu:3, fri:4, sat:5},
+  {wk:645,wkNum:45,qtr:"4Q26",mth:"SEP",period:"P11",sun:6, mon:7, tue:8, wed:9, thu:10,fri:11,sat:12},
+  {wk:646,wkNum:46,qtr:"4Q26",mth:"SEP",period:"P11",sun:13,mon:14,tue:15,wed:16,thu:17,fri:18,sat:19},
+  {wk:647,wkNum:47,qtr:"4Q26",mth:"SEP",period:"P11",sun:20,mon:21,tue:22,wed:23,thu:24,fri:25,sat:26},
+  {wk:648,wkNum:48,qtr:"4Q26",mth:"OCT",period:"P12",sun:27,mon:28,tue:29,wed:30,thu:1, fri:2, sat:3},
+  {wk:649,wkNum:49,qtr:"4Q26",mth:"OCT",period:"P12",sun:4, mon:5, tue:6, wed:7, thu:8, fri:9, sat:10},
+  {wk:650,wkNum:50,qtr:"4Q26",mth:"OCT",period:"P12",sun:11,mon:12,tue:13,wed:14,thu:15,fri:16,sat:17},
+  {wk:651,wkNum:51,qtr:"4Q26",mth:"OCT",period:"P12",sun:18,mon:19,tue:20,wed:21,thu:22,fri:23,sat:24},
+  {wk:652,wkNum:52,qtr:"4Q26",mth:"OCT",period:"P12",sun:25,mon:26,tue:27,wed:28,thu:29,fri:30,sat:31},
 ];
 
-const CURRENT_WK = 620;
 const ADMIN_USER = "molddiePM";
 const ADMIN_PASS = "molddiePM123";
 
+// ── Helper: convert wkNum (1–52) → fiscal code for FY2026 ────────
+function wkNumToFiscal(n){ return 600 + n; }
+function fiscalToWkNum(fwk){ return fwk - 600; }
+
+// ── Get calendar entry by full fiscal week code ──────────────────
+function getWk(fwk){ return CALENDAR.find(w=>w.wk===fwk); }
+
 // ══════════════════════════════════════════════════════════════════
-// SEED DATA — Real mold dies from PDF (scrapped ones excluded)
+// DYNAMIC CURRENT WEEK — Malaysia time (GMT+8)
+// Matches today's date against the CALENDAR Sun–Sat date ranges.
+// Works correctly for weeks that span two months (e.g. APR/MAY).
+// ══════════════════════════════════════════════════════════════════
+function detectCurrentWeek(){
+  // Get today in Malaysia time (UTC+8)
+  const now = new Date();
+  const myt = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+  const todayY = myt.getUTCFullYear();
+  const todayM = myt.getUTCMonth(); // 0-based
+  const todayD = myt.getUTCDate();
+
+  const MONTH_IDX = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+
+  // FY2026: NOV & DEC are calendar year 2025; JAN–OCT are 2026
+  function calYear(mth){ return (mth==="NOV"||mth==="DEC") ? 2025 : 2026; }
+
+  for(const w of CALENDAR){
+    const baseYr = calYear(w.mth);
+    const baseMo = MONTH_IDX[w.mth];
+
+    // Determine Sunday's actual month/year.
+    // If sun > sat, the week crosses into next month so Sunday is in PREVIOUS month
+    // If sun < sat (normal), Sunday is in the same month as mth label
+    // Special: if sun is large (e.g. 29) and sat is small (e.g. 4), week spans two months
+    let sunMo, sunYr, satMo, satYr;
+
+    if(w.sun > w.sat){
+      // Week crosses month boundary: sun is in PRIOR month to mth label
+      sunMo = baseMo - 1;
+      sunYr = baseYr;
+      if(sunMo < 0){ sunMo = 11; sunYr -= 1; }
+      satMo = baseMo;
+      satYr = baseYr;
+    } else {
+      // Normal week: both sun and sat in same month
+      sunMo = baseMo; sunYr = baseYr;
+      satMo = baseMo; satYr = baseYr;
+    }
+
+    const afterSun  = (todayY > sunYr)  || (todayY===sunYr  && todayM > sunMo)  || (todayY===sunYr  && todayM===sunMo  && todayD >= w.sun);
+    const beforeSat = (todayY < satYr)  || (todayY===satYr  && todayM < satMo)  || (todayY===satYr  && todayM===satMo  && todayD <= w.sat);
+
+    if(afterSun && beforeSat) return w.wk;
+  }
+  const firstW = CALENDAR[0], lastW = CALENDAR[CALENDAR.length-1];
+  const firstYr = calYear(firstW.mth);
+  if(todayY < firstYr) return firstW.wk;
+  return lastW.wk;
+}
+
+// Resolved once at startup — used everywhere
+const CURRENT_WK    = detectCurrentWeek();
+const CURRENT_WKNUM = fiscalToWkNum(CURRENT_WK);
+
+// ══════════════════════════════════════════════════════════════════
+// SEED DATA
 // ══════════════════════════════════════════════════════════════════
 const SEED_MOLDS = [
-  // DD/TO CU (x on #1 = scrap, skip #1)
-  {id:101,name:"DD / TO CU # 2",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:102,name:"DD / TO CU # 3",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:103,name:"DD / TO CU # 4",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:104,name:"DD / TO CU # 5",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:105,name:"DD / TO CU # 6",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:106,name:"DD / TO CU # 7",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:107,name:"DD / TO CU # 8",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:108,name:"DD / TO CU # 9",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // ETSSOP 16L
-  {id:201,name:"ETSSOP 16L # 1",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:202,name:"ETSSOP 16L # 2",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:203,name:"ETSSOP 16L # 3",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:204,name:"ETSSOP 16L # 4",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:205,name:"ETSSOP 16L # 5",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:206,name:"ETSSOP 16L # 6",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:207,name:"ETSSOP 16L # 7",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:208,name:"ETSSOP 16L # 8",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // ETSSOP 20L
-  {id:211,name:"ETSSOP 20L # 1",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:212,name:"ETSSOP 20L # 2",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:213,name:"ETSSOP 20L # 3",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:214,name:"ETSSOP 20L # 4",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:215,name:"ETSSOP 20L # 5",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // G20 CU (x on #3 = scrap)
-  {id:301,name:"G20 CU # 1",group:"G20 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:302,name:"G20 CU # 2",group:"G20 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // G24 CU
-  {id:311,name:"G24 CU # 1",group:"G24 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:312,name:"G24 CU # 2",group:"G24 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:313,name:"G24 CU # 3",group:"G24 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // G28 CU (x on #1 = scrap)
-  {id:321,name:"G28 CU # 2",group:"G28 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:322,name:"G28 CU # 3",group:"G28 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:323,name:"G28 CU # 4",group:"G28 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:324,name:"G28 CU # 5",group:"G28 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // G36/44 CU
-  {id:331,name:"G36/44 CU #2 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:332,name:"G36/44 CU #3 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:333,name:"G36/44 CU #4 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:334,name:"G36/44 CU #5 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:335,name:"G36/44 CU #6 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:336,name:"G36/44 CU #7 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:337,name:"G36/44 CU #8 ASM",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // MSOP 12/16 CU (x on #5 = scrap)
-  {id:401,name:"MSOP 12/16 CU # 1 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:402,name:"MSOP 12/16 CU # 2 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:403,name:"MSOP 12/16 CU # 4 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  // MSOP 8/10 A42 (x on #5 = scrap)
-  {id:411,name:"MSOP 8/10 A42 # 4 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:412,name:"MSOP 8/10 A42 # 6 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:413,name:"MSOP 8/10 A42 # 7 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  // MSOP 8/10 CU (x on #10 and #9 = scrap)
-  {id:421,name:"MSOP 8/10 CU # 11 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:422,name:"MSOP 8/10 CU # 12 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:423,name:"MSOP 8/10 CU # 3 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:424,name:"MSOP 8/10 CU # 4 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:425,name:"MSOP 8/10 CU # 6 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:426,name:"MSOP 8/10 CU # 7 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:427,name:"MSOP 8/10 CU # 8 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  // N14/16 PDIP
-  {id:501,name:"N14/16 PDIP A42 # 1 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:502,name:"N14/16 PDIP CU # 1 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:503,name:"N14/16 PDIP CU # 2 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,lastPmWeek:null},
-  // N8 PDIP (x on A42 #3 = scrap)
-  {id:511,name:"N8 PDIP CU # 3 TOWA",group:"N8 PDIP",machine:"TOWA",pmIntervalWeeks:null,lastPmWeek:null},
-  // QFN CU
-  {id:601,name:"QFN CU # 1",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:602,name:"QFN CU # 2",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:603,name:"QFN CU # 3",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:604,name:"QFN CU # 4",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:605,name:"QFN CU # 5",group:"QFN CU",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // S14N (x on CU#3 and CU#4 = scrap)
-  {id:701,name:"S14N A42 #2 IDEAL",group:"S14N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:702,name:"S14N/GN20/24 CU # 5 IDEAL",group:"S14N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  // S16N
-  {id:711,name:"S16N A42#2 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:712,name:"S16N/GN28 CU # 1 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:713,name:"S16N/GN28 CU # 2 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:714,name:"S16N/GN28 CU # 3 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  // S16W
-  {id:721,name:"S16W CU # 1 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:722,name:"S16W CU # 2 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:723,name:"S16W CU # 3 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,lastPmWeek:null},
-  // S18W
-  {id:731,name:"S18W CU # 1 ES629",group:"S18W",machine:"ES629",pmIntervalWeeks:null,lastPmWeek:null},
-  // S20W
-  {id:741,name:"S20W CU # 2",group:"S20W",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:742,name:"S20W CU # 3",group:"S20W",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // S24/G36W
-  {id:751,name:"S24/G36W CU # 2",group:"S24/G36W",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:752,name:"S24/G36W CU # 3",group:"S24/G36W",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // S8 / 16GN
-  {id:761,name:"S8 / 16GN CU # 10",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:762,name:"S8 / 16GN CU # 11",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:763,name:"S8 / 16GN CU # 12",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:764,name:"S8 / 16GN CU # 5",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:765,name:"S8 / 16GN CU # 6",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:766,name:"S8 / 16GN CU # 7",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:767,name:"S8 / 16GN CU # 8",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:768,name:"S8 / 16GN CU # 9",group:"S8/16GN",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // S8 A42 (x on #3 and #4 = scrap)
-  {id:771,name:"S8 EXPOSE CU#1",group:"S8 EXPOSE",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:772,name:"S8 EXPOSE CU#2",group:"S8 EXPOSE",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // SOT 23 (x on CU#4 and CU#7 = scrap)
-  {id:801,name:"SOT 23 A42 # 1",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:802,name:"SOT 23 A42 # 2",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:803,name:"SOT 23 CU # 1",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:804,name:"SOT 23 CU # 2",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:805,name:"SOT 23 CU # 3",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:806,name:"SOT 23 CU # 5",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:807,name:"SOT 23 CU # 6",group:"SOT 23",machine:"",pmIntervalWeeks:null,lastPmWeek:null},
-  // SIP IDEAL
-  {id:901,name:"SIP MC37 #16 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:902,name:"SIP IDEAL 4633 MC37 #13 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:903,name:"SIP IDEAL 4637 MC37 #12 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:904,name:"SIP IDEAL MC#37 #20 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:905,name:"SIP IDEAL MC37 #10 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:906,name:"SIP IDEAL MC37 #11 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:907,name:"SIP IDEAL MC37 #14 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:908,name:"SIP IDEAL MC37 #15 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:909,name:"SIP IDEAL MC37 #2 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:910,name:"SIP IDEAL MC37 #3 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:911,name:"SIP IDEAL MC37 #4 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:912,name:"SIP IDEAL MC37 #4 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  // x on #5 2.0MM CAP = scrap
-  {id:913,name:"SIP IDEAL MC37 #5 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:914,name:"SIP IDEAL MC37 #6 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:915,name:"SIP IDEAL MC37 #6 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:916,name:"SIP IDEAL MC37 #6 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:917,name:"SIP IDEAL MC37 #7 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:918,name:"SIP IDEAL MC37 #7 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:919,name:"SIP IDEAL MC37 #8 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:920,name:"SIP IDEAL MC37 #8 2.5MM (FF) CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:921,name:"SIP IDEAL MC37 #9 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:922,name:"SIP IDEAL MC37 #9 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:923,name:"SIP IDEAL MC37,41 #1 1.2MM (FF)",group:"SIP IDEAL",machine:"MC37/41",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:924,name:"SIP IDEAL MC37,41 #1 0.7MM (FF)",group:"SIP IDEAL",machine:"MC37/41",pmIntervalWeeks:null,lastPmWeek:null},
-  // SIP TOWA (x on many = scrap)
-  {id:951,name:"SIP TOWA #7 1.5MM MC43,44,45",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:952,name:"SIP TOWA MC43,44 #10 2.0MM CAP",group:"SIP TOWA",machine:"MC43/44",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:953,name:"SIP TOWA MC43/44/45 #19 4.0MM CAP",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,lastPmWeek:null},
-  {id:954,name:"SIP TOWA MC43/44/45 #2 1.2MM (FF)",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,lastPmWeek:null},
+  {id:101,name:"DD / TO CU # 2",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:102,name:"DD / TO CU # 3",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:103,name:"DD / TO CU # 4",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:104,name:"DD / TO CU # 5",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:105,name:"DD / TO CU # 6",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:106,name:"DD / TO CU # 7",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:107,name:"DD / TO CU # 8",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:108,name:"DD / TO CU # 9",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:201,name:"ETSSOP 16L # 1",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:202,name:"ETSSOP 16L # 2",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:203,name:"ETSSOP 16L # 3",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:204,name:"ETSSOP 16L # 4",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:205,name:"ETSSOP 16L # 5",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:206,name:"ETSSOP 16L # 6",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:207,name:"ETSSOP 16L # 7",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:208,name:"ETSSOP 16L # 8",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:211,name:"ETSSOP 20L # 1",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:212,name:"ETSSOP 20L # 2",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:213,name:"ETSSOP 20L # 3",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:214,name:"ETSSOP 20L # 4",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:215,name:"ETSSOP 20L # 5",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:301,name:"G20 CU # 1",group:"G20 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:302,name:"G20 CU # 2",group:"G20 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:311,name:"G24 CU # 1",group:"G24 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:312,name:"G24 CU # 2",group:"G24 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:313,name:"G24 CU # 3",group:"G24 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:321,name:"G28 CU # 2",group:"G28 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:322,name:"G28 CU # 3",group:"G28 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:323,name:"G28 CU # 4",group:"G28 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:324,name:"G28 CU # 5",group:"G28 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:331,name:"G36/44 CU #2 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:332,name:"G36/44 CU #3 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:333,name:"G36/44 CU #4 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:334,name:"G36/44 CU #5 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:335,name:"G36/44 CU #6 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:336,name:"G36/44 CU #7 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:337,name:"G36/44 CU #8 ASM",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:401,name:"MSOP 12/16 CU # 1 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:402,name:"MSOP 12/16 CU # 2 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:403,name:"MSOP 12/16 CU # 4 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:411,name:"MSOP 8/10 A42 # 4 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:412,name:"MSOP 8/10 A42 # 6 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:413,name:"MSOP 8/10 A42 # 7 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:421,name:"MSOP 8/10 CU # 11 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:422,name:"MSOP 8/10 CU # 12 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:423,name:"MSOP 8/10 CU # 3 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:424,name:"MSOP 8/10 CU # 4 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:425,name:"MSOP 8/10 CU # 6 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:426,name:"MSOP 8/10 CU # 7 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:427,name:"MSOP 8/10 CU # 8 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:501,name:"N14/16 PDIP A42 # 1 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:502,name:"N14/16 PDIP CU # 1 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:503,name:"N14/16 PDIP CU # 2 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:511,name:"N8 PDIP CU # 3 TOWA",group:"N8 PDIP",machine:"TOWA",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:601,name:"QFN CU # 1",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:602,name:"QFN CU # 2",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:603,name:"QFN CU # 3",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:604,name:"QFN CU # 4",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:605,name:"QFN CU # 5",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:701,name:"S14N A42 #2 IDEAL",group:"S14N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:702,name:"S14N/GN20/24 CU # 5 IDEAL",group:"S14N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:711,name:"S16N A42#2 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:712,name:"S16N/GN28 CU # 1 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:713,name:"S16N/GN28 CU # 2 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:714,name:"S16N/GN28 CU # 3 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:721,name:"S16W CU # 1 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:722,name:"S16W CU # 2 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:723,name:"S16W CU # 3 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:731,name:"S18W CU # 1 ES629",group:"S18W",machine:"ES629",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:741,name:"S20W CU # 2",group:"S20W",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:742,name:"S20W CU # 3",group:"S20W",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:751,name:"S24/G36W CU # 2",group:"S24/G36W",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:752,name:"S24/G36W CU # 3",group:"S24/G36W",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:761,name:"S8 / 16GN CU # 10",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:762,name:"S8 / 16GN CU # 11",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:763,name:"S8 / 16GN CU # 12",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:764,name:"S8 / 16GN CU # 5",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:765,name:"S8 / 16GN CU # 6",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:766,name:"S8 / 16GN CU # 7",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:767,name:"S8 / 16GN CU # 8",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:768,name:"S8 / 16GN CU # 9",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:771,name:"S8 EXPOSE CU#1",group:"S8 EXPOSE",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:772,name:"S8 EXPOSE CU#2",group:"S8 EXPOSE",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:801,name:"SOT 23 A42 # 1",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:802,name:"SOT 23 A42 # 2",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:803,name:"SOT 23 CU # 1",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:804,name:"SOT 23 CU # 2",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:805,name:"SOT 23 CU # 3",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:806,name:"SOT 23 CU # 5",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:807,name:"SOT 23 CU # 6",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:901,name:"SIP MC37 #16 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:902,name:"SIP IDEAL 4633 MC37 #13 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:903,name:"SIP IDEAL 4637 MC37 #12 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:904,name:"SIP IDEAL MC#37 #20 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:905,name:"SIP IDEAL MC37 #10 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:906,name:"SIP IDEAL MC37 #11 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:907,name:"SIP IDEAL MC37 #14 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:908,name:"SIP IDEAL MC37 #15 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:909,name:"SIP IDEAL MC37 #2 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:910,name:"SIP IDEAL MC37 #3 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:911,name:"SIP IDEAL MC37 #4 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:912,name:"SIP IDEAL MC37 #4 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:913,name:"SIP IDEAL MC37 #5 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:914,name:"SIP IDEAL MC37 #6 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:915,name:"SIP IDEAL MC37 #6 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:916,name:"SIP IDEAL MC37 #6 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:917,name:"SIP IDEAL MC37 #7 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:918,name:"SIP IDEAL MC37 #7 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:919,name:"SIP IDEAL MC37 #8 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:920,name:"SIP IDEAL MC37 #8 2.5MM (FF) CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:921,name:"SIP IDEAL MC37 #9 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:922,name:"SIP IDEAL MC37 #9 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:923,name:"SIP IDEAL MC37,41 #1 1.2MM (FF)",group:"SIP IDEAL",machine:"MC37/41",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:924,name:"SIP IDEAL MC37,41 #1 0.7MM (FF)",group:"SIP IDEAL",machine:"MC37/41",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:951,name:"SIP TOWA #7 1.5MM MC43,44,45",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:952,name:"SIP TOWA MC43,44 #10 2.0MM CAP",group:"SIP TOWA",machine:"MC43/44",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:953,name:"SIP TOWA MC43/44/45 #19 4.0MM CAP",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,scheduledWeeks:[]},
+  {id:954,name:"SIP TOWA MC43/44/45 #2 1.2MM (FF)",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,scheduledWeeks:[]},
 ];
 
 // ══════════════════════════════════════════════════════════════════
@@ -541,6 +623,10 @@ async function dbWrite(data){
 // ══════════════════════════════════════════════════════════════════
 let role=null, molds=[], history=[], activeTab="dashboard", activeFilter="all", activeQtr="2Q26", isSaving=false;
 
+// Temporary week-tag state while modal is open
+let addWeekTagsState  = [];  // array of wkNum (1–52)
+let editWeekTagsState = [];
+
 function setSyncStatus(s,msg){
   const el=document.getElementById("sync-indicator"); if(!el)return;
   el.className="sync-"+(s==="ok"?"ok":s==="busy"?"busy":"err");
@@ -551,12 +637,13 @@ async function loadFromCloud(){
   try{
     setSyncStatus("busy","Loading...");
     const data=await dbRead();
-    // First time: bin is empty, push seed data
-    if(!data.molds || data.molds.length===0){
+    if(!data.molds||data.molds.length===0){
       molds=[...SEED_MOLDS]; history=[];
       await dbWrite({molds,history});
     } else {
       molds=data.molds||[]; history=data.history||[];
+      // Migrate old molds that have lastPmWeek/pmIntervalWeeks but no scheduledWeeks
+      molds=molds.map(m=>({...m, scheduledWeeks: m.scheduledWeeks||[]}));
     }
     setSyncStatus("ok","Synced");
   }catch(e){ setSyncStatus("err","Sync error"); console.error(e); }
@@ -573,65 +660,134 @@ async function saveToCloud(){
   finally{ isSaving=false; }
 }
 
-// Full ordered week sequence across all known fiscal years
-// FY2024: 401-452, FY2025: 501-552, FY2026: 601-652
-function buildFullWeekSequence(){
-  const fy2024 = Array.from({length:52},(_,i)=>400+(i+1)); // 401..452
-  const fy2025 = Array.from({length:52},(_,i)=>500+(i+1)); // 501..552
-  const fy2026 = CALENDAR.map(w=>w.wk);                    // 601..652
-  return [...fy2024,...fy2025,...fy2026];
-}
-const WEEK_SEQUENCE = buildFullWeekSequence();
+// ══════════════════════════════════════════════════════════════════
+// STATUS ENGINE — Fixed Weeks Based
+//
+// scheduledWeeks = array of week numbers 1–52 (year-agnostic)
+// For FY2026: wkNum → fiscal code = 600 + wkNum
+//
+// A "slot" is overdue if: its fiscal week code < CURRENT_WK AND
+//   no history entry marks it done for that (moldId, wkNum, FY)
+// ══════════════════════════════════════════════════════════════════
 
-function calcDueWeek(lastPmWeek, intervalWeeks){
-  const idx = WEEK_SEQUENCE.indexOf(lastPmWeek);
-  if(idx === -1){
-    // Week not in sequence (very old), fall back to arithmetic but capped to known range
-    const raw = lastPmWeek + intervalWeeks;
-    // Map raw number across fiscal year boundaries
-    return raw;
-  }
-  const dueIdx = idx + intervalWeeks;
-  if(dueIdx < WEEK_SEQUENCE.length) return WEEK_SEQUENCE[dueIdx];
-  // Beyond our known calendar — return a virtual week number for display
-  const overflow = dueIdx - WEEK_SEQUENCE.length;
-  return 652 + overflow + 1; // beyond FY2026
+function getFiscalYear(fiscalWk){
+  // 601–652 = FY2026, 501–552 = FY2025, etc.
+  return Math.floor(fiscalWk / 100);
 }
 
-function calcWeekDiff(wkA, wkB){
-  // How many weeks is wkA ahead of wkB in the sequence? Positive = wkA is later
-  const idxA = WEEK_SEQUENCE.indexOf(wkA);
-  const idxB = WEEK_SEQUENCE.indexOf(wkB);
-  if(idxA !== -1 && idxB !== -1) return idxA - idxB;
-  return wkA - wkB; // fallback
+// Check if a specific scheduled slot (moldId, wkNum) has been completed in current FY
+function isSlotDone(moldId, wkNum){
+  return history.some(h =>
+    h.moldId === moldId &&
+    h.scheduledWkNum === wkNum &&
+    h.fiscalYear === 26  // FY2026
+  );
 }
 
-function getWk(n){ return CALENDAR.find(w=>w.wk===n); }
+// Get all scheduled fiscal codes for this mold in FY2026 sorted ascending
+function getMoldFiscalSchedule(m){
+  if(!m.scheduledWeeks||m.scheduledWeeks.length===0) return [];
+  return [...m.scheduledWeeks].sort((a,b)=>a-b).map(n=>wkNumToFiscal(n));
+}
 
+// Compute mold status based on fixed weeks
 function getMoldStatus(m){
-  if(m.lastPmWeek==null||m.pmIntervalWeeks==null)
-    return{label:"NOT SET",color:"#6B7280",bg:"#6B728018",weeks:null,due:null};
-  const due = calcDueWeek(m.lastPmWeek, m.pmIntervalWeeks);
-  const diff = calcWeekDiff(CURRENT_WK, due); // positive = current is past due
-  if(diff > 0)  return{label:"OVERDUE",  color:"#FF3B30",bg:"#FF3B3018",weeks:diff,  due};
-  if(diff === 0) return{label:"DUE NOW",  color:"#FF9500", bg:"#FF950018",weeks:0,    due};
-  if(diff >= -1) return{label:"DUE SOON", color:"#FFCC00",bg:"#FFCC0018",weeks:1,    due};
-  return             {label:"OK",       color:"#30D158",bg:"#30D15818",weeks:-diff, due};
+  const sw = m.scheduledWeeks||[];
+  if(sw.length===0)
+    return{label:"NOT SET",color:"#6B7280",bg:"#6B728018",slots:[]};
+
+  const slots = sw.map(wkNum=>{
+    const fwk = wkNumToFiscal(wkNum);
+    const done = isSlotDone(m.id, wkNum);
+    let slotStatus;
+    if(done){
+      slotStatus = "DONE";
+    } else if(fwk < CURRENT_WK){
+      slotStatus = "OVERDUE";
+    } else if(fwk === CURRENT_WK){
+      slotStatus = "DUE NOW";
+    } else if(fwk === CURRENT_WK + 1){
+      slotStatus = "DUE SOON";
+    } else {
+      slotStatus = "UPCOMING";
+    }
+    return {wkNum, fwk, done, slotStatus};
+  });
+
+  // Determine overall mold status from worst pending slot
+  const hasDone     = slots.some(s=>s.slotStatus==="DONE");
+  const overdue     = slots.filter(s=>s.slotStatus==="OVERDUE");
+  const dueNow      = slots.filter(s=>s.slotStatus==="DUE NOW");
+  const dueSoon     = slots.filter(s=>s.slotStatus==="DUE SOON");
+  const upcoming    = slots.filter(s=>s.slotStatus==="UPCOMING");
+
+  if(overdue.length>0)  return{label:"OVERDUE",  color:"#FF3B30",bg:"#FF3B3018",slots,overdue};
+  if(dueNow.length>0)   return{label:"DUE NOW",  color:"#FF9500", bg:"#FF950018",slots,dueNow};
+  if(dueSoon.length>0)  return{label:"DUE SOON", color:"#FFCC00",bg:"#FFCC0018",slots,dueSoon};
+  return                      {label:"OK",       color:"#30D158",bg:"#30D15818",slots};
 }
+
 function iSVG(t,s=16){
   const a=`width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
   return{
     wrench:`<svg ${a}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
     check:`<svg ${a}><polyline points="20 6 9 17 4 12"/></svg>`,
     trash:`<svg ${a}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
-    bell:`<svg ${a}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
     plus:`<svg ${a} stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-    calendar:`<svg ${a}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
     edit:`<svg ${a}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
   }[t]||"";
 }
 
-function getGroups(){ return[...new Set(molds.map(m=>m.group||"Other"))].sort(); }
+// ══════════════════════════════════════════════════════════════════
+// WEEK TAG UI — shared between add & edit modals
+// ══════════════════════════════════════════════════════════════════
+function populateWeekSelect(formId){
+  const sel = document.getElementById(formId+"-week-select");
+  sel.innerHTML = `<option value="">— Select week number —</option>`;
+  for(let i=1;i<=52;i++){
+    const cal = CALENDAR.find(w=>w.wkNum===i);
+    const label = cal ? `Week ${i} — ${cal.mth} (WK${cal.wk})` : `Week ${i}`;
+    sel.innerHTML += `<option value="${i}">${label}</option>`;
+  }
+}
+
+function renderWeekTags(formId){
+  const state = formId==="add" ? addWeekTagsState : editWeekTagsState;
+  const container = document.getElementById(formId+"-week-tags");
+  const empty = document.getElementById(formId+"-week-empty");
+  if(state.length===0){
+    container.innerHTML='';
+    const sp=document.createElement('span');
+    sp.id=formId+"-week-empty"; sp.style.color="#4B5563"; sp.style.fontSize="12px";
+    sp.textContent="No weeks added yet";
+    container.appendChild(sp);
+    return;
+  }
+  const sorted=[...state].sort((a,b)=>a-b);
+  container.innerHTML=sorted.map(n=>{
+    const cal=CALENDAR.find(w=>w.wkNum===n);
+    const mthLabel=cal?` ${cal.mth}`:"";
+    return `<span class="wk-chip">Week ${n}${mthLabel} <button class="wk-chip-remove" onclick="removeWeekTag('${formId}',${n})" title="Remove">×</button></span>`;
+  }).join("");
+}
+
+function addWeekTag(formId){
+  const sel = document.getElementById(formId+"-week-select");
+  const val = parseInt(sel.value);
+  if(!val) return;
+  const state = formId==="add" ? addWeekTagsState : editWeekTagsState;
+  if(state.includes(val)){ alert("Week "+val+" is already added."); return; }
+  if(formId==="add") addWeekTagsState.push(val);
+  else editWeekTagsState.push(val);
+  sel.value="";
+  renderWeekTags(formId);
+}
+
+function removeWeekTag(formId, wkNum){
+  if(formId==="add") addWeekTagsState = addWeekTagsState.filter(n=>n!==wkNum);
+  else editWeekTagsState = editWeekTagsState.filter(n=>n!==wkNum);
+  renderWeekTags(formId);
+}
 
 // ══════════════════════════════════════════════════════════════════
 // SETUP
@@ -676,7 +832,8 @@ async function enterApp(r){
   badge.style.background=r==="admin"?"#FF950022":"#30D15822";
   badge.style.color=r==="admin"?"#FF9500":"#30D158";
   badge.style.borderColor=r==="admin"?"#FF950044":"#30D15844";
-  populateWkSelects();
+  populateWeekSelect("add");
+  populateWeekSelect("edit");
   document.getElementById("loading-overlay").style.display="block";
   document.getElementById("dash-content").innerHTML="";
   await loadFromCloud();
@@ -719,47 +876,38 @@ function renderTab(t){
 const dashOpen = {overdue:true, duenow:true, duesoon:false, ok:false, notset:false};
 
 function toggleDash(key){
-  dashOpen[key] = !dashOpen[key];
-  const body = document.getElementById("dash-body-"+key);
-  const chev = document.getElementById("dash-chev-"+key);
-  if(body){ body.className = "dash-card-body " + (dashOpen[key]?"open":"closed"); }
-  if(chev){ chev.className = "dash-chevron " + (dashOpen[key]?"open":""); }
+  dashOpen[key]=!dashOpen[key];
+  const body=document.getElementById("dash-body-"+key);
+  const chev=document.getElementById("dash-chev-"+key);
+  if(body) body.className="dash-card-body "+(dashOpen[key]?"open":"closed");
+  if(chev) chev.className="dash-chevron "+(dashOpen[key]?"open":"");
 }
 
 function renderDashboard(){
-  const cur = getWk(CURRENT_WK);
-  const addBtn = role==="admin"
-    ? `<button onclick="openAddModal()" class="btn-primary" style="margin-left:auto;white-space:nowrap">${iSVG("plus",16)} Add Mold</button>`
-    : "";
+  const cur=getWk(CURRENT_WK);
+  const addBtn=role==="admin"
+    ?`<button onclick="openAddModal()" class="btn-primary" style="margin-left:auto;white-space:nowrap">${iSVG("plus",16)} Add Mold</button>`:"";
 
-  document.getElementById("wk-banner").innerHTML = `
+  document.getElementById("wk-banner").innerHTML=`
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     <div style="flex:1">
       <div style="color:#FF9500;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Current Company Work Week</div>
-      <div style="font-size:18px;font-weight:700;margin-top:3px">WK ${CURRENT_WK} &nbsp;·&nbsp; ${cur.mth} ${cur.period} &nbsp;·&nbsp; ${cur.qtr}</div>
+      <div style="font-size:18px;font-weight:700;margin-top:3px">WK${CURRENT_WK} (Week ${CURRENT_WKNUM}) &nbsp;·&nbsp; ${cur.mth} ${cur.period} &nbsp;·&nbsp; ${cur.qtr}</div>
       <div style="color:#6B7280;font-size:13px;margin-top:2px">Sun ${cur.sun} – Sat ${cur.sat} &nbsp;·&nbsp; Total molds: <b style="color:#fff">${molds.length}</b></div>
     </div>${addBtn}`;
 
-  // Categorise all molds
   const overdue = molds.filter(m=>getMoldStatus(m).label==="OVERDUE");
   const dueNow  = molds.filter(m=>getMoldStatus(m).label==="DUE NOW");
   const dueSoon = molds.filter(m=>getMoldStatus(m).label==="DUE SOON");
   const ok      = molds.filter(m=>getMoldStatus(m).label==="OK");
   const notSet  = molds.filter(m=>getMoldStatus(m).label==="NOT SET");
 
-  const chevSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+  const chevSVG=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>`;
 
-  function dashCard(key, label, emoji, color, bg, list, showDone){
-    const isOpen = dashOpen[key];
-    const emptyMsg = key==="notset"
-      ? "All molds are configured ✓"
-      : key==="ok"
-      ? "No molds in this category."
-      : "No molds in this category — great! 🎉";
-    const rows = list.length
-      ? list.map(m=>dashboardRowHTML(m, showDone)).join("")
-      : `<div style="padding:20px;text-align:center;color:#4B5563;font-size:13px">${emptyMsg}</div>`;
-
+  function dashCard(key,label,emoji,color,bg,list,showDone){
+    const isOpen=dashOpen[key];
+    const emptyMsg=key==="notset"?"All molds are configured ✓":key==="ok"?"No molds in this category.":"No molds in this category — great! 🎉";
+    const rows=list.length?list.map(m=>dashboardRowHTML(m,showDone)).join(""):`<div style="padding:20px;text-align:center;color:#4B5563;font-size:13px">${emptyMsg}</div>`;
     return `
       <div class="dash-card" style="border-left:4px solid ${color}">
         <div class="dash-card-header" onclick="toggleDash('${key}')">
@@ -774,12 +922,12 @@ function renderDashboard(){
       </div>`;
   }
 
-  document.getElementById("dash-content").innerHTML =
-    dashCard("overdue", "⛔ Overdue PM",      "⛔", "#FF3B30", "#FF3B3018", overdue, true) +
-    dashCard("duenow",  "🔧 Due This Week",   "🔧", "#FF9500", "#FF950018", dueNow,  true) +
-    dashCard("duesoon", "⏰ Due Soon",         "⏰", "#FFCC00", "#FFCC0018", dueSoon, false) +
-    dashCard("ok",      "✅ Up to Date",       "✅", "#30D158", "#30D15818", ok,      false) +
-    dashCard("notset",  "⚙ Not Configured",   "⚙", "#6B7280", "#6B728018", notSet,  false);
+  document.getElementById("dash-content").innerHTML=
+    dashCard("overdue","⛔ Overdue PM","⛔","#FF3B30","#FF3B3018",overdue,true)+
+    dashCard("duenow","🔧 Due This Week","🔧","#FF9500","#FF950018",dueNow,true)+
+    dashCard("duesoon","⏰ Due Soon","⏰","#FFCC00","#FFCC0018",dueSoon,false)+
+    dashCard("ok","✅ Up to Date","✅","#30D158","#30D15818",ok,false)+
+    dashCard("notset","⚙ Not Configured","⚙","#6B7280","#6B728018",notSet,false);
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -788,20 +936,27 @@ function renderDashboard(){
 function dashboardRowHTML(m, showDone=false){
   const st=getMoldStatus(m);
   const isNotSet=st.label==="NOT SET";
-  const dueE=st.due?getWk(st.due):null;
-  const lastE=m.lastPmWeek?getWk(m.lastPmWeek):null;
   const machBadge=m.machine?`<span style="font-size:11px;background:#1F2937;color:#9CA3AF;padding:2px 7px;border-radius:6px">${m.machine}</span>`:"";
-  const overdueTag=st.label==="OVERDUE"?`<span style="color:#FF3B30;font-size:11px;font-weight:700">⚠ ${st.weeks} wk${st.weeks>1?"s":""} overdue</span>`:"";
+
+  // Slot summary
+  let slotInfo="";
+  if(!isNotSet && st.slots){
+    // Show upcoming/due slots concisely
+    const pendingSlots=st.slots.filter(s=>s.slotStatus!=="DONE");
+    const doneSlots=st.slots.filter(s=>s.slotStatus==="DONE");
+    const slotChips=pendingSlots.slice(0,4).map(s=>{
+      const sc={OVERDUE:"#FF3B30","DUE NOW":"#FF9500","DUE SOON":"#FFCC00",UPCOMING:"#374151"};
+      const cal=getWk(s.fwk);
+      return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${sc[s.slotStatus]||"#374151"}44;color:${sc[s.slotStatus]||"#6B7280"};background:${sc[s.slotStatus]||"#374151"}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""} ${s.slotStatus==="OVERDUE"?"⚠":s.slotStatus==="DUE NOW"?"🔧":""}</span>`;
+    }).join("");
+    const doneChips=doneSlots.map(s=>`<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid #30D15833;color:#30D158;background:#30D15810;font-family:'DM Mono',monospace">Wk${s.wkNum} ✓</span>`).join("");
+    slotInfo=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">${slotChips}${doneChips}</div>`;
+  }
+
   const doneBtn=showDone&&!isNotSet
     ?`<button onclick="openPMDoneModal(${m.id})" style="background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:8px 16px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">${iSVG("check",13)} Mark Done</button>`
     :"";
-  const schedInfo=isNotSet
-    ?`<span style="color:#6B7280;font-style:italic">Not configured — interval &amp; last PM not set</span>`
-    :`<span>Last PM: <b style="color:#fff">WK${m.lastPmWeek}</b>${lastE?` (${lastE.mth})`:""}</span>
-      <span style="color:#374151">·</span>
-      <span>Due: <b style="color:${st.color}">WK${st.due}</b>${dueE?` (${dueE.mth})`:""}</span>
-      <span>Every <b style="color:#fff">${m.pmIntervalWeeks}wk</b></span>
-      ${overdueTag}`;
+
   return `
     <div style="background:#0D1117;border:1px solid #1F2937;border-left:3px solid ${st.color};border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:160px">
@@ -810,7 +965,7 @@ function dashboardRowHTML(m, showDone=false){
           ${machBadge}
           ${isNotSet&&role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#FF950022;border:1px solid #FF950044;color:#FF9500;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;font-weight:600">⚙ Configure</button>`:""}
         </div>
-        <div style="color:#9CA3AF;font-size:11px;display:flex;gap:8px;flex-wrap:wrap">${schedInfo}</div>
+        ${isNotSet?`<div style="color:#6B7280;font-size:11px;font-style:italic">No PM weeks configured — admin must add scheduled weeks</div>`:slotInfo}
       </div>
       ${doneBtn}
     </div>`;
@@ -821,16 +976,23 @@ function dashboardRowHTML(m, showDone=false){
 // ══════════════════════════════════════════════════════════════════
 function renderMolds(){
   document.getElementById("admin-add-btn-molds").innerHTML=role==="admin"?`<button onclick="openAddModal()" class="btn-primary">${iSVG("plus",16)} Add</button>`:"";
-  const filters=[{k:"all",l:"All ("+molds.length+")"},{k:"overdue",l:"Overdue"},{k:"duenow",l:"Due Now"},{k:"duesoon",l:"Due Soon"},{k:"ok",l:"OK"},{k:"notset",l:"Not Set"}];
+  const total=molds.length;
+  const filters=[
+    {k:"all",l:`All (${total})`},
+    {k:"overdue",l:"Overdue"},
+    {k:"duenow",l:"Due Now"},
+    {k:"duesoon",l:"Due Soon"},
+    {k:"ok",l:"OK"},
+    {k:"notset",l:"Not Set"},
+  ];
   document.getElementById("filter-btns").innerHTML=filters.map(f=>`<button onclick="setFilter('${f.k}')" class="filter-btn${activeFilter===f.k?" active":""}">${f.l}</button>`).join("");
   const search=(document.getElementById("mold-search")||{}).value||"";
-  const order={OVERDUE:0,"DUE NOW":1,"DUE SOON":2,OK:3};
+  const order={OVERDUE:0,"DUE NOW":1,"DUE SOON":2,OK:3,"NOT SET":4};
   let filtered=[...molds]
-    .filter(m=>{if(activeFilter==="all")return true; const lbl=getMoldStatus(m).label.toLowerCase().replace(/ /g,""); return lbl===activeFilter;})
-    .filter(m=>!search||m.name.toLowerCase().includes(search.toLowerCase())||( m.group&&m.group.toLowerCase().includes(search.toLowerCase())))
-    .sort((a,b)=>order[getMoldStatus(a).label]-order[getMoldStatus(b).label]);
+    .filter(m=>{if(activeFilter==="all")return true;const lbl=getMoldStatus(m).label.toLowerCase().replace(/ /g,"");return lbl===activeFilter;})
+    .filter(m=>!search||m.name.toLowerCase().includes(search.toLowerCase())||(m.group&&m.group.toLowerCase().includes(search.toLowerCase())))
+    .sort((a,b)=>(order[getMoldStatus(a).label]||9)-(order[getMoldStatus(b).label]||9));
 
-  // Group by mold group
   const groups=[...new Set(filtered.map(m=>m.group||"Other"))].sort();
   let html="";
   groups.forEach(g=>{
@@ -848,19 +1010,29 @@ function setFilter(f){activeFilter=f;renderMolds();}
 function moldRowHTML(m){
   const st=getMoldStatus(m);
   const isNotSet=st.label==="NOT SET";
-  const dueE=st.due?getWk(st.due):null;
-  const lastE=m.lastPmWeek?getWk(m.lastPmWeek):null;
-  const stText=st.label==="OVERDUE"?`⚠ ${st.weeks} wk${st.weeks>1?"s":""} overdue`:st.label==="OK"?`✓ ${st.weeks} wk${st.weeks>1?"s":""} left`:"";
   const machBadge=m.machine?`<span style="font-size:11px;background:#1F2937;color:#9CA3AF;padding:2px 7px;border-radius:6px">${m.machine}</span>`:"";
-  const schedInfo=isNotSet
-    ?`<span style="color:#6B7280;font-style:italic">Interval: not set</span><span style="color:#374151">·</span><span style="color:#6B7280;font-style:italic">Last PM: not set</span><span style="color:#374151">·</span><span style="color:#6B7280;font-style:italic">Due: not set</span>`
-    :`<span>Interval: <b style="color:#fff">${m.pmIntervalWeeks}wk</b></span><span style="color:#374151">·</span><span>Last PM: <b style="color:#fff">WK${m.lastPmWeek}</b>${lastE?` (${lastE.mth})`:""}</span><span style="color:#374151">·</span><span>Due: <b style="color:${st.color}">WK${st.due}</b>${dueE?` (${dueE.mth})`:""}</span>${stText?`<span style="color:${st.color}">${stText}</span>`:""}`;
+
+  // Scheduled weeks summary
+  let schedSummary="";
+  if(!isNotSet && st.slots){
+    const sc={OVERDUE:"#FF3B30","DUE NOW":"#FF9500","DUE SOON":"#FFCC00",UPCOMING:"#9CA3AF",DONE:"#30D158"};
+    const chips=st.slots.map(s=>{
+      const cal=getWk(s.fwk);
+      const icon=s.slotStatus==="DONE"?" ✓":s.slotStatus==="OVERDUE"?" ⚠":s.slotStatus==="DUE NOW"?" 🔧":"";
+      return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${(sc[s.slotStatus]||"#374151")}44;color:${sc[s.slotStatus]||"#6B7280"};background:${(sc[s.slotStatus]||"#374151")}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""}${icon}</span>`;
+    }).join("");
+    schedSummary=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">${chips}</div>`;
+    if(m.pmIntervalWeeks) schedSummary+=`<div style="color:#4B5563;font-size:11px;margin-top:3px">Interval ref: every ${m.pmIntervalWeeks} wk</div>`;
+  }
+
   const actionBtns=`
     <div style="display:flex;gap:6px;flex-shrink:0;margin-top:8px">
       ${!isNotSet?`<button onclick="openPMDoneModal(${m.id})" style="background:#30D15822;border:1px solid #30D15844;color:#30D158;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px">${iSVG("check",13)} Done</button>`:""}
-      ${role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#3B82F622;border:1px solid #3B82F644;color:#60A5FA;border-radius:8px;padding:6px 9px;cursor:pointer" title="Edit / Configure">${iSVG("edit",13)}</button>
+      ${role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#3B82F622;border:1px solid #3B82F644;color:#60A5FA;border-radius:8px;padding:6px 9px;cursor:pointer" title="Edit">${iSVG("edit",13)}</button>
       <button onclick="deleteMold(${m.id})" style="background:#FF3B3022;border:1px solid #FF3B3044;color:#FF3B30;border-radius:8px;padding:6px 9px;cursor:pointer">${iSVG("trash",13)}</button>`:""}
-    </div>`;  return `
+    </div>`;
+
+  return `
     <div class="mold-row" style="border-left-color:${st.color}${isNotSet?";opacity:0.7":""}">
       <div style="display:flex;align-items:flex-start;gap:12px">
         <div style="width:38px;height:38px;border-radius:9px;background:${st.bg};display:flex;align-items:center;justify-content:center;color:${st.color};flex-shrink:0;margin-top:2px">${iSVG("wrench",16)}</div>
@@ -869,9 +1041,11 @@ function moldRowHTML(m){
             <span style="font-weight:700;font-size:13px;font-family:'DM Mono',monospace">${m.name}</span>
             <span class="badge" style="background:${st.bg};color:${st.color};border:1px solid ${st.color}44">${st.label}</span>
             ${machBadge}
-            ${isNotSet&&role==="admin"?`<span style="font-size:11px;color:#FF9500;font-style:italic">← click ✏ to configure</span>`:""}
           </div>
-          <div style="color:#9CA3AF;font-size:11px;display:flex;gap:8px;flex-wrap:wrap">${schedInfo}</div>
+          ${isNotSet
+            ?`<div style="color:#6B7280;font-size:11px;font-style:italic">No scheduled PM weeks configured${role==="admin"?" — click ✏ to configure":""}</div>`
+            :schedSummary
+          }
           ${actionBtns}
         </div>
       </div>
@@ -881,94 +1055,83 @@ function moldRowHTML(m){
 // ══════════════════════════════════════════════════════════════════
 // PM DONE MODAL
 // ══════════════════════════════════════════════════════════════════
-let pmDoneMoldId = null;
+let pmDoneMoldId=null;
 
 function openPMDoneModal(id){
-  const m = molds.find(x=>x.id===id); if(!m) return;
-  const st = getMoldStatus(m);
-  pmDoneMoldId = id;
-  // Clear all fields — user must enter date manually
-  document.getElementById("pmdone-date").value = "";
-  document.getElementById("pmdone-person").value = "";
-  document.getElementById("pmdone-notes").value = "";
-  document.getElementById("pmdone-moldname").textContent = m.name;
-  const isOverdue = st.label === "OVERDUE";
-  // Show overdue warning if applicable
-  document.getElementById("pmdone-overdue-note").style.display = isOverdue ? "" : "none";
-  // Show due week info
-  const dueE = st.due ? getWk(st.due) : null;
-  document.getElementById("pmdone-due-info").textContent =
-    st.due ? `Scheduled due: WK${st.due}${dueE?" ("+dueE.mth+")":""}` : "";
-  document.getElementById("pm-done-modal").style.display = "flex";
-  // Focus date field so user knows to fill it
-  setTimeout(()=>document.getElementById("pmdone-date").focus(), 100);
+  const m=molds.find(x=>x.id===id); if(!m)return;
+  const st=getMoldStatus(m);
+  pmDoneMoldId=id;
+
+  document.getElementById("pmdone-moldname").textContent=m.name;
+  document.getElementById("pmdone-date").value="";
+  document.getElementById("pmdone-person").value="";
+  document.getElementById("pmdone-notes").value="";
+
+  // Populate scheduled week dropdown — only pending (not done) slots
+  const sel=document.getElementById("pmdone-sched-week");
+  sel.innerHTML="";
+  const pendingSlots=(st.slots||[]).filter(s=>s.slotStatus!=="DONE");
+  if(pendingSlots.length===0){
+    sel.innerHTML=`<option value="">All scheduled PMs are done ✓</option>`;
+  } else {
+    pendingSlots.forEach(s=>{
+      const cal=getWk(s.fwk);
+      const statusLabel={OVERDUE:" ⚠ OVERDUE","DUE NOW":" 🔧 DUE NOW","DUE SOON":" ⏰ DUE SOON",UPCOMING:""}[s.slotStatus]||"";
+      sel.innerHTML+=`<option value="${s.wkNum}">Week ${s.wkNum}${cal?" — "+cal.mth+" (WK"+s.fwk+")":""}${statusLabel}</option>`;
+    });
+  }
+
+  // Overdue indicator
+  const hasOverdue=(st.slots||[]).some(s=>s.slotStatus==="OVERDUE");
+  document.getElementById("pmdone-overdue-note").style.display=hasOverdue?"":"none";
+  document.getElementById("pmdone-due-info").textContent=
+    pendingSlots.length?`${pendingSlots.length} pending PM slot${pendingSlots.length>1?"s":""} this fiscal year`:"";
+
+  document.getElementById("pm-done-modal").style.display="flex";
+  setTimeout(()=>document.getElementById("pmdone-date").focus(),100);
 }
 
 function closePMDoneModal(){
-  document.getElementById("pm-done-modal").style.display = "none";
-  pmDoneMoldId = null;
+  document.getElementById("pm-done-modal").style.display="none";
+  pmDoneMoldId=null;
 }
 
 async function doConfirmPMDone(){
-  const id = pmDoneMoldId; if(!id) return;
-  const m = molds.find(x=>x.id===id); if(!m) return;
-  const dateVal = document.getElementById("pmdone-date").value;
-  const person  = document.getElementById("pmdone-person").value.trim();
-  const notes   = document.getElementById("pmdone-notes").value.trim();
-  if(!dateVal){ alert("Please enter the actual PM date."); return; }
-  if(!person){ alert("Please enter the name of the person who performed the PM."); return; }
+  const id=pmDoneMoldId; if(!id)return;
+  const m=molds.find(x=>x.id===id); if(!m)return;
+  const dateVal=document.getElementById("pmdone-date").value;
+  const person=document.getElementById("pmdone-person").value.trim();
+  const notes=document.getElementById("pmdone-notes").value.trim();
+  const wkNumVal=parseInt(document.getElementById("pmdone-sched-week").value);
 
-  // Find which work week the PM date falls in
-  const pmDate = new Date(dateVal);
-  const pmWk = dateToWorkWeek(pmDate);
+  if(!dateVal){alert("Please enter the actual PM date.");return;}
+  if(!person){alert("Please enter the name of the person who performed the PM.");return;}
+  if(!wkNumVal){alert("Please select the scheduled PM week being completed.");return;}
 
-  const btn = document.getElementById("pmdone-confirm-btn");
-  btn.textContent = "Saving..."; btn.disabled = true;
+  const btn=document.getElementById("pmdone-confirm-btn");
+  btn.textContent="Saving..."; btn.disabled=true;
 
-  molds = molds.map(x => x.id===id ? {...x, lastPmWeek: pmWk} : x);
   history.push({
-    moldId: id,
-    moldName: m.name,
-    moldGroup: m.group||"",
-    doneWeek: pmWk,
-    doneDate: dateVal,
-    doneBy: person || "—",
-    notes: notes || "",
-    recordedAt: new Date().toLocaleDateString("en-SG")
+    moldId:id,
+    moldName:m.name,
+    moldGroup:m.group||"",
+    scheduledWkNum:wkNumVal,           // 1–52 (year-agnostic slot)
+    fiscalYear:26,                     // FY2026
+    fiscalWeek:wkNumToFiscal(wkNumVal),
+    doneDate:dateVal,
+    doneBy:person||"—",
+    notes:notes||"",
+    recordedAt:new Date().toLocaleDateString("en-SG"),
   });
 
   await saveToCloud();
-  btn.textContent = "Confirm PM Done"; btn.disabled = false;
+  btn.textContent="Confirm PM Done"; btn.disabled=false;
   closePMDoneModal();
   renderTab(activeTab);
 }
 
-// Convert a JS Date to the nearest company work week number
-function dateToWorkWeek(date){
-  // Find the work week whose Sunday–Saturday range contains this date
-  // We match by checking if the date falls within each week
-  // For FY2026 weeks we have full data; for older weeks we estimate
-  for(const w of CALENDAR){
-    // Each week runs Sun to Sat; we need the actual year for the dates
-    // Since the calendar only stores day numbers, we infer year from month+qtr
-    const yr = w.qtr.includes("26") ? 2025 : 2024; // fiscal year offset
-    // NOV/DEC of FY2026 are in calendar year 2025, rest in 2026
-    const calYr = (w.mth==="NOV"||w.mth==="DEC") ? 2025 : 2026;
-    const months = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
-    const sunDate = new Date(calYr, months[w.mth], w.sun);
-    const satDate = new Date(calYr, months[w.mth], w.sat);
-    // Handle month-crossing (e.g. sun=29 DEC, sat=4 JAN next month)
-    if(w.sat < w.sun) satDate.setMonth(satDate.getMonth()+1);
-    if(date >= sunDate && date <= satDate) return w.wk;
-  }
-  // Fallback: return current week
-  return CURRENT_WK;
-}
-
-async function markPMDone(id){ openPMDoneModal(id); }
-
 async function deleteMold(id){
-  if(!confirm("Delete this mold die?")) return;
+  if(!confirm("Delete this mold die?"))return;
   molds=molds.filter(x=>x.id!==id);
   renderTab(activeTab);
   await saveToCloud();
@@ -977,50 +1140,14 @@ async function deleteMold(id){
 // ══════════════════════════════════════════════════════════════════
 // ADD MODAL
 // ══════════════════════════════════════════════════════════════════
-function setWkMode(form, mode){
-  const sel=document.getElementById(form+"-lastwk");
-  const manual=document.getElementById(form+"-lastwk-manual");
-  const hint=document.getElementById(form+"-lastwk-hint");
-  const btnFy=document.getElementById(form+"-mode-fy");
-  const btnPrev=document.getElementById(form+"-mode-prev");
-  if(mode==="fy"){
-    sel.style.display=""; manual.style.display="none"; hint.style.display="none";
-    btnFy.style.border="1px solid #FF9500"; btnFy.style.background="#FF950022"; btnFy.style.color="#FF9500";
-    btnPrev.style.border="1px solid #374151"; btnPrev.style.background="transparent"; btnPrev.style.color="#6B7280";
-  } else {
-    sel.style.display="none"; manual.style.display=""; hint.style.display="";
-    btnPrev.style.border="1px solid #FF9500"; btnPrev.style.background="#FF950022"; btnPrev.style.color="#FF9500";
-    btnFy.style.border="1px solid #374151"; btnFy.style.background="transparent"; btnFy.style.color="#6B7280";
-  }
-}
-
-function getWkValue(form){
-  const manual=document.getElementById(form+"-lastwk-manual");
-  if(manual.style.display!=="none"){
-    const v=parseInt(manual.value);
-    if(isNaN(v)) return null;
-    // Validate: last 2 digits must be 01–52
-    const seq = v % 100;
-    if(seq < 1 || seq > 52){ alert("Invalid work week! Week number must be between x01 and x52 (e.g. 501–552 for FY2025, 401–452 for FY2024)."); return null; }
-    return v;
-  }
-  const v=parseInt(document.getElementById(form+"-lastwk").value);
-  return isNaN(v)?null:v;
-}
-
-function populateWkSelects(){
-  const opts=CALENDAR.map(w=>`<option value="${w.wk}"${w.wk===CURRENT_WK?" selected":""}>WK${w.wk} — ${w.mth} ${w.period} (${w.qtr})</option>`).join("");
-  document.getElementById("add-lastwk").innerHTML=opts;
-  document.getElementById("edit-lastwk").innerHTML=opts;
-}
 function openAddModal(){
-  document.getElementById("add-modal").style.display="flex";
+  addWeekTagsState=[];
+  renderWeekTags("add");
   document.getElementById("add-name").value="";
   document.getElementById("add-group").value="";
   document.getElementById("add-machine").value="";
   document.getElementById("add-interval").value="";
-  document.getElementById("add-lastwk-manual").value="";
-  setWkMode("add","fy");
+  document.getElementById("add-modal").style.display="flex";
 }
 function closeAddModal(){document.getElementById("add-modal").style.display="none";}
 document.getElementById("add-modal").addEventListener("click",function(e){if(e.target===this)closeAddModal();});
@@ -1030,11 +1157,12 @@ async function doAddMold(){
   if(!name){alert("Please enter a Mold Die name");return;}
   const btn=document.getElementById("add-submit-btn"); btn.textContent="Saving...";btn.disabled=true;
   molds.push({
-    id:Date.now(),name,
+    id:Date.now(),
+    name,
     group:document.getElementById("add-group").value.trim(),
     machine:document.getElementById("add-machine").value.trim(),
     pmIntervalWeeks:parseInt(document.getElementById("add-interval").value)||null,
-    lastPmWeek:getWkValue("add"),
+    scheduledWeeks:[...addWeekTagsState],
   });
   await saveToCloud();
   btn.textContent="Add Mold Die";btn.disabled=false;
@@ -1051,14 +1179,8 @@ function openEditModal(id){
   document.getElementById("edit-group").value=m.group||"";
   document.getElementById("edit-machine").value=m.machine||"";
   document.getElementById("edit-interval").value=m.pmIntervalWeeks!=null?m.pmIntervalWeeks:"";
-  // Auto-detect mode: anything below 601 = previous fiscal year
-  if(m.lastPmWeek!=null && m.lastPmWeek < 601){
-    setWkMode("edit","prev");
-    document.getElementById("edit-lastwk-manual").value=m.lastPmWeek;
-  } else {
-    setWkMode("edit","fy");
-    document.getElementById("edit-lastwk").value=m.lastPmWeek!=null?m.lastPmWeek:CURRENT_WK;
-  }
+  editWeekTagsState=[...(m.scheduledWeeks||[])];
+  renderWeekTags("edit");
   document.getElementById("edit-modal").style.display="flex";
 }
 function closeEditModal(){document.getElementById("edit-modal").style.display="none";}
@@ -1068,13 +1190,12 @@ async function doEditMold(){
   const id=parseInt(document.getElementById("edit-id").value);
   const btn=document.getElementById("edit-submit-btn"); btn.textContent="Saving...";btn.disabled=true;
   const intVal=document.getElementById("edit-interval").value;
-  const lwVal=document.getElementById("edit-lastwk").value;
   molds=molds.map(x=>x.id===id?{...x,
     name:document.getElementById("edit-name").value.trim(),
     group:document.getElementById("edit-group").value.trim(),
     machine:document.getElementById("edit-machine").value.trim(),
     pmIntervalWeeks:intVal?parseInt(intVal):null,
-    lastPmWeek:getWkValue("edit"),
+    scheduledWeeks:[...editWeekTagsState],
   }:x);
   await saveToCloud();
   btn.textContent="Save Changes";btn.disabled=false;
@@ -1094,15 +1215,25 @@ function renderCalendar(){
     return `<div style="margin-bottom:22px">
       <div style="color:#9CA3AF;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">${mth}</div>
       <div style="display:grid;gap:8px">${mthWeeks.map(w=>{
-        const pmDue=molds.filter(m=>(m.lastPmWeek+m.pmIntervalWeeks)===w.wk);
+        // Find all molds scheduled for this week number
+        const scheduled=molds.filter(m=>(m.scheduledWeeks||[]).includes(w.wkNum));
         const isCur=w.wk===CURRENT_WK;
-        const badges=pmDue.length
-          ?pmDue.map(m=>{const st=getMoldStatus(m);return`<span style="background:${st.bg};color:${st.color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;border:1px solid ${st.color}44;font-family:'DM Mono',monospace;white-space:nowrap">${m.name}</span>`;}).join("")
+        const badges=scheduled.length
+          ?scheduled.map(m=>{
+            const done=isSlotDone(m.id,w.wkNum);
+            const fwk=wkNumToFiscal(w.wkNum);
+            let color="#9CA3AF";
+            if(done) color="#30D158";
+            else if(fwk<CURRENT_WK) color="#FF3B30";
+            else if(fwk===CURRENT_WK) color="#FF9500";
+            else if(fwk===CURRENT_WK+1) color="#FFCC00";
+            return `<span style="background:${color}18;color:${color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;border:1px solid ${color}44;font-family:'DM Mono',monospace;white-space:nowrap">${m.name}${done?" ✓":""}</span>`;
+          }).join("")
           :`<span style="color:#374151;font-size:12px">No PM scheduled</span>`;
         return `<div class="cal-week${isCur?" current-wk":""}">
-          <div style="text-align:center;min-width:44px">
-            <div style="color:${isCur?"#FF9500":"#6B7280"};font-size:10px;font-weight:600;letter-spacing:1px">WK</div>
-            <div style="color:${isCur?"#FF9500":"#fff"};font-size:18px;font-weight:700;font-family:'DM Mono',monospace;line-height:1.1">${w.wk}</div>
+          <div style="text-align:center;min-width:50px">
+            <div style="color:${isCur?"#FF9500":"#6B7280"};font-size:10px;font-weight:600;letter-spacing:1px">WK${w.wk}</div>
+            <div style="color:${isCur?"#FF9500":"#fff"};font-size:18px;font-weight:700;font-family:'DM Mono',monospace;line-height:1.1">Wk${w.wkNum}</div>
             ${isCur?`<div style="color:#FF9500;font-size:9px;font-weight:700;letter-spacing:1px">NOW</div>`:""}
           </div>
           <div style="flex:1;min-width:0">
@@ -1129,12 +1260,14 @@ function renderHistory(){
       <div style="flex:1;min-width:160px">
         <div style="font-weight:700;font-family:'DM Mono',monospace;font-size:12px">${h.moldName}</div>
         ${h.moldGroup?`<div style="color:#6B7280;font-size:11px">${h.moldGroup}</div>`:""}
+        <div style="color:#9CA3AF;font-size:11px;margin-top:2px">Scheduled slot: <b style="color:#fff">Week ${h.scheduledWkNum||"—"}</b>${h.fiscalWeek?" (WK"+h.fiscalWeek+")":""}</div>
         ${h.notes?`<div style="color:#9CA3AF;font-size:11px;margin-top:3px;font-style:italic">"${h.notes}"</div>`:""}
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="color:#30D158;font-size:12px;font-weight:600">PM Completed</div>
-        <div style="color:#fff;font-size:12px;margin-top:1px">WK${h.doneWeek}${h.doneDate?" · "+h.doneDate:""}</div>
+        <div style="color:#fff;font-size:12px;margin-top:1px">${h.doneDate||"—"}</div>
         <div style="color:#6B7280;font-size:11px;margin-top:1px">By: ${h.doneBy||"—"}</div>
+        <div style="color:#374151;font-size:10px;margin-top:1px">Recorded: ${h.recordedAt||""}</div>
       </div>
     </div>`).join("");
 }
@@ -1152,44 +1285,5 @@ if(!API_KEY||!BIN_ID){
   document.getElementById("setup-screen").style.display="none";
 }
 </script>
-<!-- ═══ PM DONE MODAL ═══ -->
-<div id="pm-done-modal" style="display:none" class="modal-overlay">
-  <div class="modal-box" style="max-width:440px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-      <div style="width:36px;height:36px;border-radius:9px;background:#30D15822;display:flex;align-items:center;justify-content:center;color:#30D158;flex-shrink:0">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <h2 style="font-size:17px;font-weight:700">Mark PM as Done</h2>
-    </div>
-    <p style="color:#6B7280;font-size:13px;margin-bottom:4px">Mold: <b id="pmdone-moldname" style="color:#fff"></b></p>
-    <p id="pmdone-due-info" style="color:#FF9500;font-size:12px;margin-bottom:16px"></p>
-    <div id="pmdone-overdue-note" style="display:none;background:#FF3B3015;border:1px solid #FF3B3030;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#FF6B6B">
-      ⚠ This mold is <b>overdue</b>. Please enter the actual date the PM was performed.
-    </div>
-    <div style="display:grid;gap:14px">
-      <div id="pmdone-date-row">
-        <label class="form-label">Actual PM Date <span style="color:#FF3B30">*</span></label>
-        <input id="pmdone-date" class="form-input" type="date"/>
-        <div style="color:#6B7280;font-size:11px;margin-top:5px">Enter the date PM was actually performed. Work week is auto-detected.</div>
-      </div>
-      <div>
-        <label class="form-label">Performed By <span style="color:#FF3B30">*</span></label>
-        <input id="pmdone-person" class="form-input" placeholder="e.g. Ahmad, Ravi, Technician 1"/>
-      </div>
-      <div>
-        <label class="form-label">Notes / Remarks</label>
-        <input id="pmdone-notes" class="form-input" placeholder="Optional — any observations during PM"/>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:22px">
-      <button onclick="closePMDoneModal()" class="btn-ghost" style="flex:1;justify-content:center">Cancel</button>
-      <button onclick="doConfirmPMDone()" id="pmdone-confirm-btn" style="flex:2;background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Confirm PM Done
-      </button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
