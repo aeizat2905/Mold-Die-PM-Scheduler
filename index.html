@@ -48,8 +48,13 @@
   .dash-card{background:#111827;border:1px solid #1F2937;border-radius:14px;overflow:hidden;margin-bottom:14px}
   .dash-card-header{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none;transition:background 0.15s}
   .dash-card-header:hover{background:#161e2e}
-  .dash-card-body.open{display:grid;gap:8px;border-top:1px solid #1F2937;padding:14px}
+  .dash-card-body.open{display:flex;flex-direction:column;gap:0;border-top:1px solid #1F2937}
   .dash-card-body.closed{display:none}
+  .dash-card-scroll{display:grid;gap:8px;padding:14px;max-height:450px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#374151 transparent}
+  .dash-card-scroll::-webkit-scrollbar{width:5px}
+  .dash-card-scroll::-webkit-scrollbar-track{background:transparent}
+  .dash-card-scroll::-webkit-scrollbar-thumb{background:#374151;border-radius:3px}
+  .dash-card-footer{border-top:1px solid #1F2937;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;background:#0D1117}
   .dash-chevron{margin-left:auto;transition:transform 0.2s;color:#4B5563;display:flex}
   .dash-chevron.open{transform:rotate(180deg)}
   .group-header{background:#1F2937;border-radius:8px;padding:8px 14px;margin:8px 0 4px;font-size:12px;font-weight:700;color:#9CA3AF;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
@@ -939,6 +944,15 @@ function renderDashboard(){
     const isOpen=dashOpen[key];
     const emptyMsg=key==="notset"?"All molds are configured ✓":key==="ok"?"No molds in this category.":"No molds in this category — great! 🎉";
     const rows=list.length?list.map(m=>dashboardRowHTML(m,showDone)).join(""):`<div style="padding:20px;text-align:center;color:#4B5563;font-size:13px">${emptyMsg}</div>`;
+
+    // Footer: show count info when there are more than 5 items
+    const footerHTML = list.length > 5
+      ? `<div class="dash-card-footer">
+           <span style="color:#6B7280;font-size:12px">Showing all ${list.length} molds — scroll to see more</span>
+           <span style="color:#4B5563;font-size:11px">↕ scroll</span>
+         </div>`
+      : "";
+
     return `
       <div class="dash-card" style="border-left:4px solid ${color}">
         <div class="dash-card-header" onclick="toggleDash('${key}')">
@@ -949,7 +963,10 @@ function renderDashboard(){
           </div>
           <div id="dash-chev-${key}" class="dash-chevron ${isOpen?"open":""}">${chevSVG}</div>
         </div>
-        <div id="dash-body-${key}" class="dash-card-body ${isOpen?"open":"closed"}">${rows}</div>
+        <div id="dash-body-${key}" class="dash-card-body ${isOpen?"open":"closed"}">
+          <div class="dash-card-scroll">${rows}</div>
+          ${footerHTML}
+        </div>
       </div>`;
   }
 
