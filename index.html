@@ -21,6 +21,8 @@
   #bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0D1117;border-top:1px solid #1F2937;z-index:100;padding:8px 0 12px}
   .btn-primary{background:linear-gradient(135deg,#FF9500,#FF6B00);border:none;border-radius:10px;padding:11px 20px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
   .btn-ghost{background:transparent;border:1px solid #374151;border-radius:10px;padding:10px 16px;color:#9CA3AF;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+  .btn-print{background:#1F2937;border:1px solid #374151;border-radius:10px;padding:9px 16px;color:#9CA3AF;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:7px;font-weight:600;transition:all 0.15s}
+  .btn-print:hover{background:#2D3748;color:#fff;border-color:#4B5563}
   .badge{font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:6px;text-transform:uppercase;display:inline-block}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);padding:16px}
   .modal-box{background:#111827;border:1px solid #1F2937;border-radius:20px;padding:28px;width:100%;max-width:520px;animation:fadeIn 0.2s ease;max-height:90vh;overflow-y:auto}
@@ -60,12 +62,41 @@
   .group-header{background:#1F2937;border-radius:8px;padding:8px 14px;margin:8px 0 4px;font-size:12px;font-weight:700;color:#9CA3AF;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
   .search-box{background:#1F2937;border:1px solid #374151;border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;width:100%;margin-bottom:14px}
   .search-box:focus{outline:none;border-color:#FF9500!important}
-  /* Week tag chips */
   .wk-chip{display:inline-flex;align-items:center;gap:5px;background:#1F2937;border:1px solid #374151;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;color:#fff;font-family:'DM Mono',monospace}
   .wk-chip-remove{background:none;border:none;color:#6B7280;cursor:pointer;padding:0;font-size:14px;line-height:1;display:flex;align-items:center}
   .wk-chip-remove:hover{color:#FF3B30}
   .week-tags-container{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#1F2937;border:1px solid #374151;border-radius:10px;padding:8px 10px;align-items:center}
   .week-add-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+
+  /* ══ PRINT STYLES ══════════════════════════════════════════════ */
+  @media print {
+    body{background:#fff!important;color:#000!important;font-size:11pt}
+    #login-screen,#setup-screen,#app-screen > div:first-child,
+    #bottom-nav,.btn-primary,.btn-ghost,.btn-print,
+    #admin-add-btn-molds,#filter-btns,#mold-search,
+    .wk-chip-remove,button{display:none!important}
+    #app-screen{display:block!important}
+    #main-content{padding:0!important;max-width:100%!important}
+    .page{display:none!important}
+    #print-target{display:block!important}
+    .print-header{display:block!important}
+    .mold-row,.history-row,.dash-card{
+      background:#fff!important;color:#000!important;
+      border:1px solid #ccc!important;border-radius:0!important;
+      break-inside:avoid;page-break-inside:avoid;margin-bottom:6pt
+    }
+    .badge{border:1px solid #999!important;color:#000!important;background:#eee!important}
+    .group-header{background:#eee!important;color:#000!important;border-radius:0!important}
+    .print-table{width:100%;border-collapse:collapse;font-size:10pt}
+    .print-table th{background:#1a1a1a;color:#fff;padding:6pt 8pt;text-align:left;font-weight:700}
+    .print-table td{padding:5pt 8pt;border-bottom:1px solid #ddd;vertical-align:top}
+    .print-table tr:nth-child(even) td{background:#f8f8f8}
+    .print-status{font-weight:700;font-size:9pt;padding:2pt 6pt;border-radius:3pt;border:1pt solid}
+  }
+  #print-target{display:none}
+  .print-header{display:none}
+  /* Print modal */
+  #print-modal .modal-box{max-width:480px}
 </style>
 </head>
 <body>
@@ -86,17 +117,11 @@
         1. Go to <b style="color:#fff">jsonbin.io</b> → Sign Up (free)<br>
         2. Click <b style="color:#fff">API Keys</b> → copy your <b style="color:#fff">X-Master-Key</b><br>
         3. Click <b style="color:#fff">Bins</b> → <b style="color:#fff">Create Bin</b><br>
-        4. Paste <code style="color:#FF9500">{"molds":[],"history":[]}</code> → Save → copy <b style="color:#fff">BIN ID</b>
+        4. Paste <code style="color:#FF9500">{"molds":[],"history":[],"users":[]}</code> → Save → copy <b style="color:#fff">BIN ID</b>
       </div>
       <div style="display:grid;gap:14px">
-        <div>
-          <label class="form-label">X-Master-Key (Secret Key)</label>
-          <input id="setup-apikey" class="form-input" placeholder="$2b$10$xxxxxxxxxxxxxxxxxxxx" type="password"/>
-        </div>
-        <div>
-          <label class="form-label">Bin ID</label>
-          <input id="setup-binid" class="form-input" placeholder="6650abc1ad19ca34f8xxxxxx"/>
-        </div>
+        <div><label class="form-label">X-Master-Key (Secret Key)</label><input id="setup-apikey" class="form-input" placeholder="$2b$10$xxxxxxxxxxxxxxxxxxxx" type="password"/></div>
+        <div><label class="form-label">Bin ID</label><input id="setup-binid" class="form-input" placeholder="6650abc1ad19ca34f8xxxxxx"/></div>
         <div id="setup-err" style="color:#FF3B30;font-size:13px;display:none"></div>
         <button onclick="doSetup()" class="btn-primary" style="width:100%;justify-content:center" id="setup-btn">Connect & Start</button>
       </div>
@@ -181,6 +206,10 @@
     <div id="page-molds" class="page fade-in">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
         <h2 style="font-size:18px;font-weight:700;flex:1">All Mold Dies</h2>
+        <button onclick="openPrintModal('molds')" class="btn-print">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print
+        </button>
         <div id="admin-add-btn-molds"></div>
       </div>
       <input id="mold-search" class="search-box" placeholder="🔍  Search mold die name..." oninput="renderMolds()"/>
@@ -190,16 +219,39 @@
 
     <!-- CALENDAR -->
     <div id="page-calendar" class="page fade-in">
-      <h2 style="font-size:18px;font-weight:700;margin-bottom:18px">PM Calendar — FY2026</h2>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+        <h2 style="font-size:18px;font-weight:700;flex:1">PM Calendar — FY2026</h2>
+        <button onclick="openPrintModal('calendar')" class="btn-print">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print
+        </button>
+      </div>
       <div id="qtr-tabs" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap"></div>
       <div id="calendar-content"></div>
     </div>
 
     <!-- HISTORY -->
     <div id="page-history" class="page fade-in">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
         <h2 style="font-size:18px;font-weight:700;flex:1">PM Completion History</h2>
         <div id="history-count" style="color:#6B7280;font-size:13px"></div>
+        <button onclick="openPrintModal('history')" class="btn-print">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print
+        </button>
+      </div>
+      <!-- History Search & Filter Bar -->
+      <div style="background:#111827;border:1px solid #1F2937;border-radius:12px;padding:16px;margin-bottom:16px;display:grid;gap:10px">
+        <input id="history-search" class="search-box" placeholder="🔍  Search by mold name, technician, notes..." oninput="renderHistory()" style="margin-bottom:0"/>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <span style="color:#6B7280;font-size:12px;font-weight:600">Filter by week:</span>
+          <input id="history-wk-filter" class="form-input" placeholder="e.g. 620" style="width:120px;padding:7px 12px;font-size:13px" oninput="renderHistory()"/>
+          <span style="color:#6B7280;font-size:12px;font-weight:600;margin-left:4px">By person:</span>
+          <select id="history-person-filter" class="form-input" onchange="renderHistory()" style="width:160px;padding:7px 12px;font-size:13px">
+            <option value="">All technicians</option>
+          </select>
+          <button onclick="clearHistoryFilters()" style="background:transparent;border:1px solid #374151;border-radius:8px;padding:7px 12px;color:#6B7280;cursor:pointer;font-size:12px;white-space:nowrap">✕ Clear</button>
+        </div>
       </div>
       <div id="history-list" style="display:grid;gap:8px"></div>
     </div>
@@ -222,6 +274,9 @@
       </div>
       <div id="users-list" style="display:grid;gap:8px"></div>
     </div>
+
+    <!-- PRINT TARGET (hidden, shown only when printing) -->
+    <div id="print-target"></div>
   </div>
 
   <nav id="bottom-nav">
@@ -248,41 +303,46 @@
   </nav>
 </div>
 
+<!-- ═══ PRINT MODAL ═══ -->
+<div id="print-modal" style="display:none" class="modal-overlay">
+  <div class="modal-box" style="max-width:480px">
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:6px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print / Export
+    </h2>
+    <p style="color:#6B7280;font-size:13px;margin-bottom:20px">Choose what to include in the printout</p>
+    <div style="display:grid;gap:10px" id="print-options-container">
+      <!-- filled by JS -->
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button onclick="closePrintModal()" class="btn-ghost" style="flex:1;justify-content:center">Cancel</button>
+      <button onclick="doPrint()" style="flex:2;background:linear-gradient(135deg,#3B82F6,#1D4ED8);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Now
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ ADD MOLD MODAL ═══ -->
 <div id="add-modal" style="display:none" class="modal-overlay">
   <div class="modal-box">
     <h2 style="font-size:18px;font-weight:700;margin-bottom:22px">Add New Mold Die</h2>
     <div style="display:grid;gap:14px">
-      <div>
-        <label class="form-label">Mold Die Name *</label>
-        <input id="add-name" class="form-input" placeholder="e.g. QFN CU # 6"/>
-      </div>
-      <div>
-        <label class="form-label">Group / Type</label>
-        <input id="add-group" class="form-input" placeholder="e.g. QFN CU"/>
-      </div>
+      <div><label class="form-label">Mold Die Name *</label><input id="add-name" class="form-input" placeholder="e.g. QFN CU # 6"/></div>
+      <div><label class="form-label">Group / Type</label><input id="add-group" class="form-input" placeholder="e.g. QFN CU"/></div>
       <div class="two-col">
-        <div>
-          <label class="form-label">Machine</label>
-          <input id="add-machine" class="form-input" placeholder="e.g. IDEAL, TOWA"/>
-        </div>
-        <div>
-          <label class="form-label">PM Interval (weeks) — Reference</label>
-          <input id="add-interval" class="form-input" type="number" min="1" max="52" placeholder="e.g. 4"/>
-        </div>
+        <div><label class="form-label">Machine</label><input id="add-machine" class="form-input" placeholder="e.g. IDEAL, TOWA"/></div>
+        <div><label class="form-label">PM Interval (weeks) — Ref</label><input id="add-interval" class="form-input" type="number" min="1" max="52" placeholder="e.g. 4"/></div>
       </div>
       <div>
         <label class="form-label">Fixed PM Weeks (week numbers 1–52, repeat every year)</label>
-        <div class="week-tags-container" id="add-week-tags">
-          <span style="color:#4B5563;font-size:12px" id="add-week-empty">No weeks added yet</span>
-        </div>
+        <div class="week-tags-container" id="add-week-tags"><span style="color:#4B5563;font-size:12px" id="add-week-empty">No weeks added yet</span></div>
         <div class="week-add-row">
-          <select id="add-week-select" class="form-input" style="flex:1">
-            <option value="">— Select week number —</option>
-          </select>
+          <select id="add-week-select" class="form-input" style="flex:1"><option value="">— Select week number —</option></select>
           <button onclick="addWeekTag('add')" class="btn-primary" style="padding:10px 16px;white-space:nowrap">+ Add</button>
         </div>
-        <div style="color:#6B7280;font-size:11px;margin-top:6px">Week 1–52 repeats every fiscal year. E.g. Week 16 = WK616 in FY2026, WK516 in FY2025.</div>
+        <div style="color:#6B7280;font-size:11px;margin-top:6px">Week 1–52 repeats every fiscal year. E.g. Week 16 = WK616 in FY2026.</div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:22px">
@@ -298,36 +358,20 @@
     <h2 style="font-size:18px;font-weight:700;margin-bottom:22px">Edit Mold Die</h2>
     <input type="hidden" id="edit-id"/>
     <div style="display:grid;gap:14px">
-      <div>
-        <label class="form-label">Mold Die Name</label>
-        <input id="edit-name" class="form-input"/>
-      </div>
-      <div>
-        <label class="form-label">Group / Type</label>
-        <input id="edit-group" class="form-input"/>
-      </div>
+      <div><label class="form-label">Mold Die Name</label><input id="edit-name" class="form-input"/></div>
+      <div><label class="form-label">Group / Type</label><input id="edit-group" class="form-input"/></div>
       <div class="two-col">
-        <div>
-          <label class="form-label">Machine</label>
-          <input id="edit-machine" class="form-input"/>
-        </div>
-        <div>
-          <label class="form-label">PM Interval (weeks) — Reference</label>
-          <input id="edit-interval" class="form-input" type="number" min="1" max="52"/>
-        </div>
+        <div><label class="form-label">Machine</label><input id="edit-machine" class="form-input"/></div>
+        <div><label class="form-label">PM Interval (weeks) — Ref</label><input id="edit-interval" class="form-input" type="number" min="1" max="52"/></div>
       </div>
       <div>
-        <label class="form-label">Fixed PM Weeks (week numbers 1–52, repeat every year)</label>
-        <div class="week-tags-container" id="edit-week-tags">
-          <span style="color:#4B5563;font-size:12px" id="edit-week-empty">No weeks added yet</span>
-        </div>
+        <label class="form-label">Fixed PM Weeks (week numbers 1–52)</label>
+        <div class="week-tags-container" id="edit-week-tags"><span style="color:#4B5563;font-size:12px" id="edit-week-empty">No weeks added yet</span></div>
         <div class="week-add-row">
-          <select id="edit-week-select" class="form-input" style="flex:1">
-            <option value="">— Select week number —</option>
-          </select>
+          <select id="edit-week-select" class="form-input" style="flex:1"><option value="">— Select week number —</option></select>
           <button onclick="addWeekTag('edit')" class="btn-primary" style="padding:10px 16px;white-space:nowrap">+ Add</button>
         </div>
-        <div style="color:#6B7280;font-size:11px;margin-top:6px">Week 1–52 repeats every fiscal year. E.g. Week 16 = WK616 in FY2026, WK516 in FY2025.</div>
+        <div style="color:#6B7280;font-size:11px;margin-top:6px">Week 1–52 repeats every fiscal year. E.g. Week 16 = WK616 in FY2026.</div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:22px">
@@ -363,9 +407,7 @@
       </div>
       <div>
         <label class="form-label">Performed By <span style="color:#FF3B30">*</span></label>
-        <select id="pmdone-person" class="form-input">
-          <option value="">— Select technician —</option>
-        </select>
+        <select id="pmdone-person" class="form-input"><option value="">— Select technician —</option></select>
       </div>
       <div>
         <label class="form-label">Notes / Remarks</label>
@@ -384,10 +426,9 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════════
-// CALENDAR — FY2026 (week number 1–52 → fiscal week codes 601–652)
+// CALENDAR
 // ══════════════════════════════════════════════════════════════════
 const CALENDAR = [
-  // FY2026: Week 1 starts Sun 2 Nov 2025
   {wk:601,wkNum:1, qtr:"1Q26",mth:"NOV",period:"P1", sun:2, mon:3, tue:4, wed:5, thu:6, fri:7, sat:8},
   {wk:602,wkNum:2, qtr:"1Q26",mth:"NOV",period:"P1", sun:9, mon:10,tue:11,wed:12,thu:13,fri:14,sat:15},
   {wk:603,wkNum:3, qtr:"1Q26",mth:"NOV",period:"P1", sun:16,mon:17,tue:18,wed:19,thu:20,fri:21,sat:22},
@@ -442,76 +483,36 @@ const CALENDAR = [
   {wk:652,wkNum:52,qtr:"4Q26",mth:"OCT",period:"P12",sun:25,mon:26,tue:27,wed:28,thu:29,fri:30,sat:31},
 ];
 
-const ADMIN_USER = "molddiePM";
-const ADMIN_PASS = "molddiePM123";
+const ADMIN_USER="molddiePM", ADMIN_PASS="molddiePM123";
+function wkNumToFiscal(n){return 600+n;}
+function fiscalToWkNum(fwk){return fwk-600;}
+function getWk(fwk){return CALENDAR.find(w=>w.wk===fwk);}
 
-// ── Helper: convert wkNum (1–52) → fiscal code for FY2026 ────────
-function wkNumToFiscal(n){ return 600 + n; }
-function fiscalToWkNum(fwk){ return fwk - 600; }
-
-// ── Get calendar entry by full fiscal week code ──────────────────
-function getWk(fwk){ return CALENDAR.find(w=>w.wk===fwk); }
-
-// ══════════════════════════════════════════════════════════════════
-// DYNAMIC CURRENT WEEK — Malaysia time (GMT+8)
-// Matches today's date against the CALENDAR Sun–Sat date ranges.
-// Works correctly for weeks that span two months (e.g. APR/MAY).
-// ══════════════════════════════════════════════════════════════════
+// ── Dynamic current week detection (Malaysia time) ───────────────
 function detectCurrentWeek(){
-  // Get today in Malaysia time (UTC+8)
-  const now = new Date();
-  const myt = new Date(now.getTime() + (8 * 60 * 60 * 1000));
-  const todayY = myt.getUTCFullYear();
-  const todayM = myt.getUTCMonth(); // 0-based
-  const todayD = myt.getUTCDate();
-
-  const MONTH_IDX = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
-
-  // FY2026: NOV & DEC are calendar year 2025; JAN–OCT are 2026
-  function calYear(mth){ return (mth==="NOV"||mth==="DEC") ? 2025 : 2026; }
-
+  const now=new Date();
+  const myt=new Date(now.getTime()+(8*60*60*1000));
+  const todayY=myt.getUTCFullYear(), todayM=myt.getUTCMonth(), todayD=myt.getUTCDate();
+  const MI={JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+  function calYear(mth){return(mth==="NOV"||mth==="DEC")?2025:2026;}
   for(const w of CALENDAR){
-    const baseYr = calYear(w.mth);
-    const baseMo = MONTH_IDX[w.mth];
-
-    // Determine Sunday's actual month/year.
-    // If sun > sat, the week crosses into next month so Sunday is in PREVIOUS month
-    // If sun < sat (normal), Sunday is in the same month as mth label
-    // Special: if sun is large (e.g. 29) and sat is small (e.g. 4), week spans two months
-    let sunMo, sunYr, satMo, satYr;
-
-    if(w.sun > w.sat){
-      // Week crosses month boundary: sun is in PRIOR month to mth label
-      sunMo = baseMo - 1;
-      sunYr = baseYr;
-      if(sunMo < 0){ sunMo = 11; sunYr -= 1; }
-      satMo = baseMo;
-      satYr = baseYr;
-    } else {
-      // Normal week: both sun and sat in same month
-      sunMo = baseMo; sunYr = baseYr;
-      satMo = baseMo; satYr = baseYr;
-    }
-
-    const afterSun  = (todayY > sunYr)  || (todayY===sunYr  && todayM > sunMo)  || (todayY===sunYr  && todayM===sunMo  && todayD >= w.sun);
-    const beforeSat = (todayY < satYr)  || (todayY===satYr  && todayM < satMo)  || (todayY===satYr  && todayM===satMo  && todayD <= w.sat);
-
-    if(afterSun && beforeSat) return w.wk;
+    const baseYr=calYear(w.mth), baseMo=MI[w.mth];
+    let sunMo,sunYr,satMo,satYr;
+    if(w.sun>w.sat){sunMo=baseMo-1;sunYr=baseYr;if(sunMo<0){sunMo=11;sunYr--;}satMo=baseMo;satYr=baseYr;}
+    else{sunMo=baseMo;sunYr=baseYr;satMo=baseMo;satYr=baseYr;}
+    const afterSun=(todayY>sunYr)||(todayY===sunYr&&todayM>sunMo)||(todayY===sunYr&&todayM===sunMo&&todayD>=w.sun);
+    const beforeSat=(todayY<satYr)||(todayY===satYr&&todayM<satMo)||(todayY===satYr&&todayM===satMo&&todayD<=w.sat);
+    if(afterSun&&beforeSat)return w.wk;
   }
-  const firstW = CALENDAR[0], lastW = CALENDAR[CALENDAR.length-1];
-  const firstYr = calYear(firstW.mth);
-  if(todayY < firstYr) return firstW.wk;
-  return lastW.wk;
+  return CALENDAR[CALENDAR.length-1].wk;
 }
-
-// Resolved once at startup — used everywhere
-const CURRENT_WK    = detectCurrentWeek();
-const CURRENT_WKNUM = fiscalToWkNum(CURRENT_WK);
+const CURRENT_WK=detectCurrentWeek();
+const CURRENT_WKNUM=fiscalToWkNum(CURRENT_WK);
 
 // ══════════════════════════════════════════════════════════════════
 // SEED DATA
 // ══════════════════════════════════════════════════════════════════
-const SEED_MOLDS = [
+const SEED_MOLDS=[
   {id:101,name:"DD / TO CU # 2",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:102,name:"DD / TO CU # 3",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:103,name:"DD / TO CU # 4",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
@@ -635,126 +636,63 @@ const SEED_MOLDS = [
 // ══════════════════════════════════════════════════════════════════
 // JSONBIN
 // ══════════════════════════════════════════════════════════════════
-let API_KEY="", BIN_ID="";
-function loadConfig(){ API_KEY=localStorage.getItem("pm_apikey")||""; BIN_ID=localStorage.getItem("pm_binid")||""; }
-function saveConfig(k,b){ localStorage.setItem("pm_apikey",k); localStorage.setItem("pm_binid",b); API_KEY=k; BIN_ID=b; }
-
-async function dbRead(){
-  const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{"X-Master-Key":API_KEY,"X-Bin-Meta":"false"}});
-  if(!res.ok) throw new Error("Read failed: "+res.status);
-  return await res.json();
-}
-async function dbWrite(data){
-  const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":API_KEY},body:JSON.stringify(data)});
-  if(!res.ok) throw new Error("Write failed: "+res.status);
-}
+let API_KEY="",BIN_ID="";
+function loadConfig(){API_KEY=localStorage.getItem("pm_apikey")||"";BIN_ID=localStorage.getItem("pm_binid")||"";}
+function saveConfig(k,b){localStorage.setItem("pm_apikey",k);localStorage.setItem("pm_binid",b);API_KEY=k;BIN_ID=b;}
+async function dbRead(){const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{"X-Master-Key":API_KEY,"X-Bin-Meta":"false"}});if(!res.ok)throw new Error("Read failed: "+res.status);return await res.json();}
+async function dbWrite(data){const res=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":API_KEY},body:JSON.stringify(data)});if(!res.ok)throw new Error("Write failed: "+res.status);}
 
 // ══════════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════════
-let role=null, molds=[], history=[], users=[], activeTab="dashboard", activeFilter="all", activeQtr="2Q26", isSaving=false;
+let role=null,molds=[],history=[],users=[],activeTab="dashboard",activeFilter="all",activeQtr="2Q26",isSaving=false;
+let addWeekTagsState=[],editWeekTagsState=[];
+let printContext=null; // what we're printing
 
-// Temporary week-tag state while modal is open
-let addWeekTagsState  = [];  // array of wkNum (1–52)
-let editWeekTagsState = [];
-
-function setSyncStatus(s,msg){
-  const el=document.getElementById("sync-indicator"); if(!el)return;
-  el.className="sync-"+(s==="ok"?"ok":s==="busy"?"busy":"err");
-  el.textContent=s==="busy"?"↻ "+msg:s==="ok"?"● "+msg:"✕ "+msg;
-}
+function setSyncStatus(s,msg){const el=document.getElementById("sync-indicator");if(!el)return;el.className="sync-"+(s==="ok"?"ok":s==="busy"?"busy":"err");el.textContent=s==="busy"?"↻ "+msg:s==="ok"?"● "+msg:"✕ "+msg;}
 
 async function loadFromCloud(){
   try{
     setSyncStatus("busy","Loading...");
     const data=await dbRead();
-    if(!data.molds||data.molds.length===0){
-      molds=[...SEED_MOLDS]; history=[]; users=[];
-      await dbWrite({molds,history,users});
-    } else {
-      molds=data.molds||[]; history=data.history||[]; users=data.users||[];
-      molds=molds.map(m=>({...m, scheduledWeeks: m.scheduledWeeks||[]}));
-    }
+    if(!data.molds||data.molds.length===0){molds=[...SEED_MOLDS];history=[];users=[];await dbWrite({molds,history,users});}
+    else{molds=data.molds||[];history=data.history||[];users=data.users||[];molds=molds.map(m=>({...m,scheduledWeeks:m.scheduledWeeks||[]}));}
     setSyncStatus("ok","Synced");
-  }catch(e){ setSyncStatus("err","Sync error"); console.error(e); }
+  }catch(e){setSyncStatus("err","Sync error");console.error(e);}
 }
-
 async function saveToCloud(){
-  if(isSaving)return; isSaving=true;
-  try{
-    setSyncStatus("busy","Saving...");
-    await dbWrite({molds,history,users});
-    setSyncStatus("ok","Saved ✓");
-    setTimeout(()=>setSyncStatus("ok","Synced"),1500);
-  }catch(e){ setSyncStatus("err","Save failed"); console.error(e); }
-  finally{ isSaving=false; }
+  if(isSaving)return;isSaving=true;
+  try{setSyncStatus("busy","Saving...");await dbWrite({molds,history,users});setSyncStatus("ok","Saved ✓");setTimeout(()=>setSyncStatus("ok","Synced"),1500);}
+  catch(e){setSyncStatus("err","Save failed");console.error(e);}
+  finally{isSaving=false;}
 }
 
 // ══════════════════════════════════════════════════════════════════
-// STATUS ENGINE — Fixed Weeks Based
-//
-// scheduledWeeks = array of week numbers 1–52 (year-agnostic)
-// For FY2026: wkNum → fiscal code = 600 + wkNum
-//
-// A "slot" is overdue if: its fiscal week code < CURRENT_WK AND
-//   no history entry marks it done for that (moldId, wkNum, FY)
+// STATUS ENGINE
 // ══════════════════════════════════════════════════════════════════
+function isSlotDone(moldId,wkNum){return history.some(h=>h.moldId===moldId&&h.scheduledWkNum===wkNum&&h.fiscalYear===26);}
 
-function getFiscalYear(fiscalWk){
-  // 601–652 = FY2026, 501–552 = FY2025, etc.
-  return Math.floor(fiscalWk / 100);
-}
-
-// Check if a specific scheduled slot (moldId, wkNum) has been completed in current FY
-function isSlotDone(moldId, wkNum){
-  return history.some(h =>
-    h.moldId === moldId &&
-    h.scheduledWkNum === wkNum &&
-    h.fiscalYear === 26  // FY2026
-  );
-}
-
-// Get all scheduled fiscal codes for this mold in FY2026 sorted ascending
-function getMoldFiscalSchedule(m){
-  if(!m.scheduledWeeks||m.scheduledWeeks.length===0) return [];
-  return [...m.scheduledWeeks].sort((a,b)=>a-b).map(n=>wkNumToFiscal(n));
-}
-
-// Compute mold status based on fixed weeks
 function getMoldStatus(m){
-  const sw = m.scheduledWeeks||[];
-  if(sw.length===0)
-    return{label:"NOT SET",color:"#6B7280",bg:"#6B728018",slots:[]};
-
-  const slots = sw.map(wkNum=>{
-    const fwk = wkNumToFiscal(wkNum);
-    const done = isSlotDone(m.id, wkNum);
+  const sw=m.scheduledWeeks||[];
+  if(sw.length===0)return{label:"NOT SET",color:"#6B7280",bg:"#6B728018",slots:[]};
+  const slots=sw.map(wkNum=>{
+    const fwk=wkNumToFiscal(wkNum);
+    const done=isSlotDone(m.id,wkNum);
     let slotStatus;
-    if(done){
-      slotStatus = "DONE";
-    } else if(fwk < CURRENT_WK){
-      slotStatus = "OVERDUE";
-    } else if(fwk === CURRENT_WK){
-      slotStatus = "DUE NOW";
-    } else if(fwk === CURRENT_WK + 1){
-      slotStatus = "DUE SOON";
-    } else {
-      slotStatus = "UPCOMING";
-    }
-    return {wkNum, fwk, done, slotStatus};
+    if(done)slotStatus="DONE";
+    else if(fwk<CURRENT_WK)slotStatus="OVERDUE";
+    else if(fwk===CURRENT_WK)slotStatus="DUE NOW";
+    else if(fwk===CURRENT_WK+1)slotStatus="DUE SOON";
+    else slotStatus="UPCOMING";
+    return{wkNum,fwk,done,slotStatus};
   });
-
-  // Determine overall mold status from worst pending slot
-  const hasDone     = slots.some(s=>s.slotStatus==="DONE");
-  const overdue     = slots.filter(s=>s.slotStatus==="OVERDUE");
-  const dueNow      = slots.filter(s=>s.slotStatus==="DUE NOW");
-  const dueSoon     = slots.filter(s=>s.slotStatus==="DUE SOON");
-  const upcoming    = slots.filter(s=>s.slotStatus==="UPCOMING");
-
-  if(overdue.length>0)  return{label:"OVERDUE",  color:"#FF3B30",bg:"#FF3B3018",slots,overdue};
-  if(dueNow.length>0)   return{label:"DUE NOW",  color:"#FF9500", bg:"#FF950018",slots,dueNow};
-  if(dueSoon.length>0)  return{label:"DUE SOON", color:"#FFCC00",bg:"#FFCC0018",slots,dueSoon};
-  return                      {label:"OK",       color:"#30D158",bg:"#30D15818",slots};
+  const overdue=slots.filter(s=>s.slotStatus==="OVERDUE");
+  const dueNow=slots.filter(s=>s.slotStatus==="DUE NOW");
+  const dueSoon=slots.filter(s=>s.slotStatus==="DUE SOON");
+  if(overdue.length>0)return{label:"OVERDUE",color:"#FF3B30",bg:"#FF3B3018",slots,overdue};
+  if(dueNow.length>0)return{label:"DUE NOW",color:"#FF9500",bg:"#FF950018",slots,dueNow};
+  if(dueSoon.length>0)return{label:"DUE SOON",color:"#FFCC00",bg:"#FFCC0018",slots,dueSoon};
+  return{label:"OK",color:"#30D158",bg:"#30D15818",slots};
 }
 
 function iSVG(t,s=16){
@@ -769,84 +707,208 @@ function iSVG(t,s=16){
 }
 
 // ══════════════════════════════════════════════════════════════════
-// WEEK TAG UI — shared between add & edit modals
+// WEEK TAG UI
 // ══════════════════════════════════════════════════════════════════
 function populateWeekSelect(formId){
-  const sel = document.getElementById(formId+"-week-select");
-  sel.innerHTML = `<option value="">— Select week number —</option>`;
-  for(let i=1;i<=52;i++){
-    const cal = CALENDAR.find(w=>w.wkNum===i);
-    const label = cal ? `Week ${i} — ${cal.mth} (WK${cal.wk})` : `Week ${i}`;
-    sel.innerHTML += `<option value="${i}">${label}</option>`;
-  }
+  const sel=document.getElementById(formId+"-week-select");
+  sel.innerHTML=`<option value="">— Select week number —</option>`;
+  for(let i=1;i<=52;i++){const cal=CALENDAR.find(w=>w.wkNum===i);const label=cal?`Week ${i} — ${cal.mth} (WK${cal.wk})`:`Week ${i}`;sel.innerHTML+=`<option value="${i}">${label}</option>`;}
 }
-
 function renderWeekTags(formId){
-  const state = formId==="add" ? addWeekTagsState : editWeekTagsState;
-  const container = document.getElementById(formId+"-week-tags");
-  const empty = document.getElementById(formId+"-week-empty");
-  if(state.length===0){
-    container.innerHTML='';
-    const sp=document.createElement('span');
-    sp.id=formId+"-week-empty"; sp.style.color="#4B5563"; sp.style.fontSize="12px";
-    sp.textContent="No weeks added yet";
-    container.appendChild(sp);
-    return;
-  }
+  const state=formId==="add"?addWeekTagsState:editWeekTagsState;
+  const container=document.getElementById(formId+"-week-tags");
+  if(state.length===0){container.innerHTML=`<span id="${formId}-week-empty" style="color:#4B5563;font-size:12px">No weeks added yet</span>`;return;}
   const sorted=[...state].sort((a,b)=>a-b);
-  container.innerHTML=sorted.map(n=>{
-    const cal=CALENDAR.find(w=>w.wkNum===n);
-    const mthLabel=cal?` ${cal.mth}`:"";
-    return `<span class="wk-chip">Week ${n}${mthLabel} <button class="wk-chip-remove" onclick="removeWeekTag('${formId}',${n})" title="Remove">×</button></span>`;
-  }).join("");
+  container.innerHTML=sorted.map(n=>{const cal=CALENDAR.find(w=>w.wkNum===n);const mthLabel=cal?` ${cal.mth}`:"";return `<span class="wk-chip">Week ${n}${mthLabel} <button class="wk-chip-remove" onclick="removeWeekTag('${formId}',${n})" title="Remove">×</button></span>`;}).join("");
 }
-
 function addWeekTag(formId){
-  const sel = document.getElementById(formId+"-week-select");
-  const val = parseInt(sel.value);
-  if(!val) return;
-  const state = formId==="add" ? addWeekTagsState : editWeekTagsState;
-  if(state.includes(val)){ alert("Week "+val+" is already added."); return; }
-  if(formId==="add") addWeekTagsState.push(val);
-  else editWeekTagsState.push(val);
-  sel.value="";
-  renderWeekTags(formId);
+  const sel=document.getElementById(formId+"-week-select");const val=parseInt(sel.value);if(!val)return;
+  const state=formId==="add"?addWeekTagsState:editWeekTagsState;
+  if(state.includes(val)){alert("Week "+val+" is already added.");return;}
+  if(formId==="add")addWeekTagsState.push(val);else editWeekTagsState.push(val);
+  sel.value="";renderWeekTags(formId);
 }
-
-function removeWeekTag(formId, wkNum){
-  if(formId==="add") addWeekTagsState = addWeekTagsState.filter(n=>n!==wkNum);
-  else editWeekTagsState = editWeekTagsState.filter(n=>n!==wkNum);
+function removeWeekTag(formId,wkNum){
+  if(formId==="add")addWeekTagsState=addWeekTagsState.filter(n=>n!==wkNum);else editWeekTagsState=editWeekTagsState.filter(n=>n!==wkNum);
   renderWeekTags(formId);
 }
 
 // ══════════════════════════════════════════════════════════════════
-// SETUP
+// PRINT SYSTEM
 // ══════════════════════════════════════════════════════════════════
-function showSetup(){ document.getElementById("login-screen").style.display="none"; document.getElementById("setup-screen").style.display="flex"; }
+function openPrintModal(context){
+  printContext=context;
+  const cur=getWk(CURRENT_WK);
+  const printedOn=new Date().toLocaleDateString("en-SG",{day:"2-digit",month:"short",year:"numeric"});
+
+  let optionsHTML="";
+
+  if(context==="molds"||context==="dashboard"){
+    optionsHTML=`
+      <div style="color:#9CA3AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Select what to print</div>
+      ${printOption("print-opt-overdue","⛔ Overdue PM only","print-overdue",true)}
+      ${printOption("print-opt-duenow","🔧 This week's due PM only","print-duenow",false)}
+      ${printOption("print-opt-duesoon","⏰ Due soon (next week)","print-duesoon",false)}
+      ${printOption("print-opt-ok","✅ Up to date molds","print-ok",false)}
+      ${printOption("print-opt-notset","⚙ Not configured molds","print-notset",false)}
+      ${printOption("print-opt-all","📋 All molds (full list)","print-all",false)}
+    `;
+  } else if(context==="history"){
+    optionsHTML=`
+      <div style="color:#9CA3AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Print PM history</div>
+      ${printOption("print-opt-hist-all","📋 All history records","print-hist-all",true)}
+      ${printOption("print-opt-hist-search","🔍 Current search / filter results only","print-hist-search",false)}
+    `;
+  } else if(context==="calendar"){
+    optionsHTML=`
+      <div style="color:#9CA3AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Print calendar</div>
+      ${printOption("print-opt-cal-qtr","📅 Current quarter (${activeQtr})","print-cal-qtr",true)}
+      ${printOption("print-opt-cal-all","📅 Full year calendar","print-cal-all",false)}
+    `.replace("${activeQtr}",activeQtr);
+  }
+
+  document.getElementById("print-options-container").innerHTML=`
+    ${optionsHTML}
+    <div style="background:#1F2937;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:12px;color:#6B7280">
+      <b style="color:#9CA3AF">Printed on:</b> ${printedOn} &nbsp;·&nbsp; 
+      <b style="color:#9CA3AF">Current WK:</b> WK${CURRENT_WK} (${cur?cur.mth+' '+cur.period:''})
+    </div>
+  `;
+  document.getElementById("print-modal").style.display="flex";
+}
+
+function printOption(id,label,value,checked){
+  return `<label style="display:flex;align-items:center;gap:12px;background:#1F2937;border-radius:10px;padding:12px 14px;cursor:pointer;border:2px solid transparent;transition:border 0.15s" onclick="selectPrintOpt('${value}')">
+    <input type="radio" name="print-opt" value="${value}" ${checked?"checked":""} style="accent-color:#FF9500;width:16px;height:16px;flex-shrink:0"/>
+    <span style="font-size:14px;font-weight:500">${label}</span>
+  </label>`;
+}
+
+function selectPrintOpt(val){
+  document.querySelectorAll("input[name='print-opt']").forEach(r=>{r.checked=r.value===val;});
+}
+
+function closePrintModal(){document.getElementById("print-modal").style.display="none";}
+document.getElementById("print-modal").addEventListener("click",function(e){if(e.target===this)closePrintModal();});
+
+function doPrint(){
+  const sel=document.querySelector("input[name='print-opt']:checked");
+  if(!sel){alert("Please select a print option.");return;}
+  const opt=sel.value;
+  const printedOn=new Date().toLocaleDateString("en-SG",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+  const cur=getWk(CURRENT_WK);
+  const header=`
+    <div class="print-header" style="margin-bottom:20pt;border-bottom:2pt solid #000;padding-bottom:10pt">
+      <div style="font-size:18pt;font-weight:bold">MoldDie PM System — ADI FY2026</div>
+      <div style="font-size:10pt;color:#555;margin-top:4pt">Printed: ${printedOn} &nbsp;·&nbsp; Current WK: WK${CURRENT_WK} (${cur?cur.mth+' '+cur.period+' '+cur.qtr:""})</div>
+    </div>`;
+
+  let content="";
+
+  // ── MOLD LIST PRINTS ──────────────────────────────────────────
+  if(["print-overdue","print-duenow","print-duesoon","print-ok","print-notset","print-all"].includes(opt)){
+    const labelMap={"print-overdue":"Overdue PM","print-duenow":"Due This Week (WK"+CURRENT_WK+")","print-duesoon":"Due Soon","print-ok":"Up to Date","print-notset":"Not Configured","print-all":"All Mold Dies"};
+    const filterMap={"print-overdue":"OVERDUE","print-duenow":"DUE NOW","print-duesoon":"DUE SOON","print-ok":"OK","print-notset":"NOT SET","print-all":null};
+    const filterLabel=filterMap[opt];
+    let list=molds.filter(m=>!filterLabel||getMoldStatus(m).label===filterLabel);
+    list=[...list].sort((a,b)=>{const o={OVERDUE:0,"DUE NOW":1,"DUE SOON":2,OK:3,"NOT SET":4};return(o[getMoldStatus(a).label]||9)-(o[getMoldStatus(b).label]||9);});
+
+    content=`<div style="font-size:14pt;font-weight:bold;margin-bottom:12pt">${labelMap[opt]} — ${list.length} mold die${list.length!==1?"s":""}</div>
+    <table class="print-table">
+      <thead><tr>
+        <th>#</th><th>Mold Die Name</th><th>Group</th><th>Machine</th><th>Status</th><th>Scheduled Weeks</th><th>Done Weeks</th>
+      </tr></thead>
+      <tbody>
+      ${list.map((m,i)=>{
+        const st=getMoldStatus(m);
+        const scheduled=(m.scheduledWeeks||[]).sort((a,b)=>a-b).map(n=>"Wk"+n).join(", ")||"—";
+        const done=(st.slots||[]).filter(s=>s.slotStatus==="DONE").map(s=>"Wk"+s.wkNum).join(", ")||"—";
+        const statusColors={"OVERDUE":"#cc0000","DUE NOW":"#cc6600","DUE SOON":"#aa8800","OK":"#006600","NOT SET":"#555"};
+        return `<tr><td>${i+1}</td><td style="font-weight:600">${m.name}</td><td>${m.group||"—"}</td><td>${m.machine||"—"}</td>
+          <td><span class="print-status" style="color:${statusColors[st.label]||"#333"};border-color:${statusColors[st.label]||"#999"}">${st.label}</span></td>
+          <td style="font-family:monospace">${scheduled}</td><td style="font-family:monospace;color:#006600">${done}</td></tr>`;
+      }).join("")}
+      </tbody>
+    </table>`;
+  }
+
+  // ── HISTORY PRINTS ────────────────────────────────────────────
+  if(["print-hist-all","print-hist-search"].includes(opt)){
+    let list=opt==="print-hist-all"?[...history]:getFilteredHistory();
+    list=[...list].reverse();
+    content=`<div style="font-size:14pt;font-weight:bold;margin-bottom:12pt">PM Completion History — ${list.length} record${list.length!==1?"s":""}</div>
+    <table class="print-table">
+      <thead><tr><th>#</th><th>Mold Die</th><th>Group</th><th>Sched. Week</th><th>PM Date</th><th>Performed By</th><th>Notes</th></tr></thead>
+      <tbody>
+      ${list.map((h,i)=>`<tr>
+        <td>${i+1}</td>
+        <td style="font-weight:600">${h.moldName}</td>
+        <td>${h.moldGroup||"—"}</td>
+        <td style="font-family:monospace">Wk${h.scheduledWkNum||"—"} (WK${h.fiscalWeek||"—"})</td>
+        <td>${h.doneDate||"—"}</td>
+        <td>${h.doneBy||"—"}</td>
+        <td style="font-style:italic;color:#555">${h.notes||""}</td>
+      </tr>`).join("")}
+      </tbody>
+    </table>`;
+  }
+
+  // ── CALENDAR PRINTS ────────────────────────────────────────────
+  if(["print-cal-qtr","print-cal-all"].includes(opt)){
+    const qtrs=opt==="print-cal-qtr"?[activeQtr]:[...new Set(CALENDAR.map(w=>w.qtr))];
+    content=`<div style="font-size:14pt;font-weight:bold;margin-bottom:12pt">PM Calendar — ${opt==="print-cal-qtr"?activeQtr:"FY2026 Full Year"}</div>`;
+    qtrs.forEach(qtr=>{
+      const qtrWeeks=CALENDAR.filter(w=>w.qtr===qtr);
+      const months=[...new Set(qtrWeeks.map(w=>w.mth))];
+      content+=`<div style="font-size:12pt;font-weight:bold;margin:14pt 0 8pt;color:#333">${qtr}</div>`;
+      months.forEach(mth=>{
+        const mthWeeks=qtrWeeks.filter(w=>w.mth===mth);
+        content+=`<div style="font-size:10pt;font-weight:bold;color:#555;text-transform:uppercase;letter-spacing:1pt;margin-bottom:4pt">${mth}</div>
+        <table class="print-table" style="margin-bottom:12pt">
+          <thead><tr><th>WK Code</th><th>Week #</th><th>Dates</th><th>Period</th><th>Molds Due</th></tr></thead>
+          <tbody>
+          ${mthWeeks.map(w=>{
+            const scheduled=molds.filter(m=>(m.scheduledWeeks||[]).includes(w.wkNum));
+            const isCur=w.wk===CURRENT_WK;
+            const moldNames=scheduled.length?scheduled.map(m=>{const done=isSlotDone(m.id,w.wkNum);return m.name+(done?" ✓":"");}).join("; "):"—";
+            return `<tr style="${isCur?"background:#fffbe6;font-weight:bold":""}">
+              <td style="font-family:monospace">WK${w.wk}${isCur?" ← NOW":""}</td>
+              <td style="font-family:monospace">Wk${w.wkNum}</td>
+              <td>Sun ${w.sun} – Sat ${w.sat}</td>
+              <td>${w.period}</td>
+              <td style="font-size:9pt">${moldNames}</td>
+            </tr>`;
+          }).join("")}
+          </tbody>
+        </table>`;
+      });
+    });
+  }
+
+  // Inject into print-target and trigger print
+  document.getElementById("print-target").innerHTML=header+content;
+  closePrintModal();
+  setTimeout(()=>window.print(),150);
+  // After print, clear target
+  window.addEventListener("afterprint",()=>{document.getElementById("print-target").innerHTML="";},{once:true});
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SETUP & AUTH
+// ══════════════════════════════════════════════════════════════════
+function showSetup(){document.getElementById("login-screen").style.display="none";document.getElementById("setup-screen").style.display="flex";}
 async function doSetup(){
-  const k=document.getElementById("setup-apikey").value.trim();
-  const b=document.getElementById("setup-binid").value.trim();
-  const err=document.getElementById("setup-err"); const btn=document.getElementById("setup-btn");
+  const k=document.getElementById("setup-apikey").value.trim();const b=document.getElementById("setup-binid").value.trim();
+  const err=document.getElementById("setup-err");const btn=document.getElementById("setup-btn");
   if(!k||!b){err.textContent="Please fill in both fields.";err.style.display="block";return;}
   btn.textContent="Testing...";btn.disabled=true;
-  try{
-    const res=await fetch(`https://api.jsonbin.io/v3/b/${b}/latest`,{headers:{"X-Master-Key":k,"X-Bin-Meta":"false"}});
-    if(!res.ok) throw new Error("Cannot connect. Check your API Key and Bin ID.");
-    saveConfig(k,b);
-    document.getElementById("setup-screen").style.display="none";
-    document.getElementById("login-screen").style.display="flex";
-    err.style.display="none";
-  }catch(e){err.textContent=e.message;err.style.display="block";}
+  try{const res=await fetch(`https://api.jsonbin.io/v3/b/${b}/latest`,{headers:{"X-Master-Key":k,"X-Bin-Meta":"false"}});if(!res.ok)throw new Error("Cannot connect. Check your API Key and Bin ID.");saveConfig(k,b);document.getElementById("setup-screen").style.display="none";document.getElementById("login-screen").style.display="flex";err.style.display="none";}
+  catch(e){err.textContent=e.message;err.style.display="block";}
   finally{btn.textContent="Connect & Start";btn.disabled=false;}
 }
-
-// ══════════════════════════════════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════════════════════════════════
 function doAdminLogin(){
-  const u=document.getElementById("login-user").value.trim();
-  const p=document.getElementById("login-pass").value;
-  const err=document.getElementById("login-err"); const card=document.getElementById("login-card");
+  const u=document.getElementById("login-user").value.trim();const p=document.getElementById("login-pass").value;
+  const err=document.getElementById("login-err");const card=document.getElementById("login-card");
   if(u===ADMIN_USER&&p===ADMIN_PASS){enterApp("admin");}
   else{err.textContent="Invalid credentials";err.style.display="block";card.style.animation="shake 0.4s ease";setTimeout(()=>{card.style.animation="";},500);}
 }
@@ -862,27 +924,20 @@ async function enterApp(r){
   badge.style.background=r==="admin"?"#FF950022":"#30D15822";
   badge.style.color=r==="admin"?"#FF9500":"#30D158";
   badge.style.borderColor=r==="admin"?"#FF950044":"#30D15844";
-  // Show Users tab for admin only
-  const usrTabH=document.getElementById("htab-users");
-  const usrTabB=document.getElementById("btab-users");
-  if(usrTabH) usrTabH.style.display=r==="admin"?"":"none";
-  if(usrTabB) usrTabB.style.display=r==="admin"?"flex":"none";
-  populateWeekSelect("add");
-  populateWeekSelect("edit");
+  const utH=document.getElementById("htab-users"),utB=document.getElementById("btab-users");
+  if(utH)utH.style.display=r==="admin"?"":"none";
+  if(utB)utB.style.display=r==="admin"?"flex":"none";
+  populateWeekSelect("add");populateWeekSelect("edit");
   document.getElementById("loading-overlay").style.display="block";
   document.getElementById("dash-content").innerHTML="";
   await loadFromCloud();
   document.getElementById("loading-overlay").style.display="none";
   showTab("dashboard");
-  if(r==="user") setInterval(async()=>{await loadFromCloud();renderTab(activeTab);},60000);
+  if(r==="user")setInterval(async()=>{await loadFromCloud();renderTab(activeTab);},60000);
 }
 function doLogout(){
-  role=null;
-  document.getElementById("app-screen").style.display="none";
-  document.getElementById("login-screen").style.display="flex";
-  document.getElementById("login-user").value="";
-  document.getElementById("login-pass").value="";
-  document.getElementById("login-err").style.display="none";
+  role=null;document.getElementById("app-screen").style.display="none";document.getElementById("login-screen").style.display="flex";
+  document.getElementById("login-user").value="";document.getElementById("login-pass").value="";document.getElementById("login-err").style.display="none";
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -893,9 +948,9 @@ function showTab(t){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById("page-"+t).classList.add("active");
   document.querySelectorAll(".tab-hdr").forEach(b=>b.classList.remove("active"));
-  const ht=document.getElementById("htab-"+t); if(ht)ht.classList.add("active");
+  const ht=document.getElementById("htab-"+t);if(ht)ht.classList.add("active");
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-  const bt=document.getElementById("btab-"+t); if(bt)bt.classList.add("active");
+  const bt=document.getElementById("btab-"+t);if(bt)bt.classList.add("active");
   renderTab(t);
 }
 function renderTab(t){
@@ -909,67 +964,58 @@ function renderTab(t){
 // ══════════════════════════════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════════════════════════════
-const dashOpen = {overdue:true, duenow:true, duesoon:false, ok:false, notset:false};
-
+const dashOpen={overdue:true,duenow:true,duesoon:false,ok:false,notset:false};
 function toggleDash(key){
   dashOpen[key]=!dashOpen[key];
-  const body=document.getElementById("dash-body-"+key);
-  const chev=document.getElementById("dash-chev-"+key);
-  if(body) body.className="dash-card-body "+(dashOpen[key]?"open":"closed");
-  if(chev) chev.className="dash-chevron "+(dashOpen[key]?"open":"");
+  const body=document.getElementById("dash-body-"+key);const chev=document.getElementById("dash-chev-"+key);
+  if(body)body.className="dash-card-body "+(dashOpen[key]?"open":"closed");
+  if(chev)chev.className="dash-chevron "+(dashOpen[key]?"open":"");
 }
-
 function renderDashboard(){
   const cur=getWk(CURRENT_WK);
-  const addBtn=role==="admin"
-    ?`<button onclick="openAddModal()" class="btn-primary" style="margin-left:auto;white-space:nowrap">${iSVG("plus",16)} Add Mold</button>`:"";
-
+  const addBtn=role==="admin"?`<button onclick="openAddModal()" class="btn-primary" style="margin-left:auto;white-space:nowrap">${iSVG("plus",16)} Add Mold</button>`:"";
   document.getElementById("wk-banner").innerHTML=`
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     <div style="flex:1">
       <div style="color:#FF9500;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Current Company Work Week</div>
       <div style="font-size:18px;font-weight:700;margin-top:3px">WK${CURRENT_WK} (Week ${CURRENT_WKNUM}) &nbsp;·&nbsp; ${cur.mth} ${cur.period} &nbsp;·&nbsp; ${cur.qtr}</div>
       <div style="color:#6B7280;font-size:13px;margin-top:2px">Sun ${cur.sun} – Sat ${cur.sat} &nbsp;·&nbsp; Total molds: <b style="color:#fff">${molds.length}</b></div>
-    </div>${addBtn}`;
+    </div>
+    <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap">
+      <button onclick="openPrintModal('dashboard')" class="btn-print" style="white-space:nowrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print List
+      </button>
+      ${addBtn}
+    </div>`;
 
-  const overdue = molds.filter(m=>getMoldStatus(m).label==="OVERDUE");
-  const dueNow  = molds.filter(m=>getMoldStatus(m).label==="DUE NOW");
-  const dueSoon = molds.filter(m=>getMoldStatus(m).label==="DUE SOON");
-  const ok      = molds.filter(m=>getMoldStatus(m).label==="OK");
-  const notSet  = molds.filter(m=>getMoldStatus(m).label==="NOT SET");
-
+  const overdue=molds.filter(m=>getMoldStatus(m).label==="OVERDUE");
+  const dueNow=molds.filter(m=>getMoldStatus(m).label==="DUE NOW");
+  const dueSoon=molds.filter(m=>getMoldStatus(m).label==="DUE SOON");
+  const ok=molds.filter(m=>getMoldStatus(m).label==="OK");
+  const notSet=molds.filter(m=>getMoldStatus(m).label==="NOT SET");
   const chevSVG=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>`;
 
   function dashCard(key,label,emoji,color,bg,list,showDone){
     const isOpen=dashOpen[key];
     const emptyMsg=key==="notset"?"All molds are configured ✓":key==="ok"?"No molds in this category.":"No molds in this category — great! 🎉";
     const rows=list.length?list.map(m=>dashboardRowHTML(m,showDone)).join(""):`<div style="padding:20px;text-align:center;color:#4B5563;font-size:13px">${emptyMsg}</div>`;
-
-    // Footer: show count info when there are more than 5 items
-    const footerHTML = list.length > 5
-      ? `<div class="dash-card-footer">
-           <span style="color:#6B7280;font-size:12px">Showing all ${list.length} molds — scroll to see more</span>
-           <span style="color:#4B5563;font-size:11px">↕ scroll</span>
-         </div>`
-      : "";
-
-    return `
-      <div class="dash-card" style="border-left:4px solid ${color}">
-        <div class="dash-card-header" onclick="toggleDash('${key}')">
-          <div style="width:48px;height:48px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${emoji}</div>
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px">${label}</div>
-            <div style="font-size:30px;font-weight:800;color:${list.length>0?color:"#374151"};line-height:1.1;margin-top:2px">${list.length} <span style="font-size:14px;font-weight:500;color:#6B7280">mold die${list.length!==1?"s":""}</span></div>
-          </div>
-          <div id="dash-chev-${key}" class="dash-chevron ${isOpen?"open":""}">${chevSVG}</div>
+    const footerHTML=list.length>5?`<div class="dash-card-footer"><span style="color:#6B7280;font-size:12px">Showing all ${list.length} molds — scroll to see more</span><span style="color:#4B5563;font-size:11px">↕ scroll</span></div>`:"";
+    return `<div class="dash-card" style="border-left:4px solid ${color}">
+      <div class="dash-card-header" onclick="toggleDash('${key}')">
+        <div style="width:48px;height:48px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${emoji}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px">${label}</div>
+          <div style="font-size:30px;font-weight:800;color:${list.length>0?color:"#374151"};line-height:1.1;margin-top:2px">${list.length} <span style="font-size:14px;font-weight:500;color:#6B7280">mold die${list.length!==1?"s":""}</span></div>
         </div>
-        <div id="dash-body-${key}" class="dash-card-body ${isOpen?"open":"closed"}">
-          <div class="dash-card-scroll">${rows}</div>
-          ${footerHTML}
-        </div>
-      </div>`;
+        <div id="dash-chev-${key}" class="dash-chevron ${isOpen?"open":""}">${chevSVG}</div>
+      </div>
+      <div id="dash-body-${key}" class="dash-card-body ${isOpen?"open":"closed"}">
+        <div class="dash-card-scroll">${rows}</div>
+        ${footerHTML}
+      </div>
+    </div>`;
   }
-
   document.getElementById("dash-content").innerHTML=
     dashCard("overdue","⛔ Overdue PM","⛔","#FF3B30","#FF3B3018",overdue,true)+
     dashCard("duenow","🔧 Due This Week","🔧","#FF9500","#FF950018",dueNow,true)+
@@ -981,42 +1027,28 @@ function renderDashboard(){
 // ══════════════════════════════════════════════════════════════════
 // DASHBOARD ROW
 // ══════════════════════════════════════════════════════════════════
-function dashboardRowHTML(m, showDone=false){
-  const st=getMoldStatus(m);
-  const isNotSet=st.label==="NOT SET";
+function dashboardRowHTML(m,showDone=false){
+  const st=getMoldStatus(m);const isNotSet=st.label==="NOT SET";
   const machBadge=m.machine?`<span style="font-size:11px;background:#1F2937;color:#9CA3AF;padding:2px 7px;border-radius:6px">${m.machine}</span>`:"";
-
-  // Slot summary
   let slotInfo="";
-  if(!isNotSet && st.slots){
-    // Show upcoming/due slots concisely
+  if(!isNotSet&&st.slots){
     const pendingSlots=st.slots.filter(s=>s.slotStatus!=="DONE");
     const doneSlots=st.slots.filter(s=>s.slotStatus==="DONE");
-    const slotChips=pendingSlots.slice(0,4).map(s=>{
-      const sc={OVERDUE:"#FF3B30","DUE NOW":"#FF9500","DUE SOON":"#FFCC00",UPCOMING:"#374151"};
-      const cal=getWk(s.fwk);
-      return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${sc[s.slotStatus]||"#374151"}44;color:${sc[s.slotStatus]||"#6B7280"};background:${sc[s.slotStatus]||"#374151"}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""} ${s.slotStatus==="OVERDUE"?"⚠":s.slotStatus==="DUE NOW"?"🔧":""}</span>`;
-    }).join("");
+    const sc={OVERDUE:"#FF3B30","DUE NOW":"#FF9500","DUE SOON":"#FFCC00",UPCOMING:"#374151"};
+    const slotChips=pendingSlots.slice(0,4).map(s=>{const cal=getWk(s.fwk);return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${sc[s.slotStatus]||"#374151"}44;color:${sc[s.slotStatus]||"#6B7280"};background:${sc[s.slotStatus]||"#374151"}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""} ${s.slotStatus==="OVERDUE"?"⚠":s.slotStatus==="DUE NOW"?"🔧":""}</span>`;}).join("");
     const doneChips=doneSlots.map(s=>`<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid #30D15833;color:#30D158;background:#30D15810;font-family:'DM Mono',monospace">Wk${s.wkNum} ✓</span>`).join("");
     slotInfo=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">${slotChips}${doneChips}</div>`;
   }
-
-  const doneBtn=showDone&&!isNotSet
-    ?`<button onclick="openPMDoneModal(${m.id})" style="background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:8px 16px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">${iSVG("check",13)} Mark Done</button>`
-    :"";
-
-  return `
-    <div style="background:#0D1117;border:1px solid #1F2937;border-left:3px solid ${st.color};border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <div style="flex:1;min-width:160px">
-        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
-          <span style="font-weight:700;font-size:13px;font-family:'DM Mono',monospace">${m.name}</span>
-          ${machBadge}
-          ${isNotSet&&role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#FF950022;border:1px solid #FF950044;color:#FF9500;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;font-weight:600">⚙ Configure</button>`:""}
-        </div>
-        ${isNotSet?`<div style="color:#6B7280;font-size:11px;font-style:italic">No PM weeks configured — admin must add scheduled weeks</div>`:slotInfo}
+  const doneBtn=showDone&&!isNotSet?`<button onclick="openPMDoneModal(${m.id})" style="background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:8px 16px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">${iSVG("check",13)} Mark Done</button>`:"";
+  return `<div style="background:#0D1117;border:1px solid #1F2937;border-left:3px solid ${st.color};border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="flex:1;min-width:160px">
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
+        <span style="font-weight:700;font-size:13px;font-family:'DM Mono',monospace">${m.name}</span>${machBadge}
+        ${isNotSet&&role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#FF950022;border:1px solid #FF950044;color:#FF9500;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;font-weight:600">⚙ Configure</button>`:""}
       </div>
-      ${doneBtn}
-    </div>`;
+      ${isNotSet?`<div style="color:#6B7280;font-size:11px;font-style:italic">No PM weeks configured</div>`:slotInfo}
+    </div>${doneBtn}
+  </div>`;
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -1025,14 +1057,7 @@ function dashboardRowHTML(m, showDone=false){
 function renderMolds(){
   document.getElementById("admin-add-btn-molds").innerHTML=role==="admin"?`<button onclick="openAddModal()" class="btn-primary">${iSVG("plus",16)} Add</button>`:"";
   const total=molds.length;
-  const filters=[
-    {k:"all",l:`All (${total})`},
-    {k:"overdue",l:"Overdue"},
-    {k:"duenow",l:"Due Now"},
-    {k:"duesoon",l:"Due Soon"},
-    {k:"ok",l:"OK"},
-    {k:"notset",l:"Not Set"},
-  ];
+  const filters=[{k:"all",l:`All (${total})`},{k:"overdue",l:"Overdue"},{k:"duenow",l:"Due Now"},{k:"duesoon",l:"Due Soon"},{k:"ok",l:"OK"},{k:"notset",l:"Not Set"}];
   document.getElementById("filter-btns").innerHTML=filters.map(f=>`<button onclick="setFilter('${f.k}')" class="filter-btn${activeFilter===f.k?" active":""}">${f.l}</button>`).join("");
   const search=(document.getElementById("mold-search")||{}).value||"";
   const order={OVERDUE:0,"DUE NOW":1,"DUE SOON":2,OK:3,"NOT SET":4};
@@ -1040,7 +1065,6 @@ function renderMolds(){
     .filter(m=>{if(activeFilter==="all")return true;const lbl=getMoldStatus(m).label.toLowerCase().replace(/ /g,"");return lbl===activeFilter;})
     .filter(m=>!search||m.name.toLowerCase().includes(search.toLowerCase())||(m.group&&m.group.toLowerCase().includes(search.toLowerCase())))
     .sort((a,b)=>(order[getMoldStatus(a).label]||9)-(order[getMoldStatus(b).label]||9));
-
   const groups=[...new Set(filtered.map(m=>m.group||"Other"))].sort();
   let html="";
   groups.forEach(g=>{
@@ -1056,208 +1080,102 @@ function setFilter(f){activeFilter=f;renderMolds();}
 // MOLD ROW
 // ══════════════════════════════════════════════════════════════════
 function moldRowHTML(m){
-  const st=getMoldStatus(m);
-  const isNotSet=st.label==="NOT SET";
+  const st=getMoldStatus(m);const isNotSet=st.label==="NOT SET";
   const machBadge=m.machine?`<span style="font-size:11px;background:#1F2937;color:#9CA3AF;padding:2px 7px;border-radius:6px">${m.machine}</span>`:"";
-
-  // Scheduled weeks summary
   let schedSummary="";
-  if(!isNotSet && st.slots){
+  if(!isNotSet&&st.slots){
     const sc={OVERDUE:"#FF3B30","DUE NOW":"#FF9500","DUE SOON":"#FFCC00",UPCOMING:"#9CA3AF",DONE:"#30D158"};
-    const chips=st.slots.map(s=>{
-      const cal=getWk(s.fwk);
-      const icon=s.slotStatus==="DONE"?" ✓":s.slotStatus==="OVERDUE"?" ⚠":s.slotStatus==="DUE NOW"?" 🔧":"";
-      return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${(sc[s.slotStatus]||"#374151")}44;color:${sc[s.slotStatus]||"#6B7280"};background:${(sc[s.slotStatus]||"#374151")}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""}${icon}</span>`;
-    }).join("");
+    const chips=st.slots.map(s=>{const cal=getWk(s.fwk);const icon=s.slotStatus==="DONE"?" ✓":s.slotStatus==="OVERDUE"?" ⚠":s.slotStatus==="DUE NOW"?" 🔧":"";return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${(sc[s.slotStatus]||"#374151")}44;color:${sc[s.slotStatus]||"#6B7280"};background:${(sc[s.slotStatus]||"#374151")}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""}${icon}</span>`;}).join("");
     schedSummary=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">${chips}</div>`;
-    if(m.pmIntervalWeeks) schedSummary+=`<div style="color:#4B5563;font-size:11px;margin-top:3px">Interval ref: every ${m.pmIntervalWeeks} wk</div>`;
+    if(m.pmIntervalWeeks)schedSummary+=`<div style="color:#4B5563;font-size:11px;margin-top:3px">Interval ref: every ${m.pmIntervalWeeks} wk</div>`;
   }
-
-  const actionBtns=`
-    <div style="display:flex;gap:6px;flex-shrink:0;margin-top:8px">
-      ${!isNotSet?`<button onclick="openPMDoneModal(${m.id})" style="background:#30D15822;border:1px solid #30D15844;color:#30D158;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px">${iSVG("check",13)} Done</button>`:""}
-      ${role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#3B82F622;border:1px solid #3B82F644;color:#60A5FA;border-radius:8px;padding:6px 9px;cursor:pointer" title="Edit">${iSVG("edit",13)}</button>
-      <button onclick="deleteMold(${m.id})" style="background:#FF3B3022;border:1px solid #FF3B3044;color:#FF3B30;border-radius:8px;padding:6px 9px;cursor:pointer">${iSVG("trash",13)}</button>`:""}
-    </div>`;
-
-  return `
-    <div class="mold-row" style="border-left-color:${st.color}${isNotSet?";opacity:0.7":""}">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="width:38px;height:38px;border-radius:9px;background:${st.bg};display:flex;align-items:center;justify-content:center;color:${st.color};flex-shrink:0;margin-top:2px">${iSVG("wrench",16)}</div>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
-            <span style="font-weight:700;font-size:13px;font-family:'DM Mono',monospace">${m.name}</span>
-            <span class="badge" style="background:${st.bg};color:${st.color};border:1px solid ${st.color}44">${st.label}</span>
-            ${machBadge}
-          </div>
-          ${isNotSet
-            ?`<div style="color:#6B7280;font-size:11px;font-style:italic">No scheduled PM weeks configured${role==="admin"?" — click ✏ to configure":""}</div>`
-            :schedSummary
-          }
-          ${actionBtns}
+  const actionBtns=`<div style="display:flex;gap:6px;flex-shrink:0;margin-top:8px">
+    ${!isNotSet?`<button onclick="openPMDoneModal(${m.id})" style="background:#30D15822;border:1px solid #30D15844;color:#30D158;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px">${iSVG("check",13)} Done</button>`:""}
+    ${role==="admin"?`<button onclick="openEditModal(${m.id})" style="background:#3B82F622;border:1px solid #3B82F644;color:#60A5FA;border-radius:8px;padding:6px 9px;cursor:pointer" title="Edit">${iSVG("edit",13)}</button>
+    <button onclick="deleteMold(${m.id})" style="background:#FF3B3022;border:1px solid #FF3B3044;color:#FF3B30;border-radius:8px;padding:6px 9px;cursor:pointer">${iSVG("trash",13)}</button>`:""}
+  </div>`;
+  return `<div class="mold-row" style="border-left-color:${st.color}${isNotSet?";opacity:0.7":""}">
+    <div style="display:flex;align-items:flex-start;gap:12px">
+      <div style="width:38px;height:38px;border-radius:9px;background:${st.bg};display:flex;align-items:center;justify-content:center;color:${st.color};flex-shrink:0;margin-top:2px">${iSVG("wrench",16)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
+          <span style="font-weight:700;font-size:13px;font-family:'DM Mono',monospace">${m.name}</span>
+          <span class="badge" style="background:${st.bg};color:${st.color};border:1px solid ${st.color}44">${st.label}</span>${machBadge}
         </div>
+        ${isNotSet?`<div style="color:#6B7280;font-size:11px;font-style:italic">No scheduled PM weeks${role==="admin"?" — click ✏ to configure":""}</div>`:schedSummary}
+        ${actionBtns}
       </div>
-    </div>`;
+    </div>
+  </div>`;
 }
 
 // ══════════════════════════════════════════════════════════════════
 // PM DONE MODAL
 // ══════════════════════════════════════════════════════════════════
 let pmDoneMoldId=null;
-
 function openPMDoneModal(id){
-  const m=molds.find(x=>x.id===id); if(!m)return;
-  const st=getMoldStatus(m);
-  pmDoneMoldId=id;
-
+  const m=molds.find(x=>x.id===id);if(!m)return;
+  const st=getMoldStatus(m);pmDoneMoldId=id;
   document.getElementById("pmdone-moldname").textContent=m.name;
   document.getElementById("pmdone-date").value="";
   document.getElementById("pmdone-notes").value="";
-
-  // Populate technician dropdown from users list
   const personSel=document.getElementById("pmdone-person");
   personSel.innerHTML=`<option value="">— Select technician —</option>`;
-  if(users.length===0){
-    personSel.innerHTML+=`<option value="" disabled>No users added yet — Admin must add users first</option>`;
-  } else {
-    users.forEach(u=>{
-      personSel.innerHTML+=`<option value="${u.name}">${u.name}</option>`;
-    });
-  }
-
-  // Populate scheduled week dropdown — only pending (not done) slots
-  const sel=document.getElementById("pmdone-sched-week");
-  sel.innerHTML="";
+  if(users.length===0){personSel.innerHTML+=`<option disabled>No users yet — admin must add users first</option>`;}
+  else{users.forEach(u=>{personSel.innerHTML+=`<option value="${u.name}">${u.name}</option>`;});}
+  const sel=document.getElementById("pmdone-sched-week");sel.innerHTML="";
   const pendingSlots=(st.slots||[]).filter(s=>s.slotStatus!=="DONE");
-  if(pendingSlots.length===0){
-    sel.innerHTML=`<option value="">All scheduled PMs are done ✓</option>`;
-  } else {
-    pendingSlots.forEach(s=>{
-      const cal=getWk(s.fwk);
-      const statusLabel={OVERDUE:" ⚠ OVERDUE","DUE NOW":" 🔧 DUE NOW","DUE SOON":" ⏰ DUE SOON",UPCOMING:""}[s.slotStatus]||"";
-      sel.innerHTML+=`<option value="${s.wkNum}">Week ${s.wkNum}${cal?" — "+cal.mth+" (WK"+s.fwk+")":""}${statusLabel}</option>`;
-    });
-  }
-
-  // Overdue indicator
+  if(pendingSlots.length===0){sel.innerHTML=`<option value="">All scheduled PMs are done ✓</option>`;}
+  else{pendingSlots.forEach(s=>{const cal=getWk(s.fwk);const statusLabel={OVERDUE:" ⚠ OVERDUE","DUE NOW":" 🔧 DUE NOW","DUE SOON":" ⏰ DUE SOON",UPCOMING:""}[s.slotStatus]||"";sel.innerHTML+=`<option value="${s.wkNum}">Week ${s.wkNum}${cal?" — "+cal.mth+" (WK"+s.fwk+")":""}${statusLabel}</option>`;});}
   const hasOverdue=(st.slots||[]).some(s=>s.slotStatus==="OVERDUE");
   document.getElementById("pmdone-overdue-note").style.display=hasOverdue?"":"none";
-  document.getElementById("pmdone-due-info").textContent=
-    pendingSlots.length?`${pendingSlots.length} pending PM slot${pendingSlots.length>1?"s":""} this fiscal year`:"";
-
+  document.getElementById("pmdone-due-info").textContent=pendingSlots.length?`${pendingSlots.length} pending PM slot${pendingSlots.length>1?"s":""} this fiscal year`:"";
   document.getElementById("pm-done-modal").style.display="flex";
   setTimeout(()=>document.getElementById("pmdone-date").focus(),100);
 }
-
-function closePMDoneModal(){
-  document.getElementById("pm-done-modal").style.display="none";
-  pmDoneMoldId=null;
-}
-
+function closePMDoneModal(){document.getElementById("pm-done-modal").style.display="none";pmDoneMoldId=null;}
 async function doConfirmPMDone(){
-  const id=pmDoneMoldId; if(!id)return;
-  const m=molds.find(x=>x.id===id); if(!m)return;
+  const id=pmDoneMoldId;if(!id)return;const m=molds.find(x=>x.id===id);if(!m)return;
   const dateVal=document.getElementById("pmdone-date").value;
   const person=document.getElementById("pmdone-person").value;
   const notes=document.getElementById("pmdone-notes").value.trim();
   const wkNumVal=parseInt(document.getElementById("pmdone-sched-week").value);
-
   if(!dateVal){alert("Please enter the actual PM date.");return;}
   if(!person){alert("Please select a technician.");return;}
-  if(!wkNumVal){alert("Please select the scheduled PM week being completed.");return;}
-
-  const btn=document.getElementById("pmdone-confirm-btn");
-  btn.textContent="Saving..."; btn.disabled=true;
-
-  history.push({
-    moldId:id,
-    moldName:m.name,
-    moldGroup:m.group||"",
-    scheduledWkNum:wkNumVal,
-    fiscalYear:26,
-    fiscalWeek:wkNumToFiscal(wkNumVal),
-    doneDate:dateVal,
-    doneBy:person||"—",
-    notes:notes||"",
-    recordedAt:new Date().toLocaleDateString("en-SG"),
-  });
-
-  await saveToCloud();
-  btn.textContent="Confirm PM Done"; btn.disabled=false;
-  closePMDoneModal();
-  renderTab(activeTab);
+  if(!wkNumVal){alert("Please select the scheduled PM week.");return;}
+  const btn=document.getElementById("pmdone-confirm-btn");btn.textContent="Saving...";btn.disabled=true;
+  history.push({moldId:id,moldName:m.name,moldGroup:m.group||"",scheduledWkNum:wkNumVal,fiscalYear:26,fiscalWeek:wkNumToFiscal(wkNumVal),doneDate:dateVal,doneBy:person||"—",notes:notes||"",recordedAt:new Date().toLocaleDateString("en-SG")});
+  await saveToCloud();btn.textContent="Confirm PM Done";btn.disabled=false;closePMDoneModal();renderTab(activeTab);
 }
-
-async function deleteMold(id){
-  if(!confirm("Delete this mold die?"))return;
-  molds=molds.filter(x=>x.id!==id);
-  renderTab(activeTab);
-  await saveToCloud();
-}
+async function deleteMold(id){if(!confirm("Delete this mold die?"))return;molds=molds.filter(x=>x.id!==id);renderTab(activeTab);await saveToCloud();}
 
 // ══════════════════════════════════════════════════════════════════
 // ADD MODAL
 // ══════════════════════════════════════════════════════════════════
-function openAddModal(){
-  addWeekTagsState=[];
-  renderWeekTags("add");
-  document.getElementById("add-name").value="";
-  document.getElementById("add-group").value="";
-  document.getElementById("add-machine").value="";
-  document.getElementById("add-interval").value="";
-  document.getElementById("add-modal").style.display="flex";
-}
+function openAddModal(){addWeekTagsState=[];renderWeekTags("add");document.getElementById("add-name").value="";document.getElementById("add-group").value="";document.getElementById("add-machine").value="";document.getElementById("add-interval").value="";document.getElementById("add-modal").style.display="flex";}
 function closeAddModal(){document.getElementById("add-modal").style.display="none";}
 document.getElementById("add-modal").addEventListener("click",function(e){if(e.target===this)closeAddModal();});
-
 async function doAddMold(){
-  const name=document.getElementById("add-name").value.trim();
-  if(!name){alert("Please enter a Mold Die name");return;}
-  const btn=document.getElementById("add-submit-btn"); btn.textContent="Saving...";btn.disabled=true;
-  molds.push({
-    id:Date.now(),
-    name,
-    group:document.getElementById("add-group").value.trim(),
-    machine:document.getElementById("add-machine").value.trim(),
-    pmIntervalWeeks:parseInt(document.getElementById("add-interval").value)||null,
-    scheduledWeeks:[...addWeekTagsState],
-  });
-  await saveToCloud();
-  btn.textContent="Add Mold Die";btn.disabled=false;
-  closeAddModal(); renderTab(activeTab);
+  const name=document.getElementById("add-name").value.trim();if(!name){alert("Please enter a Mold Die name");return;}
+  const btn=document.getElementById("add-submit-btn");btn.textContent="Saving...";btn.disabled=true;
+  molds.push({id:Date.now(),name,group:document.getElementById("add-group").value.trim(),machine:document.getElementById("add-machine").value.trim(),pmIntervalWeeks:parseInt(document.getElementById("add-interval").value)||null,scheduledWeeks:[...addWeekTagsState]});
+  await saveToCloud();btn.textContent="Add Mold Die";btn.disabled=false;closeAddModal();renderTab(activeTab);
 }
 
 // ══════════════════════════════════════════════════════════════════
 // EDIT MODAL
 // ══════════════════════════════════════════════════════════════════
 function openEditModal(id){
-  const m=molds.find(x=>x.id===id); if(!m)return;
-  document.getElementById("edit-id").value=id;
-  document.getElementById("edit-name").value=m.name;
-  document.getElementById("edit-group").value=m.group||"";
-  document.getElementById("edit-machine").value=m.machine||"";
-  document.getElementById("edit-interval").value=m.pmIntervalWeeks!=null?m.pmIntervalWeeks:"";
-  editWeekTagsState=[...(m.scheduledWeeks||[])];
-  renderWeekTags("edit");
-  document.getElementById("edit-modal").style.display="flex";
+  const m=molds.find(x=>x.id===id);if(!m)return;
+  document.getElementById("edit-id").value=id;document.getElementById("edit-name").value=m.name;document.getElementById("edit-group").value=m.group||"";document.getElementById("edit-machine").value=m.machine||"";document.getElementById("edit-interval").value=m.pmIntervalWeeks!=null?m.pmIntervalWeeks:"";
+  editWeekTagsState=[...(m.scheduledWeeks||[])];renderWeekTags("edit");document.getElementById("edit-modal").style.display="flex";
 }
 function closeEditModal(){document.getElementById("edit-modal").style.display="none";}
 document.getElementById("edit-modal").addEventListener("click",function(e){if(e.target===this)closeEditModal();});
-
 async function doEditMold(){
-  const id=parseInt(document.getElementById("edit-id").value);
-  const btn=document.getElementById("edit-submit-btn"); btn.textContent="Saving...";btn.disabled=true;
-  const intVal=document.getElementById("edit-interval").value;
-  molds=molds.map(x=>x.id===id?{...x,
-    name:document.getElementById("edit-name").value.trim(),
-    group:document.getElementById("edit-group").value.trim(),
-    machine:document.getElementById("edit-machine").value.trim(),
-    pmIntervalWeeks:intVal?parseInt(intVal):null,
-    scheduledWeeks:[...editWeekTagsState],
-  }:x);
-  await saveToCloud();
-  btn.textContent="Save Changes";btn.disabled=false;
-  closeEditModal(); renderTab(activeTab);
+  const id=parseInt(document.getElementById("edit-id").value);const btn=document.getElementById("edit-submit-btn");btn.textContent="Saving...";btn.disabled=true;const intVal=document.getElementById("edit-interval").value;
+  molds=molds.map(x=>x.id===id?{...x,name:document.getElementById("edit-name").value.trim(),group:document.getElementById("edit-group").value.trim(),machine:document.getElementById("edit-machine").value.trim(),pmIntervalWeeks:intVal?parseInt(intVal):null,scheduledWeeks:[...editWeekTagsState]}:x);
+  await saveToCloud();btn.textContent="Save Changes";btn.disabled=false;closeEditModal();renderTab(activeTab);
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -1273,21 +1191,9 @@ function renderCalendar(){
     return `<div style="margin-bottom:22px">
       <div style="color:#9CA3AF;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">${mth}</div>
       <div style="display:grid;gap:8px">${mthWeeks.map(w=>{
-        // Find all molds scheduled for this week number
         const scheduled=molds.filter(m=>(m.scheduledWeeks||[]).includes(w.wkNum));
         const isCur=w.wk===CURRENT_WK;
-        const badges=scheduled.length
-          ?scheduled.map(m=>{
-            const done=isSlotDone(m.id,w.wkNum);
-            const fwk=wkNumToFiscal(w.wkNum);
-            let color="#9CA3AF";
-            if(done) color="#30D158";
-            else if(fwk<CURRENT_WK) color="#FF3B30";
-            else if(fwk===CURRENT_WK) color="#FF9500";
-            else if(fwk===CURRENT_WK+1) color="#FFCC00";
-            return `<span style="background:${color}18;color:${color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;border:1px solid ${color}44;font-family:'DM Mono',monospace;white-space:nowrap">${m.name}${done?" ✓":""}</span>`;
-          }).join("")
-          :`<span style="color:#374151;font-size:12px">No PM scheduled</span>`;
+        const badges=scheduled.length?scheduled.map(m=>{const done=isSlotDone(m.id,w.wkNum);const fwk=wkNumToFiscal(w.wkNum);let color="#9CA3AF";if(done)color="#30D158";else if(fwk<CURRENT_WK)color="#FF3B30";else if(fwk===CURRENT_WK)color="#FF9500";else if(fwk===CURRENT_WK+1)color="#FFCC00";return `<span style="background:${color}18;color:${color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;border:1px solid ${color}44;font-family:'DM Mono',monospace;white-space:nowrap">${m.name}${done?" ✓":""}</span>`;}).join(""):`<span style="color:#374151;font-size:12px">No PM scheduled</span>`;
         return `<div class="cal-week${isCur?" current-wk":""}">
           <div style="text-align:center;min-width:50px">
             <div style="color:${isCur?"#FF9500":"#6B7280"};font-size:10px;font-weight:600;letter-spacing:1px">WK${w.wk}</div>
@@ -1306,76 +1212,87 @@ function renderCalendar(){
 function setQtr(q){activeQtr=q;renderCalendar();}
 
 // ══════════════════════════════════════════════════════════════════
-// HISTORY
+// HISTORY — with search & filter
 // ══════════════════════════════════════════════════════════════════
+function getFilteredHistory(){
+  const search=(document.getElementById("history-search")||{}).value||"";
+  const wkFilter=(document.getElementById("history-wk-filter")||{}).value||"";
+  const personFilter=(document.getElementById("history-person-filter")||{}).value||"";
+  return history.filter(h=>{
+    const q=search.toLowerCase();
+    const matchSearch=!q||(h.moldName||"").toLowerCase().includes(q)||(h.moldGroup||"").toLowerCase().includes(q)||(h.doneBy||"").toLowerCase().includes(q)||(h.notes||"").toLowerCase().includes(q);
+    const matchWk=!wkFilter||String(h.fiscalWeek||"").includes(wkFilter)||String(h.scheduledWkNum||"").includes(wkFilter);
+    const matchPerson=!personFilter||(h.doneBy||"")=== personFilter;
+    return matchSearch&&matchWk&&matchPerson;
+  });
+}
+
+function clearHistoryFilters(){
+  const s=document.getElementById("history-search");if(s)s.value="";
+  const w=document.getElementById("history-wk-filter");if(w)w.value="";
+  const p=document.getElementById("history-person-filter");if(p)p.value="";
+  renderHistory();
+}
+
 function renderHistory(){
-  document.getElementById("history-count").textContent=history.length+" records";
+  // Populate person dropdown from unique names in history
+  const personSel=document.getElementById("history-person-filter");
+  if(personSel){
+    const currentVal=personSel.value;
+    const uniquePersons=[...new Set(history.map(h=>h.doneBy||"").filter(Boolean))].sort();
+    personSel.innerHTML=`<option value="">All technicians</option>`;
+    uniquePersons.forEach(p=>{personSel.innerHTML+=`<option value="${p}"${p===currentVal?" selected":""}>${p}</option>`;});
+  }
+
+  const filtered=getFilteredHistory();
+  const total=history.length;
+  document.getElementById("history-count").textContent=filtered.length===total?`${total} records`:`${filtered.length} of ${total} records`;
   const el=document.getElementById("history-list");
-  if(!history.length){el.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#4B5563"><div style="font-size:36px;margin-bottom:12px">📋</div>No PM history yet.</div>`;return;}
-  el.innerHTML=[...history].reverse().map(h=>`
+  if(!history.length){
+    el.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#4B5563"><div style="font-size:36px;margin-bottom:12px">📋</div>No PM history yet.</div>`;return;
+  }
+  if(!filtered.length){
+    el.innerHTML=`<div style="background:#111827;border-radius:12px;padding:40px;text-align:center;color:#4B5563">No records match your search. <button onclick="clearHistoryFilters()" style="background:transparent;border:none;color:#FF9500;cursor:pointer;font-size:13px;text-decoration:underline">Clear filters</button></div>`;return;
+  }
+  el.innerHTML=[...filtered].reverse().map(h=>`
     <div class="history-row" style="flex-wrap:wrap;gap:10px;align-items:flex-start">
       <div style="width:34px;height:34px;border-radius:8px;background:#30D15822;display:flex;align-items:center;justify-content:center;color:#30D158;flex-shrink:0;margin-top:2px">${iSVG("check",13)}</div>
       <div style="flex:1;min-width:160px">
         <div style="font-weight:700;font-family:'DM Mono',monospace;font-size:12px">${h.moldName}</div>
         ${h.moldGroup?`<div style="color:#6B7280;font-size:11px">${h.moldGroup}</div>`:""}
-        <div style="color:#9CA3AF;font-size:11px;margin-top:2px">Scheduled slot: <b style="color:#fff">Week ${h.scheduledWkNum||"—"}</b>${h.fiscalWeek?" (WK"+h.fiscalWeek+")":""}</div>
+        <div style="color:#9CA3AF;font-size:11px;margin-top:2px">Scheduled: <b style="color:#fff">Week ${h.scheduledWkNum||"—"}</b>${h.fiscalWeek?" (WK"+h.fiscalWeek+")":""}</div>
         ${h.notes?`<div style="color:#9CA3AF;font-size:11px;margin-top:3px;font-style:italic">"${h.notes}"</div>`:""}
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="color:#30D158;font-size:12px;font-weight:600">PM Completed</div>
         <div style="color:#fff;font-size:12px;margin-top:1px">${h.doneDate||"—"}</div>
-        <div style="color:#6B7280;font-size:11px;margin-top:1px">By: ${h.doneBy||"—"}</div>
+        <div style="color:#6B7280;font-size:11px;margin-top:1px">By: <b style="color:#9CA3AF">${h.doneBy||"—"}</b></div>
         <div style="color:#374151;font-size:10px;margin-top:1px">Recorded: ${h.recordedAt||""}</div>
       </div>
     </div>`).join("");
 }
 
 // ══════════════════════════════════════════════════════════════════
-// USERS (admin only)
+// USERS
 // ══════════════════════════════════════════════════════════════════
 function renderUsers(){
   document.getElementById("user-count").textContent=users.length+" technician"+(users.length!==1?"s":"");
   const el=document.getElementById("users-list");
-  if(!users.length){
-    el.innerHTML=`<div style="background:#111827;border:1px solid #1F2937;border-radius:12px;padding:40px;text-align:center;color:#4B5563">
-      <div style="font-size:36px;margin-bottom:12px">👤</div>
-      <div style="font-size:14px">No technicians added yet.</div>
-      <div style="font-size:12px;margin-top:6px">Add a name above to get started.</div>
-    </div>`;
-    return;
-  }
+  if(!users.length){el.innerHTML=`<div style="background:#111827;border:1px solid #1F2937;border-radius:12px;padding:40px;text-align:center;color:#4B5563"><div style="font-size:36px;margin-bottom:12px">👤</div><div>No technicians added yet.</div></div>`;return;}
   el.innerHTML=users.map((u,i)=>`
     <div style="background:#111827;border:1px solid #1F2937;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;animation:fadeIn 0.2s ease">
       <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1D4ED8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex-shrink:0;text-transform:uppercase">${u.name.charAt(0)}</div>
-      <div style="flex:1">
-        <div style="font-weight:700;font-size:14px">${u.name}</div>
-        <div style="color:#6B7280;font-size:11px;margin-top:2px">Added ${u.addedAt||"—"}</div>
-      </div>
-      <button onclick="doDeleteUser(${i})" style="background:#FF3B3022;border:1px solid #FF3B3044;color:#FF3B30;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px">
-        ${iSVG("trash",13)} Remove
-      </button>
+      <div style="flex:1"><div style="font-weight:700;font-size:14px">${u.name}</div><div style="color:#6B7280;font-size:11px;margin-top:2px">Added ${u.addedAt||"—"}</div></div>
+      <button onclick="doDeleteUser(${i})" style="background:#FF3B3022;border:1px solid #FF3B3044;color:#FF3B30;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px">${iSVG("trash",13)} Remove</button>
     </div>`).join("");
 }
-
 async function doAddUser(){
-  const inp=document.getElementById("new-user-name");
-  const name=inp.value.trim();
-  if(!name){inp.focus();return;}
-  if(users.some(u=>u.name.toLowerCase()===name.toLowerCase())){
-    alert("A user with this name already exists.");return;
-  }
-  users.push({name, addedAt:new Date().toLocaleDateString("en-SG")});
-  inp.value="";
-  renderUsers();
-  await saveToCloud();
+  const inp=document.getElementById("new-user-name");const name=inp.value.trim();if(!name){inp.focus();return;}
+  if(users.some(u=>u.name.toLowerCase()===name.toLowerCase())){alert("A user with this name already exists.");return;}
+  users.push({name,addedAt:new Date().toLocaleDateString("en-SG")});inp.value="";renderUsers();await saveToCloud();
 }
-
 async function doDeleteUser(idx){
-  const u=users[idx];
-  if(!confirm(`Remove "${u.name}" from the technician list?`))return;
-  users.splice(idx,1);
-  renderUsers();
-  await saveToCloud();
+  const u=users[idx];if(!confirm(`Remove "${u.name}"?`))return;users.splice(idx,1);renderUsers();await saveToCloud();
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -1383,13 +1300,8 @@ async function doDeleteUser(idx){
 // ══════════════════════════════════════════════════════════════════
 loadConfig();
 document.getElementById("pm-done-modal").addEventListener("click",function(e){if(e.target===this)closePMDoneModal();});
-if(!API_KEY||!BIN_ID){
-  document.getElementById("login-screen").style.display="none";
-  document.getElementById("setup-screen").style.display="flex";
-} else {
-  document.getElementById("login-screen").style.display="flex";
-  document.getElementById("setup-screen").style.display="none";
-}
+if(!API_KEY||!BIN_ID){document.getElementById("login-screen").style.display="none";document.getElementById("setup-screen").style.display="flex";}
+else{document.getElementById("login-screen").style.display="flex";document.getElementById("setup-screen").style.display="none";}
 </script>
 </body>
 </html>
