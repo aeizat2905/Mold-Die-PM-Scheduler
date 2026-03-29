@@ -148,6 +148,7 @@
         <button onclick="showTab('molds')" id="htab-molds" class="tab-hdr">🔧 All Molds</button>
         <button onclick="showTab('calendar')" id="htab-calendar" class="tab-hdr">📅 Calendar</button>
         <button onclick="showTab('history')" id="htab-history" class="tab-hdr">📋 History</button>
+        <button onclick="showTab('users')" id="htab-users" class="tab-hdr" style="display:none">👤 Users</button>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0">
         <span id="role-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #FF950044;background:#FF950022;color:#FF9500"></span>
@@ -197,6 +198,25 @@
       </div>
       <div id="history-list" style="display:grid;gap:8px"></div>
     </div>
+
+    <!-- USERS (admin only) -->
+    <div id="page-users" class="page fade-in">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+        <h2 style="font-size:18px;font-weight:700;flex:1">👤 Technician Users</h2>
+        <div id="user-count" style="color:#6B7280;font-size:13px"></div>
+      </div>
+      <div style="background:#111827;border:1px solid #1F2937;border-radius:14px;padding:20px;margin-bottom:16px">
+        <div style="color:#FF9500;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px">Add New User</div>
+        <div style="display:flex;gap:10px">
+          <input id="new-user-name" class="form-input" placeholder="Enter technician name..." style="flex:1" onkeydown="if(event.key==='Enter')doAddUser()"/>
+          <button onclick="doAddUser()" class="btn-primary" style="white-space:nowrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add User
+          </button>
+        </div>
+      </div>
+      <div id="users-list" style="display:grid;gap:8px"></div>
+    </div>
   </div>
 
   <nav id="bottom-nav">
@@ -215,6 +235,10 @@
     <button onclick="showTab('history')" id="btab-history" class="tab-btn">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
       History
+    </button>
+    <button onclick="showTab('users')" id="btab-users" class="tab-btn" style="display:none">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
     </button>
   </nav>
 </div>
@@ -334,7 +358,9 @@
       </div>
       <div>
         <label class="form-label">Performed By <span style="color:#FF3B30">*</span></label>
-        <input id="pmdone-person" class="form-input" placeholder="e.g. Ahmad, Ravi, Technician 1"/>
+        <select id="pmdone-person" class="form-input">
+          <option value="">— Select technician —</option>
+        </select>
       </div>
       <div>
         <label class="form-label">Notes / Remarks</label>
@@ -621,7 +647,7 @@ async function dbWrite(data){
 // ══════════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════════
-let role=null, molds=[], history=[], activeTab="dashboard", activeFilter="all", activeQtr="2Q26", isSaving=false;
+let role=null, molds=[], history=[], users=[], activeTab="dashboard", activeFilter="all", activeQtr="2Q26", isSaving=false;
 
 // Temporary week-tag state while modal is open
 let addWeekTagsState  = [];  // array of wkNum (1–52)
@@ -638,11 +664,10 @@ async function loadFromCloud(){
     setSyncStatus("busy","Loading...");
     const data=await dbRead();
     if(!data.molds||data.molds.length===0){
-      molds=[...SEED_MOLDS]; history=[];
-      await dbWrite({molds,history});
+      molds=[...SEED_MOLDS]; history=[]; users=[];
+      await dbWrite({molds,history,users});
     } else {
-      molds=data.molds||[]; history=data.history||[];
-      // Migrate old molds that have lastPmWeek/pmIntervalWeeks but no scheduledWeeks
+      molds=data.molds||[]; history=data.history||[]; users=data.users||[];
       molds=molds.map(m=>({...m, scheduledWeeks: m.scheduledWeeks||[]}));
     }
     setSyncStatus("ok","Synced");
@@ -653,7 +678,7 @@ async function saveToCloud(){
   if(isSaving)return; isSaving=true;
   try{
     setSyncStatus("busy","Saving...");
-    await dbWrite({molds,history});
+    await dbWrite({molds,history,users});
     setSyncStatus("ok","Saved ✓");
     setTimeout(()=>setSyncStatus("ok","Synced"),1500);
   }catch(e){ setSyncStatus("err","Save failed"); console.error(e); }
@@ -832,6 +857,11 @@ async function enterApp(r){
   badge.style.background=r==="admin"?"#FF950022":"#30D15822";
   badge.style.color=r==="admin"?"#FF9500":"#30D158";
   badge.style.borderColor=r==="admin"?"#FF950044":"#30D15844";
+  // Show Users tab for admin only
+  const usrTabH=document.getElementById("htab-users");
+  const usrTabB=document.getElementById("btab-users");
+  if(usrTabH) usrTabH.style.display=r==="admin"?"":"none";
+  if(usrTabB) usrTabB.style.display=r==="admin"?"flex":"none";
   populateWeekSelect("add");
   populateWeekSelect("edit");
   document.getElementById("loading-overlay").style.display="block";
@@ -868,6 +898,7 @@ function renderTab(t){
   else if(t==="molds")renderMolds();
   else if(t==="calendar")renderCalendar();
   else if(t==="history")renderHistory();
+  else if(t==="users")renderUsers();
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -1064,8 +1095,18 @@ function openPMDoneModal(id){
 
   document.getElementById("pmdone-moldname").textContent=m.name;
   document.getElementById("pmdone-date").value="";
-  document.getElementById("pmdone-person").value="";
   document.getElementById("pmdone-notes").value="";
+
+  // Populate technician dropdown from users list
+  const personSel=document.getElementById("pmdone-person");
+  personSel.innerHTML=`<option value="">— Select technician —</option>`;
+  if(users.length===0){
+    personSel.innerHTML+=`<option value="" disabled>No users added yet — Admin must add users first</option>`;
+  } else {
+    users.forEach(u=>{
+      personSel.innerHTML+=`<option value="${u.name}">${u.name}</option>`;
+    });
+  }
 
   // Populate scheduled week dropdown — only pending (not done) slots
   const sel=document.getElementById("pmdone-sched-week");
@@ -1100,12 +1141,12 @@ async function doConfirmPMDone(){
   const id=pmDoneMoldId; if(!id)return;
   const m=molds.find(x=>x.id===id); if(!m)return;
   const dateVal=document.getElementById("pmdone-date").value;
-  const person=document.getElementById("pmdone-person").value.trim();
+  const person=document.getElementById("pmdone-person").value;
   const notes=document.getElementById("pmdone-notes").value.trim();
   const wkNumVal=parseInt(document.getElementById("pmdone-sched-week").value);
 
   if(!dateVal){alert("Please enter the actual PM date.");return;}
-  if(!person){alert("Please enter the name of the person who performed the PM.");return;}
+  if(!person){alert("Please select a technician.");return;}
   if(!wkNumVal){alert("Please select the scheduled PM week being completed.");return;}
 
   const btn=document.getElementById("pmdone-confirm-btn");
@@ -1115,8 +1156,8 @@ async function doConfirmPMDone(){
     moldId:id,
     moldName:m.name,
     moldGroup:m.group||"",
-    scheduledWkNum:wkNumVal,           // 1–52 (year-agnostic slot)
-    fiscalYear:26,                     // FY2026
+    scheduledWkNum:wkNumVal,
+    fiscalYear:26,
     fiscalWeek:wkNumToFiscal(wkNumVal),
     doneDate:dateVal,
     doneBy:person||"—",
@@ -1270,6 +1311,54 @@ function renderHistory(){
         <div style="color:#374151;font-size:10px;margin-top:1px">Recorded: ${h.recordedAt||""}</div>
       </div>
     </div>`).join("");
+}
+
+// ══════════════════════════════════════════════════════════════════
+// USERS (admin only)
+// ══════════════════════════════════════════════════════════════════
+function renderUsers(){
+  document.getElementById("user-count").textContent=users.length+" technician"+(users.length!==1?"s":"");
+  const el=document.getElementById("users-list");
+  if(!users.length){
+    el.innerHTML=`<div style="background:#111827;border:1px solid #1F2937;border-radius:12px;padding:40px;text-align:center;color:#4B5563">
+      <div style="font-size:36px;margin-bottom:12px">👤</div>
+      <div style="font-size:14px">No technicians added yet.</div>
+      <div style="font-size:12px;margin-top:6px">Add a name above to get started.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML=users.map((u,i)=>`
+    <div style="background:#111827;border:1px solid #1F2937;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;animation:fadeIn 0.2s ease">
+      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1D4ED8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex-shrink:0;text-transform:uppercase">${u.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${u.name}</div>
+        <div style="color:#6B7280;font-size:11px;margin-top:2px">Added ${u.addedAt||"—"}</div>
+      </div>
+      <button onclick="doDeleteUser(${i})" style="background:#FF3B3022;border:1px solid #FF3B3044;color:#FF3B30;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px">
+        ${iSVG("trash",13)} Remove
+      </button>
+    </div>`).join("");
+}
+
+async function doAddUser(){
+  const inp=document.getElementById("new-user-name");
+  const name=inp.value.trim();
+  if(!name){inp.focus();return;}
+  if(users.some(u=>u.name.toLowerCase()===name.toLowerCase())){
+    alert("A user with this name already exists.");return;
+  }
+  users.push({name, addedAt:new Date().toLocaleDateString("en-SG")});
+  inp.value="";
+  renderUsers();
+  await saveToCloud();
+}
+
+async function doDeleteUser(idx){
+  const u=users[idx];
+  if(!confirm(`Remove "${u.name}" from the technician list?`))return;
+  users.splice(idx,1);
+  renderUsers();
+  await saveToCloud();
 }
 
 // ══════════════════════════════════════════════════════════════════
