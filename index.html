@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Mold Die PM Scheduler</title>
+<title>Mold Die PM Scheduler Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -15,6 +15,7 @@
   @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
   @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes syncPulse{0%{box-shadow:0 0 0 0 rgba(255,149,0,0.4)}70%{box-shadow:0 0 0 10px rgba(255,149,0,0)}100%{box-shadow:0 0 0 0 rgba(255,149,0,0)}}
   .fade-in{animation:fadeIn 0.3s ease}
   .page{display:none}.page.active{display:block}
   @media(max-width:640px){#header-tabs{display:none!important}#bottom-nav{display:flex!important}#main-content{padding-bottom:80px!important}}
@@ -23,6 +24,9 @@
   .btn-ghost{background:transparent;border:1px solid #374151;border-radius:10px;padding:10px 16px;color:#9CA3AF;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px}
   .btn-print{background:#1F2937;border:1px solid #374151;border-radius:10px;padding:9px 16px;color:#9CA3AF;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:7px;font-weight:600;transition:all 0.15s}
   .btn-print:hover{background:#2D3748;color:#fff;border-color:#4B5563}
+  .btn-eol-sync{background:linear-gradient(135deg,#3B82F6,#1D4ED8);border:none;border-radius:10px;padding:9px 16px;color:#fff;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:7px;font-weight:700;transition:all 0.15s;white-space:nowrap}
+  .btn-eol-sync:hover{background:linear-gradient(135deg,#60A5FA,#3B82F6);transform:translateY(-1px)}
+  .btn-eol-sync:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   .badge{font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:6px;text-transform:uppercase;display:inline-block}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);padding:16px}
   .modal-box{background:#111827;border:1px solid #1F2937;border-radius:20px;padding:28px;width:100%;max-width:520px;animation:fadeIn 0.2s ease;max-height:90vh;overflow-y:auto}
@@ -68,11 +72,30 @@
   .week-tags-container{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#1F2937;border:1px solid #374151;border-radius:10px;padding:8px 10px;align-items:center}
   .week-add-row{display:flex;gap:8px;align-items:center;margin-top:8px}
 
-  /* ══ PRINT STYLES ══════════════════════════════════════════════ */
+  /* ── EOL SYNC STYLES ── */
+  .eol-sync-banner{background:linear-gradient(135deg,#0f172a,#1e3a5f);border:1px solid #3B82F633;border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .eol-sync-dot{width:8px;height:8px;border-radius:50%;background:#30D158;flex-shrink:0}
+  .eol-sync-dot.disconnected{background:#6B7280}
+  .eol-sync-dot.syncing{background:#FF9500;animation:pulse 1s infinite}
+  .eol-sync-dot.error{background:#FF3B30}
+  .eol-match-badge{display:inline-flex;align-items:center;gap:4px;background:#3B82F622;color:#60A5FA;border:1px solid #3B82F633;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace}
+  .eol-auto-badge{display:inline-flex;align-items:center;gap:4px;background:#30D15822;color:#30D158;border:1px solid #30D15833;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700}
+  .eol-log-entry{background:#0D1117;border:1px solid #1F2937;border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px;font-size:12px}
+  .eol-log-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+  .eol-settings-card{background:#111827;border:1px solid #1F2937;border-radius:14px;padding:20px;margin-bottom:16px}
+  .eol-settings-card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .eol-settings-card p{font-size:12px;color:#6B7280;margin-bottom:14px;line-height:1.6}
+  .eol-rule-chip{display:inline-flex;align-items:center;gap:6px;background:#1F2937;border:1px solid #374151;border-radius:8px;padding:5px 10px;font-size:12px;color:#9CA3AF;font-family:'DM Mono',monospace}
+  .eol-rule-chip .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .eol-rule-chip .dot.green{background:#30D158}
+  .eol-rule-chip .dot.orange{background:#FF9500}
+  .eol-rule-chip .dot.red{background:#FF3B30}
+
+  /* ── PRINT STYLES ── */
   @media print {
     body{background:#fff!important;color:#000!important;font-size:11pt}
     #login-screen,#setup-screen,#app-screen > div:first-child,
-    #bottom-nav,.btn-primary,.btn-ghost,.btn-print,
+    #bottom-nav,.btn-primary,.btn-ghost,.btn-print,.btn-eol-sync,
     #admin-add-btn-molds,#filter-btns,#mold-search,
     .wk-chip-remove,button{display:none!important}
     #app-screen{display:block!important}
@@ -80,11 +103,7 @@
     .page{display:none!important}
     #print-target{display:block!important}
     .print-header{display:block!important}
-    .mold-row,.history-row,.dash-card{
-      background:#fff!important;color:#000!important;
-      border:1px solid #ccc!important;border-radius:0!important;
-      break-inside:avoid;page-break-inside:avoid;margin-bottom:6pt
-    }
+    .mold-row,.history-row,.dash-card{background:#fff!important;color:#000!important;border:1px solid #ccc!important;border-radius:0!important;break-inside:avoid;page-break-inside:avoid;margin-bottom:6pt}
     .badge{border:1px solid #999!important;color:#000!important;background:#eee!important}
     .group-header{background:#eee!important;color:#000!important;border-radius:0!important}
     .print-table{width:100%;border-collapse:collapse;font-size:10pt}
@@ -92,10 +111,10 @@
     .print-table td{padding:5pt 8pt;border-bottom:1px solid #ddd;vertical-align:top}
     .print-table tr:nth-child(even) td{background:#f8f8f8}
     .print-status{font-weight:700;font-size:9pt;padding:2pt 6pt;border-radius:3pt;border:1pt solid}
+    @page{margin:15mm;size:A4;}
   }
   #print-target{display:none}
   .print-header{display:none}
-  /* Print modal */
   #print-modal .modal-box{max-width:480px}
 </style>
 </head>
@@ -139,7 +158,7 @@
       <div style="display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;background:linear-gradient(135deg,#FF9500,#FF6B00);border-radius:18px;margin-bottom:14px;box-shadow:0 8px 28px rgba(255,149,0,0.4)">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
       </div>
-      <h1 style="font-size:26px;font-weight:700;letter-spacing:-0.5px">MoldDie PM System</h1>
+      <h1 style="font-size:26px;font-weight:700;letter-spacing:-0.5px">Mold Die PM Scheduler Intelligence</h1>
       <p style="color:#6B7280;margin-top:6px;font-size:14px">E.O.L. Master PM Schedule — ADI FY2026</p>
     </div>
     <div id="login-card" style="background:#111827;border:1px solid #1F2937;border-radius:16px;padding:26px;margin-bottom:14px">
@@ -172,12 +191,15 @@
         </div>
         <span style="font-weight:700;font-size:15px;white-space:nowrap">MoldDie PM</span>
         <span id="sync-indicator" class="sync-ok">● Synced</span>
+        <!-- EOL sync status pill -->
+        <span id="eol-sync-pill" style="display:none;font-size:11px;padding:3px 10px;border-radius:20px;background:#3B82F622;color:#60A5FA;border:1px solid #3B82F633">🔗 EOL Connected</span>
       </div>
       <div id="header-tabs" style="display:flex;gap:2px;flex-shrink:0">
         <button onclick="showTab('dashboard')" id="htab-dashboard" class="tab-hdr active">📊 Dashboard</button>
         <button onclick="showTab('molds')" id="htab-molds" class="tab-hdr">🔧 All Molds</button>
         <button onclick="showTab('calendar')" id="htab-calendar" class="tab-hdr">📅 Calendar</button>
         <button onclick="showTab('history')" id="htab-history" class="tab-hdr">📋 History</button>
+        <button onclick="showTab('eol')" id="htab-eol" class="tab-hdr" style="display:none">🔗 EOL Sync</button>
         <button onclick="showTab('users')" id="htab-users" class="tab-hdr" style="display:none">👤 Users</button>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0">
@@ -240,7 +262,6 @@
           Print
         </button>
       </div>
-      <!-- History Search & Filter Bar -->
       <div style="background:#111827;border:1px solid #1F2937;border-radius:12px;padding:16px;margin-bottom:16px;display:grid;gap:10px">
         <input id="history-search" class="search-box" placeholder="🔍  Search by mold name, technician, notes..." oninput="renderHistory()" style="margin-bottom:0"/>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
@@ -254,6 +275,73 @@
         </div>
       </div>
       <div id="history-list" style="display:grid;gap:8px"></div>
+    </div>
+
+    <!-- ══ EOL SYNC TAB ══ -->
+    <div id="page-eol" class="page fade-in">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+        <h2 style="font-size:18px;font-weight:700;flex:1">🔗 EOL Maintenance Sync</h2>
+        <button id="eol-manual-sync-btn" onclick="doEOLSync(true)" class="btn-eol-sync">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+          Sync Now
+        </button>
+      </div>
+
+      <!-- Settings card -->
+      <div class="eol-settings-card">
+        <h3>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF9500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>
+          EOL Apps Script URL
+        </h3>
+        <p>Enter the Google Apps Script /exec URL from your EOL Maintenance Recording System. The Scheduler will pull completed PM records from it automatically.</p>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input id="eol-url-input" class="form-input" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;min-width:200px" type="url"/>
+          <button onclick="saveEOLUrl()" class="btn-primary" style="white-space:nowrap;padding:11px 18px">Save URL</button>
+          <button onclick="clearEOLUrl()" style="background:transparent;border:1px solid #374151;border-radius:10px;padding:11px 14px;color:#6B7280;cursor:pointer;font-size:13px;white-space:nowrap">Clear</button>
+        </div>
+        <div id="eol-url-status" style="margin-top:10px;font-size:12px;color:#6B7280;min-height:18px"></div>
+      </div>
+
+      <!-- Matching rules info -->
+      <div style="background:#111827;border:1px solid #1F2937;border-radius:14px;padding:18px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">📋 Matching Rules</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px">
+            <span class="eol-rule-chip"><span class="dot green"></span>Equipment</span>
+            <span style="color:#9CA3AF;flex:1">Exact name match (case-sensitive). E.g. <code style="background:#1F2937;padding:1px 5px;border-radius:4px;color:#FF9500">QFN CU # 1</code></span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px">
+            <span class="eol-rule-chip"><span class="dot green"></span>Section</span>
+            <span style="color:#9CA3AF;flex:1">Must be <b style="color:#fff">Both</b>. Top or Bottom only = ignored</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px">
+            <span class="eol-rule-chip"><span class="dot orange"></span>Maint. Type</span>
+            <span style="color:#9CA3AF;flex:1">Only <b style="color:#fff">Quarterly Maintenance</b> or <b style="color:#fff">Half-Yearly Maintenance</b> qualify</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px">
+            <span class="eol-rule-chip"><span class="dot orange"></span>Week Match</span>
+            <span style="color:#9CA3AF;flex:1">EOL <b style="color:#fff">Date Start</b> is used to find which ADI fiscal week it falls in. That week's PM slot is marked Done</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px">
+            <span class="eol-rule-chip"><span class="dot red"></span>Duplicates</span>
+            <span style="color:#9CA3AF;flex:1">If a PM slot is already Done (manual or previous sync), it will not be overwritten</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Last sync summary -->
+      <div id="eol-sync-summary" style="margin-bottom:16px"></div>
+
+      <!-- Sync log -->
+      <div style="background:#111827;border:1px solid #1F2937;border-radius:14px;overflow:hidden">
+        <div style="padding:14px 18px;border-bottom:1px solid #1F2937;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px;font-weight:700;color:#fff">Sync Activity Log</span>
+          <button onclick="clearEOLLog()" style="background:transparent;border:none;color:#4B5563;cursor:pointer;font-size:12px">Clear log</button>
+        </div>
+        <div id="eol-log" style="padding:12px;display:grid;gap:6px;max-height:400px;overflow-y:auto">
+          <div style="text-align:center;padding:20px;color:#4B5563;font-size:13px">No sync activity yet. Press "Sync Now" to start.</div>
+        </div>
+      </div>
     </div>
 
     <!-- USERS (admin only) -->
@@ -275,7 +363,6 @@
       <div id="users-list" style="display:grid;gap:8px"></div>
     </div>
 
-    <!-- PRINT TARGET (hidden, shown only when printing) -->
     <div id="print-target"></div>
   </div>
 
@@ -296,6 +383,10 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
       History
     </button>
+    <button onclick="showTab('eol')" id="btab-eol" class="tab-btn" style="display:none">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17l4-4-4-4"/><path d="M7 7l-4 4 4 4"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
+      EOL Sync
+    </button>
     <button onclick="showTab('users')" id="btab-users" class="tab-btn" style="display:none">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Users
@@ -311,9 +402,7 @@
       Print / Export
     </h2>
     <p style="color:#6B7280;font-size:13px;margin-bottom:20px">Choose what to include in the printout</p>
-    <div style="display:grid;gap:10px" id="print-options-container">
-      <!-- filled by JS -->
-    </div>
+    <div style="display:grid;gap:10px" id="print-options-container"></div>
     <div style="display:flex;gap:10px;margin-top:22px">
       <button onclick="closePrintModal()" class="btn-ghost" style="flex:1;justify-content:center">Cancel</button>
       <button onclick="doPrint()" style="flex:2;background:linear-gradient(135deg,#3B82F6,#1D4ED8);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
@@ -371,7 +460,6 @@
           <select id="edit-week-select" class="form-input" style="flex:1"><option value="">— Select week number —</option></select>
           <button onclick="addWeekTag('edit')" class="btn-primary" style="padding:10px 16px;white-space:nowrap">+ Add</button>
         </div>
-        <div style="color:#6B7280;font-size:11px;margin-top:6px">Week 1–52 repeats every fiscal year. E.g. Week 16 = WK616 in FY2026.</div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:22px">
@@ -488,7 +576,7 @@ function wkNumToFiscal(n){return 600+n;}
 function fiscalToWkNum(fwk){return fwk-600;}
 function getWk(fwk){return CALENDAR.find(w=>w.wk===fwk);}
 
-// ── Dynamic current week detection (Malaysia time) ───────────────
+// ── Fiscal week detection (Malaysia time) ──
 function detectCurrentWeek(){
   const now=new Date();
   const myt=new Date(now.getTime()+(8*60*60*1000));
@@ -509,9 +597,7 @@ function detectCurrentWeek(){
 const CURRENT_WK=detectCurrentWeek();
 const CURRENT_WKNUM=fiscalToWkNum(CURRENT_WK);
 
-// ══════════════════════════════════════════════════════════════════
-// SEED DATA
-// ══════════════════════════════════════════════════════════════════
+// ── SEED DATA ──
 const SEED_MOLDS=[
   {id:101,name:"DD / TO CU # 2",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:102,name:"DD / TO CU # 3",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
@@ -521,116 +607,11 @@ const SEED_MOLDS=[
   {id:106,name:"DD / TO CU # 7",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:107,name:"DD / TO CU # 8",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:108,name:"DD / TO CU # 9",group:"DD/TO CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:201,name:"ETSSOP 16L # 1",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:202,name:"ETSSOP 16L # 2",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:203,name:"ETSSOP 16L # 3",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:204,name:"ETSSOP 16L # 4",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:205,name:"ETSSOP 16L # 5",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:206,name:"ETSSOP 16L # 6",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:207,name:"ETSSOP 16L # 7",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:208,name:"ETSSOP 16L # 8",group:"ETSSOP 16L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:211,name:"ETSSOP 20L # 1",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:212,name:"ETSSOP 20L # 2",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:213,name:"ETSSOP 20L # 3",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:214,name:"ETSSOP 20L # 4",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:215,name:"ETSSOP 20L # 5",group:"ETSSOP 20L",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:301,name:"G20 CU # 1",group:"G20 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:302,name:"G20 CU # 2",group:"G20 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:311,name:"G24 CU # 1",group:"G24 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:312,name:"G24 CU # 2",group:"G24 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:313,name:"G24 CU # 3",group:"G24 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:321,name:"G28 CU # 2",group:"G28 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:322,name:"G28 CU # 3",group:"G28 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:323,name:"G28 CU # 4",group:"G28 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:324,name:"G28 CU # 5",group:"G28 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:331,name:"G36/44 CU #2 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:332,name:"G36/44 CU #3 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:333,name:"G36/44 CU #4 PT",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:334,name:"G36/44 CU #5 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:335,name:"G36/44 CU #6 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:336,name:"G36/44 CU #7 PRO",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:337,name:"G36/44 CU #8 ASM",group:"G36/44 CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:401,name:"MSOP 12/16 CU # 1 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:402,name:"MSOP 12/16 CU # 2 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:403,name:"MSOP 12/16 CU # 4 IDEAL",group:"MSOP 12/16 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:411,name:"MSOP 8/10 A42 # 4 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:412,name:"MSOP 8/10 A42 # 6 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:413,name:"MSOP 8/10 A42 # 7 IDEAL (ASM)",group:"MSOP 8/10 A42",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:421,name:"MSOP 8/10 CU # 11 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:422,name:"MSOP 8/10 CU # 12 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:423,name:"MSOP 8/10 CU # 3 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:424,name:"MSOP 8/10 CU # 4 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:425,name:"MSOP 8/10 CU # 6 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:426,name:"MSOP 8/10 CU # 7 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:427,name:"MSOP 8/10 CU # 8 IDEAL",group:"MSOP 8/10 CU",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:501,name:"N14/16 PDIP A42 # 1 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:502,name:"N14/16 PDIP CU # 1 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:503,name:"N14/16 PDIP CU # 2 ES629",group:"N14/16 PDIP",machine:"ES629",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:511,name:"N8 PDIP CU # 3 TOWA",group:"N8 PDIP",machine:"TOWA",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:601,name:"QFN CU # 1",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:602,name:"QFN CU # 2",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:603,name:"QFN CU # 3",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:604,name:"QFN CU # 4",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
   {id:605,name:"QFN CU # 5",group:"QFN CU",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:701,name:"S14N A42 #2 IDEAL",group:"S14N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:702,name:"S14N/GN20/24 CU # 5 IDEAL",group:"S14N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:711,name:"S16N A42#2 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:712,name:"S16N/GN28 CU # 1 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:713,name:"S16N/GN28 CU # 2 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:714,name:"S16N/GN28 CU # 3 IDEAL",group:"S16N",machine:"IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:721,name:"S16W CU # 1 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:722,name:"S16W CU # 2 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:723,name:"S16W CU # 3 ES649/IDEAL",group:"S16W",machine:"ES649/IDEAL",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:731,name:"S18W CU # 1 ES629",group:"S18W",machine:"ES629",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:741,name:"S20W CU # 2",group:"S20W",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:742,name:"S20W CU # 3",group:"S20W",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:751,name:"S24/G36W CU # 2",group:"S24/G36W",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:752,name:"S24/G36W CU # 3",group:"S24/G36W",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:761,name:"S8 / 16GN CU # 10",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:762,name:"S8 / 16GN CU # 11",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:763,name:"S8 / 16GN CU # 12",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:764,name:"S8 / 16GN CU # 5",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:765,name:"S8 / 16GN CU # 6",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:766,name:"S8 / 16GN CU # 7",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:767,name:"S8 / 16GN CU # 8",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:768,name:"S8 / 16GN CU # 9",group:"S8/16GN",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:771,name:"S8 EXPOSE CU#1",group:"S8 EXPOSE",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:772,name:"S8 EXPOSE CU#2",group:"S8 EXPOSE",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:801,name:"SOT 23 A42 # 1",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:802,name:"SOT 23 A42 # 2",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:803,name:"SOT 23 CU # 1",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:804,name:"SOT 23 CU # 2",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:805,name:"SOT 23 CU # 3",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:806,name:"SOT 23 CU # 5",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:807,name:"SOT 23 CU # 6",group:"SOT 23",machine:"",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:901,name:"SIP MC37 #16 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:902,name:"SIP IDEAL 4633 MC37 #13 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:903,name:"SIP IDEAL 4637 MC37 #12 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:904,name:"SIP IDEAL MC#37 #20 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:905,name:"SIP IDEAL MC37 #10 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:906,name:"SIP IDEAL MC37 #11 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:907,name:"SIP IDEAL MC37 #14 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:908,name:"SIP IDEAL MC37 #15 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:909,name:"SIP IDEAL MC37 #2 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:910,name:"SIP IDEAL MC37 #3 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:911,name:"SIP IDEAL MC37 #4 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:912,name:"SIP IDEAL MC37 #4 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:913,name:"SIP IDEAL MC37 #5 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:914,name:"SIP IDEAL MC37 #6 1.5MM",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:915,name:"SIP IDEAL MC37 #6 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:916,name:"SIP IDEAL MC37 #6 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:917,name:"SIP IDEAL MC37 #7 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:918,name:"SIP IDEAL MC37 #7 2.5MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:919,name:"SIP IDEAL MC37 #8 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:920,name:"SIP IDEAL MC37 #8 2.5MM (FF) CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:921,name:"SIP IDEAL MC37 #9 2.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:922,name:"SIP IDEAL MC37 #9 4.0MM CAP",group:"SIP IDEAL",machine:"MC37",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:923,name:"SIP IDEAL MC37,41 #1 1.2MM (FF)",group:"SIP IDEAL",machine:"MC37/41",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:924,name:"SIP IDEAL MC37,41 #1 0.7MM (FF)",group:"SIP IDEAL",machine:"MC37/41",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:951,name:"SIP TOWA #7 1.5MM MC43,44,45",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:952,name:"SIP TOWA MC43,44 #10 2.0MM CAP",group:"SIP TOWA",machine:"MC43/44",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:953,name:"SIP TOWA MC43/44/45 #19 4.0MM CAP",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,scheduledWeeks:[]},
-  {id:954,name:"SIP TOWA MC43/44/45 #2 1.2MM (FF)",group:"SIP TOWA",machine:"MC43/44/45",pmIntervalWeeks:null,scheduledWeeks:[]},
 ];
 
 // ══════════════════════════════════════════════════════════════════
@@ -647,8 +628,261 @@ async function dbWrite(data){const res=await fetch(`https://api.jsonbin.io/v3/b/
 // ══════════════════════════════════════════════════════════════════
 let role=null,molds=[],history=[],users=[],activeTab="dashboard",activeFilter="all",activeQtr="2Q26",isSaving=false;
 let addWeekTagsState=[],editWeekTagsState=[];
-let printContext=null; // what we're printing
+let printContext=null;
 
+// ── EOL Sync State ──
+let EOL_URL="";
+let eolSyncLog=[];       // [{time, type:'ok'|'warn'|'err'|'info', msg}]
+let lastSyncStats=null;  // {total, matched, skipped, alreadyDone, ts}
+
+const EOL_VALID_TYPES=["Quarterly Maintenance","Half-Yearly Maintenance"];
+const EOL_URL_KEY="moldpm_eol_url";
+const EOL_LOG_KEY="moldpm_eol_log";
+
+function loadEOLConfig(){
+  EOL_URL=localStorage.getItem(EOL_URL_KEY)||"";
+  try{eolSyncLog=JSON.parse(localStorage.getItem(EOL_LOG_KEY)||"[]");}catch(e){eolSyncLog=[];}
+}
+function saveEOLLog(){
+  try{localStorage.setItem(EOL_LOG_KEY,JSON.stringify(eolSyncLog.slice(-100)));}catch(e){}
+}
+function saveEOLUrl(){
+  const v=document.getElementById("eol-url-input").value.trim();
+  const s=document.getElementById("eol-url-status");
+  if(!v){s.textContent="⚠ Please enter a URL.";s.style.color="#FF9500";return;}
+  if(!v.includes("script.google.com")||!v.includes("/exec")){s.textContent="⚠ Must be a Google Apps Script /exec URL.";s.style.color="#FF3B30";return;}
+  EOL_URL=v;localStorage.setItem(EOL_URL_KEY,v);
+  s.textContent="✅ URL saved! You can now sync.";s.style.color="#30D158";
+  updateEOLPill();
+  addEOLLog("info","EOL URL configured: "+v.substring(0,60)+"...");
+}
+function clearEOLUrl(){
+  EOL_URL="";localStorage.removeItem(EOL_URL_KEY);
+  document.getElementById("eol-url-input").value="";
+  document.getElementById("eol-url-status").textContent="URL cleared.";
+  document.getElementById("eol-url-status").style.color="#6B7280";
+  updateEOLPill();
+}
+function clearEOLLog(){
+  eolSyncLog=[];saveEOLLog();renderEOLLog();
+  document.getElementById("eol-sync-summary").innerHTML="";
+}
+function updateEOLPill(){
+  const pill=document.getElementById("eol-sync-pill");
+  if(!pill)return;
+  if(EOL_URL){pill.style.display="";pill.textContent="🔗 EOL Connected";}
+  else{pill.style.display="none";}
+}
+function addEOLLog(type,msg){
+  const ts=new Date().toLocaleString("en-MY",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  eolSyncLog.unshift({time:ts,type,msg});
+  if(eolSyncLog.length>100)eolSyncLog=eolSyncLog.slice(0,100);
+  saveEOLLog();
+  renderEOLLog();
+}
+function renderEOLLog(){
+  const el=document.getElementById("eol-log");if(!el)return;
+  if(!eolSyncLog.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#4B5563;font-size:13px">No sync activity yet. Press "Sync Now" to start.</div>';return;}
+  const icons={ok:"✅",warn:"⚠️",err:"❌",info:"ℹ️"};
+  const colors={ok:"#30D158",warn:"#FF9500",err:"#FF3B30",info:"#60A5FA"};
+  el.innerHTML=eolSyncLog.map(e=>`
+    <div class="eol-log-entry">
+      <span class="eol-log-icon">${icons[e.type]||"•"}</span>
+      <div style="flex:1;min-width:0">
+        <div style="color:${colors[e.type]||"#9CA3AF"};font-size:12px;font-weight:600;line-height:1.4">${e.msg}</div>
+        <div style="color:#374151;font-size:10px;margin-top:2px">${e.time}</div>
+      </div>
+    </div>`).join("");
+}
+
+// ── JSONP helper for EOL (Google Apps Script) ──
+let eolCbN=0;
+function eolJsonp(url,params,ms){
+  return new Promise((res,rej)=>{
+    const cb="_eolcb"+(++eolCbN)+"_"+Date.now();
+    const tid=setTimeout(()=>{cleanup();rej(new Error("Request timed out after "+(ms/1000)+"s"));},ms||30000);
+    function cleanup(){clearTimeout(tid);delete window[cb];document.getElementById(cb)?.remove();}
+    window[cb]=d=>{cleanup();res(d);};
+    params.callback=cb;
+    const qs=Object.entries(params).map(([k,v])=>encodeURIComponent(k)+"="+encodeURIComponent(String(v??""))) .join("&");
+    const s=document.createElement("script");s.id=cb;
+    s.src=url+"?"+qs+"&_t="+Date.now();
+    s.onerror=()=>{cleanup();rej(new Error("Network error — check EOL URL"));};
+    document.head.appendChild(s);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ── FISCAL WEEK FROM DATE ──────────────────────────────────────
+// Given a YYYY-MM-DD string, find which ADI fiscal week it belongs to
+// ══════════════════════════════════════════════════════════════════
+function dateToFiscalWeek(dateStr){
+  if(!dateStr)return null;
+  const [y,m,d]=dateStr.split("-").map(Number);
+  const MI={JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+  function calYear(mth){return(mth==="NOV"||mth==="DEC")?2025:2026;}
+  for(const w of CALENDAR){
+    const baseYr=calYear(w.mth),baseMo=MI[w.mth];
+    let sunY,sunM,satY,satM;
+    if(w.sun>w.sat){
+      sunM=baseMo-1;sunY=baseYr;if(sunM<0){sunM=11;sunY--;}
+      satM=baseMo;satY=baseYr;
+    }else{sunM=baseMo;sunY=baseYr;satM=baseMo;satY=baseYr;}
+    const afterSun=(y>sunY)||(y===sunY&&(m-1)>sunM)||(y===sunY&&(m-1)===sunM&&d>=w.sun);
+    const beforeSat=(y<satY)||(y===satY&&(m-1)<satM)||(y===satY&&(m-1)===satM&&d<=w.sat);
+    if(afterSun&&beforeSat)return w.wk;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ── EOL SYNC CORE ─────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+async function doEOLSync(manual=false){
+  if(!EOL_URL){
+    if(manual){addEOLLog("warn","No EOL URL configured. Go to EOL Sync tab → enter your Apps Script URL.");}
+    return;
+  }
+  const btn=document.getElementById("eol-manual-sync-btn");
+  if(btn){btn.disabled=true;btn.innerHTML='<div style="width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite"></div> Syncing...';}
+  addEOLLog("info","🔄 Starting EOL sync"+(manual?" (manual)":"")+"...");
+  try{
+    // Fetch all records from EOL system
+    const r=await eolJsonp(EOL_URL,{action:"getAll"},30000);
+    if(!r||!r.records)throw new Error("EOL system returned no records. Check URL.");
+    const eolRecords=r.records||[];
+    addEOLLog("info",`Fetched ${eolRecords.length} records from EOL system`);
+
+    // Filter: only valid maintenance types
+    const qualifying=eolRecords.filter(rec=>{
+      const mtype=(rec.maintenanceType||"").trim();
+      if(!EOL_VALID_TYPES.includes(mtype))return false;
+      // Must have equipment name
+      if(!rec.equipment)return false;
+      // Equipment name: strip the "(Both)" suffix if present, then check section
+      // EOL stores equipment as e.g. "QFN CU # 1 (Both)"
+      const secMatch=rec.equipment.match(/\((.+)\)$/);
+      const section=secMatch?secMatch[1].trim():"";
+      // Section must be "Both" (case-insensitive). If no section suffix, we allow it (backward compat)
+      if(section&&section.toLowerCase()!=="both")return false;
+      // Must have dateStart
+      if(!rec.dateStart)return false;
+      return true;
+    });
+    addEOLLog("info",`${qualifying.length} records qualify (Both section + valid Maint. Type)`);
+
+    let matched=0,skipped=0,alreadyDone=0,errors=0;
+    const matchDetails=[];
+
+    for(const rec of qualifying){
+      // Strip "(Both)" or any section suffix to get the bare equipment name
+      const equipRaw=(rec.equipment||"").replace(/\s*\([^)]+\)\s*$/,"").trim();
+      // Find matching mold in scheduler
+      const mold=molds.find(m=>m.name===equipRaw);
+      if(!mold){
+        skipped++;
+        matchDetails.push({status:"skip",msg:`No mold found for "${equipRaw}" — not in scheduler`});
+        continue;
+      }
+      if(!(mold.scheduledWeeks||[]).length){
+        skipped++;
+        matchDetails.push({status:"skip",msg:`"${mold.name}" has no scheduled weeks configured`});
+        continue;
+      }
+      // Find fiscal week for this EOL record's dateStart
+      const fiscalWk=dateToFiscalWeek(rec.dateStart);
+      if(!fiscalWk){
+        skipped++;
+        matchDetails.push({status:"skip",msg:`Could not map date "${rec.dateStart}" to a fiscal week`});
+        continue;
+      }
+      const wkNum=fiscalToWkNum(fiscalWk);
+      // Check this wkNum is in the mold's schedule
+      if(!(mold.scheduledWeeks||[]).includes(wkNum)){
+        // Find nearest scheduled week for informational purposes
+        const nearest=(mold.scheduledWeeks||[]).map(w=>({w,diff:Math.abs(w-wkNum)})).sort((a,b)=>a.diff-b.diff)[0];
+        skipped++;
+        matchDetails.push({status:"skip",msg:`"${mold.name}" — date maps to WK${fiscalWk} (Wk${wkNum}) but that's not a scheduled week. Nearest: Wk${nearest?nearest.w:"—"}`});
+        continue;
+      }
+      // Check if already done
+      if(isSlotDone(mold.id,wkNum)){
+        alreadyDone++;
+        matchDetails.push({status:"done",msg:`"${mold.name}" Wk${wkNum} — already marked Done, skipped`});
+        continue;
+      }
+      // ✅ AUTO-MARK as Done
+      const doneBy=rec.pic||"EOL Sync";
+      const wkCal=getWk(fiscalWk);
+      history.push({
+        moldId:mold.id,
+        moldName:mold.name,
+        moldGroup:mold.group||"",
+        scheduledWkNum:wkNum,
+        fiscalYear:26,
+        fiscalWeek:fiscalWk,
+        doneDate:rec.dateStart,
+        doneBy:doneBy,
+        notes:`[AUTO via EOL] ${rec.maintenanceType} | EOL ID: ${rec.id||"—"} | Maint: ${rec.maintenanceType}`,
+        recordedAt:new Date().toLocaleDateString("en-MY"),
+        source:"eol"
+      });
+      matched++;
+      matchDetails.push({status:"ok",msg:`✅ "${mold.name}" → Wk${wkNum} (WK${fiscalWk}${wkCal?" "+wkCal.mth:""}) marked Done — by ${doneBy} on ${rec.dateStart}`});
+    }
+
+    // Save if we added anything
+    if(matched>0){
+      await saveToCloud();
+      addEOLLog("ok",`Sync complete — ${matched} PM slot${matched!==1?"s":""} auto-marked Done`);
+    }else{
+      addEOLLog("info","Sync complete — no new matches found");
+    }
+    if(skipped>0)addEOLLog("warn",`${skipped} record${skipped!==1?"s":""} skipped (no match or unscheduled week)`);
+    if(alreadyDone>0)addEOLLog("info",`${alreadyDone} slot${alreadyDone!==1?"s":""} already Done — unchanged`);
+
+    // Log individual details
+    matchDetails.forEach(d=>{
+      if(d.status==="ok")addEOLLog("ok",d.msg);
+      else if(d.status==="skip")addEOLLog("warn",d.msg);
+      else addEOLLog("info",d.msg);
+    });
+
+    // Update stats
+    lastSyncStats={total:qualifying.length,matched,skipped,alreadyDone,errors,ts:new Date().toLocaleString("en-MY")};
+    renderEOLSummary();
+
+    if(matched>0){renderDashboard();renderTab(activeTab);}
+
+  }catch(e){
+    addEOLLog("err","Sync failed: "+e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Sync Now';}
+  }
+}
+
+function renderEOLSummary(){
+  const el=document.getElementById("eol-sync-summary");if(!el||!lastSyncStats)return;
+  const s=lastSyncStats;
+  el.innerHTML=`
+    <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border:1px solid #3B82F633;border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:36px;height:36px;border-radius:9px;background:#3B82F622;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">🔗</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:#60A5FA;letter-spacing:1px;text-transform:uppercase">Last Sync</div>
+        <div style="font-size:13px;color:#9CA3AF;margin-top:2px">${s.ts}</div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#30D158">${s.matched}</div><div style="font-size:11px;color:#6B7280">Marked Done</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#FF9500">${s.skipped}</div><div style="font-size:11px;color:#6B7280">Skipped</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#60A5FA">${s.alreadyDone}</div><div style="font-size:11px;color:#6B7280">Already Done</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#9CA3AF">${s.total}</div><div style="font-size:11px;color:#6B7280">Qualifying</div></div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// STATUS ENGINE
+// ══════════════════════════════════════════════════════════════════
 function setSyncStatus(s,msg){const el=document.getElementById("sync-indicator");if(!el)return;el.className="sync-"+(s==="ok"?"ok":s==="busy"?"busy":"err");el.textContent=s==="busy"?"↻ "+msg:s==="ok"?"● "+msg:"✕ "+msg;}
 
 async function loadFromCloud(){
@@ -667,9 +901,6 @@ async function saveToCloud(){
   finally{isSaving=false;}
 }
 
-// ══════════════════════════════════════════════════════════════════
-// STATUS ENGINE
-// ══════════════════════════════════════════════════════════════════
 function isSlotDone(moldId,wkNum){return history.some(h=>h.moldId===moldId&&h.scheduledWkNum===wkNum&&h.fiscalYear===26);}
 
 function getMoldStatus(m){
@@ -678,13 +909,15 @@ function getMoldStatus(m){
   const slots=sw.map(wkNum=>{
     const fwk=wkNumToFiscal(wkNum);
     const done=isSlotDone(m.id,wkNum);
+    const h=history.find(x=>x.moldId===m.id&&x.scheduledWkNum===wkNum&&x.fiscalYear===26);
+    const isEOL=h&&h.source==="eol";
     let slotStatus;
     if(done)slotStatus="DONE";
     else if(fwk<CURRENT_WK)slotStatus="OVERDUE";
     else if(fwk===CURRENT_WK)slotStatus="DUE NOW";
     else if(fwk===CURRENT_WK+1)slotStatus="DUE SOON";
     else slotStatus="UPCOMING";
-    return{wkNum,fwk,done,slotStatus};
+    return{wkNum,fwk,done,slotStatus,isEOL};
   });
   const overdue=slots.filter(s=>s.slotStatus==="OVERDUE");
   const dueNow=slots.filter(s=>s.slotStatus==="DUE NOW");
@@ -739,10 +972,8 @@ function removeWeekTag(formId,wkNum){
 function openPrintModal(context){
   printContext=context;
   const cur=getWk(CURRENT_WK);
-  const printedOn=new Date().toLocaleDateString("en-SG",{day:"2-digit",month:"short",year:"numeric"});
-
+  const printedOn=new Date().toLocaleDateString("en-MY",{day:"2-digit",month:"short",year:"numeric"});
   let optionsHTML="";
-
   if(context==="molds"||context==="dashboard"){
     optionsHTML=`
       <div style="color:#9CA3AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Select what to print</div>
@@ -753,107 +984,77 @@ function openPrintModal(context){
       ${printOption("print-opt-notset","⚙ Not configured molds","print-notset",false)}
       ${printOption("print-opt-all","📋 All molds (full list)","print-all",false)}
     `;
-  } else if(context==="history"){
+  }else if(context==="history"){
     optionsHTML=`
       <div style="color:#9CA3AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Print PM history</div>
       ${printOption("print-opt-hist-all","📋 All history records","print-hist-all",true)}
       ${printOption("print-opt-hist-search","🔍 Current search / filter results only","print-hist-search",false)}
     `;
-  } else if(context==="calendar"){
+  }else if(context==="calendar"){
     optionsHTML=`
       <div style="color:#9CA3AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Print calendar</div>
       ${printOption("print-opt-cal-qtr","📅 Current quarter (${activeQtr})","print-cal-qtr",true)}
       ${printOption("print-opt-cal-all","📅 Full year calendar","print-cal-all",false)}
     `.replace("${activeQtr}",activeQtr);
   }
-
   document.getElementById("print-options-container").innerHTML=`
     ${optionsHTML}
     <div style="background:#1F2937;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:12px;color:#6B7280">
-      <b style="color:#9CA3AF">Printed on:</b> ${printedOn} &nbsp;·&nbsp; 
+      <b style="color:#9CA3AF">Printed on:</b> ${printedOn} &nbsp;·&nbsp;
       <b style="color:#9CA3AF">Current WK:</b> WK${CURRENT_WK} (${cur?cur.mth+' '+cur.period:''})
-    </div>
-  `;
+    </div>`;
   document.getElementById("print-modal").style.display="flex";
 }
-
 function printOption(id,label,value,checked){
   return `<label style="display:flex;align-items:center;gap:12px;background:#1F2937;border-radius:10px;padding:12px 14px;cursor:pointer;border:2px solid transparent;transition:border 0.15s" onclick="selectPrintOpt('${value}')">
     <input type="radio" name="print-opt" value="${value}" ${checked?"checked":""} style="accent-color:#FF9500;width:16px;height:16px;flex-shrink:0"/>
     <span style="font-size:14px;font-weight:500">${label}</span>
   </label>`;
 }
-
-function selectPrintOpt(val){
-  document.querySelectorAll("input[name='print-opt']").forEach(r=>{r.checked=r.value===val;});
-}
-
+function selectPrintOpt(val){document.querySelectorAll("input[name='print-opt']").forEach(r=>{r.checked=r.value===val;});}
 function closePrintModal(){document.getElementById("print-modal").style.display="none";}
 document.getElementById("print-modal").addEventListener("click",function(e){if(e.target===this)closePrintModal();});
 
 function doPrint(){
-  const sel=document.querySelector("input[name='print-opt']:checked");
-  if(!sel){alert("Please select a print option.");return;}
+  const sel=document.querySelector("input[name='print-opt']:checked");if(!sel){alert("Please select a print option.");return;}
   const opt=sel.value;
-  const printedOn=new Date().toLocaleDateString("en-SG",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+  const printedOn=new Date().toLocaleDateString("en-MY",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
   const cur=getWk(CURRENT_WK);
-  const header=`
-    <div class="print-header" style="margin-bottom:20pt;border-bottom:2pt solid #000;padding-bottom:10pt">
-      <div style="font-size:18pt;font-weight:bold">MoldDie PM System — ADI FY2026</div>
-      <div style="font-size:10pt;color:#555;margin-top:4pt">Printed: ${printedOn} &nbsp;·&nbsp; Current WK: WK${CURRENT_WK} (${cur?cur.mth+' '+cur.period+' '+cur.qtr:""})</div>
-    </div>`;
-
+  const header=`<div class="print-header" style="margin-bottom:20pt;border-bottom:2pt solid #000;padding-bottom:10pt">
+    <div style="font-size:18pt;font-weight:bold">MoldDie PM System — ADI FY2026</div>
+    <div style="font-size:10pt;color:#555;margin-top:4pt">Printed: ${printedOn} · Current WK: WK${CURRENT_WK} (${cur?cur.mth+' '+cur.period+' '+cur.qtr:""})</div>
+  </div>`;
   let content="";
-
-  // ── MOLD LIST PRINTS ──────────────────────────────────────────
   if(["print-overdue","print-duenow","print-duesoon","print-ok","print-notset","print-all"].includes(opt)){
     const labelMap={"print-overdue":"Overdue PM","print-duenow":"Due This Week (WK"+CURRENT_WK+")","print-duesoon":"Due Soon","print-ok":"Up to Date","print-notset":"Not Configured","print-all":"All Mold Dies"};
     const filterMap={"print-overdue":"OVERDUE","print-duenow":"DUE NOW","print-duesoon":"DUE SOON","print-ok":"OK","print-notset":"NOT SET","print-all":null};
     const filterLabel=filterMap[opt];
     let list=molds.filter(m=>!filterLabel||getMoldStatus(m).label===filterLabel);
     list=[...list].sort((a,b)=>{const o={OVERDUE:0,"DUE NOW":1,"DUE SOON":2,OK:3,"NOT SET":4};return(o[getMoldStatus(a).label]||9)-(o[getMoldStatus(b).label]||9);});
-
     content=`<div style="font-size:14pt;font-weight:bold;margin-bottom:12pt">${labelMap[opt]} — ${list.length} mold die${list.length!==1?"s":""}</div>
-    <table class="print-table">
-      <thead><tr>
-        <th>#</th><th>Mold Die Name</th><th>Group</th><th>Machine</th><th>Status</th><th>Scheduled Weeks</th><th>Done Weeks</th>
-      </tr></thead>
-      <tbody>
-      ${list.map((m,i)=>{
-        const st=getMoldStatus(m);
-        const scheduled=(m.scheduledWeeks||[]).sort((a,b)=>a-b).map(n=>"Wk"+n).join(", ")||"—";
-        const done=(st.slots||[]).filter(s=>s.slotStatus==="DONE").map(s=>"Wk"+s.wkNum).join(", ")||"—";
-        const statusColors={"OVERDUE":"#cc0000","DUE NOW":"#cc6600","DUE SOON":"#aa8800","OK":"#006600","NOT SET":"#555"};
-        return `<tr><td>${i+1}</td><td style="font-weight:600">${m.name}</td><td>${m.group||"—"}</td><td>${m.machine||"—"}</td>
-          <td><span class="print-status" style="color:${statusColors[st.label]||"#333"};border-color:${statusColors[st.label]||"#999"}">${st.label}</span></td>
-          <td style="font-family:monospace">${scheduled}</td><td style="font-family:monospace;color:#006600">${done}</td></tr>`;
-      }).join("")}
-      </tbody>
-    </table>`;
+    <table class="print-table"><thead><tr><th>#</th><th>Mold Die Name</th><th>Group</th><th>Machine</th><th>Status</th><th>Scheduled Weeks</th><th>Done Weeks</th></tr></thead><tbody>
+    ${list.map((m,i)=>{
+      const st=getMoldStatus(m);
+      const scheduled=(m.scheduledWeeks||[]).sort((a,b)=>a-b).map(n=>"Wk"+n).join(", ")||"—";
+      const done=(st.slots||[]).filter(s=>s.slotStatus==="DONE").map(s=>"Wk"+s.wkNum+(s.isEOL?" [EOL]":"")).join(", ")||"—";
+      const statusColors={"OVERDUE":"#cc0000","DUE NOW":"#cc6600","DUE SOON":"#aa8800","OK":"#006600","NOT SET":"#555"};
+      return `<tr><td>${i+1}</td><td style="font-weight:600">${m.name}</td><td>${m.group||"—"}</td><td>${m.machine||"—"}</td>
+        <td><span class="print-status" style="color:${statusColors[st.label]||"#333"};border-color:${statusColors[st.label]||"#999"}">${st.label}</span></td>
+        <td style="font-family:monospace">${scheduled}</td><td style="font-family:monospace;color:#006600">${done}</td></tr>`;
+    }).join("")}</tbody></table>`;
   }
-
-  // ── HISTORY PRINTS ────────────────────────────────────────────
   if(["print-hist-all","print-hist-search"].includes(opt)){
     let list=opt==="print-hist-all"?[...history]:getFilteredHistory();
     list=[...list].reverse();
     content=`<div style="font-size:14pt;font-weight:bold;margin-bottom:12pt">PM Completion History — ${list.length} record${list.length!==1?"s":""}</div>
-    <table class="print-table">
-      <thead><tr><th>#</th><th>Mold Die</th><th>Group</th><th>Sched. Week</th><th>PM Date</th><th>Performed By</th><th>Notes</th></tr></thead>
-      <tbody>
-      ${list.map((h,i)=>`<tr>
-        <td>${i+1}</td>
-        <td style="font-weight:600">${h.moldName}</td>
-        <td>${h.moldGroup||"—"}</td>
-        <td style="font-family:monospace">Wk${h.scheduledWkNum||"—"} (WK${h.fiscalWeek||"—"})</td>
-        <td>${h.doneDate||"—"}</td>
-        <td>${h.doneBy||"—"}</td>
-        <td style="font-style:italic;color:#555">${h.notes||""}</td>
-      </tr>`).join("")}
-      </tbody>
-    </table>`;
+    <table class="print-table"><thead><tr><th>#</th><th>Mold Die</th><th>Group</th><th>Sched. Week</th><th>PM Date</th><th>Performed By</th><th>Source</th><th>Notes</th></tr></thead><tbody>
+    ${list.map((h,i)=>`<tr><td>${i+1}</td><td style="font-weight:600">${h.moldName}</td><td>${h.moldGroup||"—"}</td>
+      <td style="font-family:monospace">Wk${h.scheduledWkNum||"—"} (WK${h.fiscalWeek||"—"})</td>
+      <td>${h.doneDate||"—"}</td><td>${h.doneBy||"—"}</td>
+      <td>${h.source==="eol"?"🔗 EOL":"Manual"}</td>
+      <td style="font-style:italic;color:#555">${h.notes||""}</td></tr>`).join("")}
+    </tbody></table>`;
   }
-
-  // ── CALENDAR PRINTS ────────────────────────────────────────────
   if(["print-cal-qtr","print-cal-all"].includes(opt)){
     const qtrs=opt==="print-cal-qtr"?[activeQtr]:[...new Set(CALENDAR.map(w=>w.qtr))];
     content=`<div style="font-size:14pt;font-weight:bold;margin-bottom:12pt">PM Calendar — ${opt==="print-cal-qtr"?activeQtr:"FY2026 Full Year"}</div>`;
@@ -864,37 +1065,29 @@ function doPrint(){
       months.forEach(mth=>{
         const mthWeeks=qtrWeeks.filter(w=>w.mth===mth);
         content+=`<div style="font-size:10pt;font-weight:bold;color:#555;text-transform:uppercase;letter-spacing:1pt;margin-bottom:4pt">${mth}</div>
-        <table class="print-table" style="margin-bottom:12pt">
-          <thead><tr><th>WK Code</th><th>Week #</th><th>Dates</th><th>Period</th><th>Molds Due</th></tr></thead>
-          <tbody>
-          ${mthWeeks.map(w=>{
-            const scheduled=molds.filter(m=>(m.scheduledWeeks||[]).includes(w.wkNum));
-            const isCur=w.wk===CURRENT_WK;
-            const moldNames=scheduled.length?scheduled.map(m=>{const done=isSlotDone(m.id,w.wkNum);return m.name+(done?" ✓":"");}).join("; "):"—";
-            return `<tr style="${isCur?"background:#fffbe6;font-weight:bold":""}">
-              <td style="font-family:monospace">WK${w.wk}${isCur?" ← NOW":""}</td>
-              <td style="font-family:monospace">Wk${w.wkNum}</td>
-              <td>Sun ${w.sun} – Sat ${w.sat}</td>
-              <td>${w.period}</td>
-              <td style="font-size:9pt">${moldNames}</td>
-            </tr>`;
-          }).join("")}
-          </tbody>
-        </table>`;
+        <table class="print-table" style="margin-bottom:12pt"><thead><tr><th>WK Code</th><th>Week #</th><th>Dates</th><th>Period</th><th>Molds Due</th></tr></thead><tbody>
+        ${mthWeeks.map(w=>{
+          const scheduled=molds.filter(m=>(m.scheduledWeeks||[]).includes(w.wkNum));
+          const isCur=w.wk===CURRENT_WK;
+          const moldNames=scheduled.length?scheduled.map(m=>{const done=isSlotDone(m.id,w.wkNum);const h=history.find(x=>x.moldId===m.id&&x.scheduledWkNum===w.wkNum);const src=h&&h.source==="eol"?" [EOL]":"";return m.name+(done?" ✓"+src:"");}).join("; "):"—";
+          return `<tr style="${isCur?"background:#fffbe6;font-weight:bold":""}">
+            <td style="font-family:monospace">WK${w.wk}${isCur?" ← NOW":""}</td>
+            <td style="font-family:monospace">Wk${w.wkNum}</td>
+            <td>Sun ${w.sun} – Sat ${w.sat}</td>
+            <td>${w.period}</td>
+            <td style="font-size:9pt">${moldNames}</td></tr>`;
+        }).join("")}</tbody></table>`;
       });
     });
   }
-
-  // Inject into print-target and trigger print
   document.getElementById("print-target").innerHTML=header+content;
   closePrintModal();
   setTimeout(()=>window.print(),150);
-  // After print, clear target
   window.addEventListener("afterprint",()=>{document.getElementById("print-target").innerHTML="";},{once:true});
 }
 
 // ══════════════════════════════════════════════════════════════════
-// SETUP & AUTH
+// AUTH
 // ══════════════════════════════════════════════════════════════════
 function showSetup(){document.getElementById("login-screen").style.display="none";document.getElementById("setup-screen").style.display="flex";}
 async function doSetup(){
@@ -924,7 +1117,11 @@ async function enterApp(r){
   badge.style.background=r==="admin"?"#FF950022":"#30D15822";
   badge.style.color=r==="admin"?"#FF9500":"#30D158";
   badge.style.borderColor=r==="admin"?"#FF950044":"#30D15844";
+  // Show EOL tab for admin only
+  const eolH=document.getElementById("htab-eol"),eolB=document.getElementById("btab-eol");
   const utH=document.getElementById("htab-users"),utB=document.getElementById("btab-users");
+  if(eolH)eolH.style.display=r==="admin"?"":"none";
+  if(eolB)eolB.style.display=r==="admin"?"flex":"none";
   if(utH)utH.style.display=r==="admin"?"":"none";
   if(utB)utB.style.display=r==="admin"?"flex":"none";
   populateWeekSelect("add");populateWeekSelect("edit");
@@ -932,8 +1129,16 @@ async function enterApp(r){
   document.getElementById("dash-content").innerHTML="";
   await loadFromCloud();
   document.getElementById("loading-overlay").style.display="none";
+  // Load EOL config
+  loadEOLConfig();
+  updateEOLPill();
+  // Populate EOL URL input if set
+  if(EOL_URL)document.getElementById("eol-url-input").value=EOL_URL;
   showTab("dashboard");
-  if(r==="user")setInterval(async()=>{await loadFromCloud();renderTab(activeTab);},60000);
+  // Auto-sync EOL on login if URL configured (admin only)
+  if(r==="admin"&&EOL_URL){setTimeout(()=>doEOLSync(false),2000);}
+  // Auto-refresh every 5min for viewers
+  if(r==="user")setInterval(async()=>{await loadFromCloud();renderTab(activeTab);},300000);
 }
 function doLogout(){
   role=null;document.getElementById("app-screen").style.display="none";document.getElementById("login-screen").style.display="flex";
@@ -959,6 +1164,14 @@ function renderTab(t){
   else if(t==="calendar")renderCalendar();
   else if(t==="history")renderHistory();
   else if(t==="users")renderUsers();
+  else if(t==="eol")renderEOLTab();
+}
+
+function renderEOLTab(){
+  // Refresh URL input
+  if(EOL_URL)document.getElementById("eol-url-input").value=EOL_URL;
+  renderEOLLog();
+  renderEOLSummary();
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -973,20 +1186,23 @@ function toggleDash(key){
 }
 function renderDashboard(){
   const cur=getWk(CURRENT_WK);
-  const addBtn=role==="admin"?`<button onclick="openAddModal()" class="btn-primary" style="margin-left:auto;white-space:nowrap">${iSVG("plus",16)} Add Mold</button>`:"";
+  const addBtn=role==="admin"?`<button onclick="openAddModal()" class="btn-primary" style="margin-left:4px;white-space:nowrap">${iSVG("plus",16)} Add Mold</button>`:"";
+  const eolBtn=role==="admin"&&EOL_URL?`<button onclick="doEOLSync(true)" class="btn-eol-sync" style="white-space:nowrap">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+    Sync EOL</button>`:"";
   document.getElementById("wk-banner").innerHTML=`
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     <div style="flex:1">
       <div style="color:#FF9500;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Current Company Work Week</div>
-      <div style="font-size:18px;font-weight:700;margin-top:3px">WK${CURRENT_WK} (Week ${CURRENT_WKNUM}) &nbsp;·&nbsp; ${cur.mth} ${cur.period} &nbsp;·&nbsp; ${cur.qtr}</div>
-      <div style="color:#6B7280;font-size:13px;margin-top:2px">Sun ${cur.sun} – Sat ${cur.sat} &nbsp;·&nbsp; Total molds: <b style="color:#fff">${molds.length}</b></div>
+      <div style="font-size:18px;font-weight:700;margin-top:3px">WK${CURRENT_WK} (Week ${CURRENT_WKNUM}) · ${cur.mth} ${cur.period} · ${cur.qtr}</div>
+      <div style="color:#6B7280;font-size:13px;margin-top:2px">Sun ${cur.sun} – Sat ${cur.sat} · Total molds: <b style="color:#fff">${molds.length}</b></div>
     </div>
     <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap">
       <button onclick="openPrintModal('dashboard')" class="btn-print" style="white-space:nowrap">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Print List
+        Print
       </button>
-      ${addBtn}
+      ${eolBtn}${addBtn}
     </div>`;
 
   const overdue=molds.filter(m=>getMoldStatus(m).label==="OVERDUE");
@@ -1024,9 +1240,6 @@ function renderDashboard(){
     dashCard("notset","⚙ Not Configured","⚙","#6B7280","#6B728018",notSet,false);
 }
 
-// ══════════════════════════════════════════════════════════════════
-// DASHBOARD ROW
-// ══════════════════════════════════════════════════════════════════
 function dashboardRowHTML(m,showDone=false){
   const st=getMoldStatus(m);const isNotSet=st.label==="NOT SET";
   const machBadge=m.machine?`<span style="font-size:11px;background:#1F2937;color:#9CA3AF;padding:2px 7px;border-radius:6px">${m.machine}</span>`:"";
@@ -1036,7 +1249,11 @@ function dashboardRowHTML(m,showDone=false){
     const doneSlots=st.slots.filter(s=>s.slotStatus==="DONE");
     const sc={OVERDUE:"#FF3B30","DUE NOW":"#FF9500","DUE SOON":"#FFCC00",UPCOMING:"#374151"};
     const slotChips=pendingSlots.slice(0,4).map(s=>{const cal=getWk(s.fwk);return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${sc[s.slotStatus]||"#374151"}44;color:${sc[s.slotStatus]||"#6B7280"};background:${sc[s.slotStatus]||"#374151"}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""} ${s.slotStatus==="OVERDUE"?"⚠":s.slotStatus==="DUE NOW"?"🔧":""}</span>`;}).join("");
-    const doneChips=doneSlots.map(s=>`<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid #30D15833;color:#30D158;background:#30D15810;font-family:'DM Mono',monospace">Wk${s.wkNum} ✓</span>`).join("");
+    // Show done slots with EOL badge if applicable
+    const doneChips=doneSlots.map(s=>{
+      const eolBadge=s.isEOL?` <span style="font-size:9px;background:#3B82F622;color:#60A5FA;border:1px solid #3B82F633;border-radius:4px;padding:0 4px;font-family:sans-serif">EOL</span>`:"";
+      return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid #30D15833;color:#30D158;background:#30D15810;font-family:'DM Mono',monospace">Wk${s.wkNum} ✓${eolBadge}</span>`;
+    }).join("");
     slotInfo=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">${slotChips}${doneChips}</div>`;
   }
   const doneBtn=showDone&&!isNotSet?`<button onclick="openPMDoneModal(${m.id})" style="background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:8px 16px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">${iSVG("check",13)} Mark Done</button>`:"";
@@ -1076,16 +1293,18 @@ function renderMolds(){
 }
 function setFilter(f){activeFilter=f;renderMolds();}
 
-// ══════════════════════════════════════════════════════════════════
-// MOLD ROW
-// ══════════════════════════════════════════════════════════════════
 function moldRowHTML(m){
   const st=getMoldStatus(m);const isNotSet=st.label==="NOT SET";
   const machBadge=m.machine?`<span style="font-size:11px;background:#1F2937;color:#9CA3AF;padding:2px 7px;border-radius:6px">${m.machine}</span>`:"";
   let schedSummary="";
   if(!isNotSet&&st.slots){
     const sc={OVERDUE:"#FF3B30","DUE NOW":"#FF9500","DUE SOON":"#FFCC00",UPCOMING:"#9CA3AF",DONE:"#30D158"};
-    const chips=st.slots.map(s=>{const cal=getWk(s.fwk);const icon=s.slotStatus==="DONE"?" ✓":s.slotStatus==="OVERDUE"?" ⚠":s.slotStatus==="DUE NOW"?" 🔧":"";return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${(sc[s.slotStatus]||"#374151")}44;color:${sc[s.slotStatus]||"#6B7280"};background:${(sc[s.slotStatus]||"#374151")}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""}${icon}</span>`;}).join("");
+    const chips=st.slots.map(s=>{
+      const cal=getWk(s.fwk);
+      const icon=s.slotStatus==="DONE"?" ✓":s.slotStatus==="OVERDUE"?" ⚠":s.slotStatus==="DUE NOW"?" 🔧":"";
+      const eolTag=s.isEOL&&s.slotStatus==="DONE"?` <span style="font-size:9px;background:#3B82F622;color:#60A5FA;border:1px solid #3B82F633;border-radius:4px;padding:0 3px">EOL</span>`:"";
+      return `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid ${(sc[s.slotStatus]||"#374151")}44;color:${sc[s.slotStatus]||"#6B7280"};background:${(sc[s.slotStatus]||"#374151")}18;font-family:'DM Mono',monospace">Wk${s.wkNum}${cal?" "+cal.mth:""}${icon}${eolTag}</span>`;
+    }).join("");
     schedSummary=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">${chips}</div>`;
     if(m.pmIntervalWeeks)schedSummary+=`<div style="color:#4B5563;font-size:11px;margin-top:3px">Interval ref: every ${m.pmIntervalWeeks} wk</div>`;
   }
@@ -1144,13 +1363,13 @@ async function doConfirmPMDone(){
   if(!person){alert("Please select a technician.");return;}
   if(!wkNumVal){alert("Please select the scheduled PM week.");return;}
   const btn=document.getElementById("pmdone-confirm-btn");btn.textContent="Saving...";btn.disabled=true;
-  history.push({moldId:id,moldName:m.name,moldGroup:m.group||"",scheduledWkNum:wkNumVal,fiscalYear:26,fiscalWeek:wkNumToFiscal(wkNumVal),doneDate:dateVal,doneBy:person||"—",notes:notes||"",recordedAt:new Date().toLocaleDateString("en-SG")});
+  history.push({moldId:id,moldName:m.name,moldGroup:m.group||"",scheduledWkNum:wkNumVal,fiscalYear:26,fiscalWeek:wkNumToFiscal(wkNumVal),doneDate:dateVal,doneBy:person||"—",notes:notes||"",recordedAt:new Date().toLocaleDateString("en-MY"),source:"manual"});
   await saveToCloud();btn.textContent="Confirm PM Done";btn.disabled=false;closePMDoneModal();renderTab(activeTab);
 }
 async function deleteMold(id){if(!confirm("Delete this mold die?"))return;molds=molds.filter(x=>x.id!==id);renderTab(activeTab);await saveToCloud();}
 
 // ══════════════════════════════════════════════════════════════════
-// ADD MODAL
+// ADD / EDIT MODAL
 // ══════════════════════════════════════════════════════════════════
 function openAddModal(){addWeekTagsState=[];renderWeekTags("add");document.getElementById("add-name").value="";document.getElementById("add-group").value="";document.getElementById("add-machine").value="";document.getElementById("add-interval").value="";document.getElementById("add-modal").style.display="flex";}
 function closeAddModal(){document.getElementById("add-modal").style.display="none";}
@@ -1161,10 +1380,6 @@ async function doAddMold(){
   molds.push({id:Date.now(),name,group:document.getElementById("add-group").value.trim(),machine:document.getElementById("add-machine").value.trim(),pmIntervalWeeks:parseInt(document.getElementById("add-interval").value)||null,scheduledWeeks:[...addWeekTagsState]});
   await saveToCloud();btn.textContent="Add Mold Die";btn.disabled=false;closeAddModal();renderTab(activeTab);
 }
-
-// ══════════════════════════════════════════════════════════════════
-// EDIT MODAL
-// ══════════════════════════════════════════════════════════════════
 function openEditModal(id){
   const m=molds.find(x=>x.id===id);if(!m)return;
   document.getElementById("edit-id").value=id;document.getElementById("edit-name").value=m.name;document.getElementById("edit-group").value=m.group||"";document.getElementById("edit-machine").value=m.machine||"";document.getElementById("edit-interval").value=m.pmIntervalWeeks!=null?m.pmIntervalWeeks:"";
@@ -1193,7 +1408,19 @@ function renderCalendar(){
       <div style="display:grid;gap:8px">${mthWeeks.map(w=>{
         const scheduled=molds.filter(m=>(m.scheduledWeeks||[]).includes(w.wkNum));
         const isCur=w.wk===CURRENT_WK;
-        const badges=scheduled.length?scheduled.map(m=>{const done=isSlotDone(m.id,w.wkNum);const fwk=wkNumToFiscal(w.wkNum);let color="#9CA3AF";if(done)color="#30D158";else if(fwk<CURRENT_WK)color="#FF3B30";else if(fwk===CURRENT_WK)color="#FF9500";else if(fwk===CURRENT_WK+1)color="#FFCC00";return `<span style="background:${color}18;color:${color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;border:1px solid ${color}44;font-family:'DM Mono',monospace;white-space:nowrap">${m.name}${done?" ✓":""}</span>`;}).join(""):`<span style="color:#374151;font-size:12px">No PM scheduled</span>`;
+        const badges=scheduled.length?scheduled.map(m=>{
+          const done=isSlotDone(m.id,w.wkNum);
+          const h=history.find(x=>x.moldId===m.id&&x.scheduledWkNum===w.wkNum);
+          const isEOL=h&&h.source==="eol";
+          const fwk=wkNumToFiscal(w.wkNum);
+          let color="#9CA3AF";
+          if(done)color="#30D158";
+          else if(fwk<CURRENT_WK)color="#FF3B30";
+          else if(fwk===CURRENT_WK)color="#FF9500";
+          else if(fwk===CURRENT_WK+1)color="#FFCC00";
+          const eolSuffix=isEOL?" 🔗":"";
+          return `<span style="background:${color}18;color:${color};font-size:11px;font-weight:600;padding:2px 8px;border-radius:16px;border:1px solid ${color}44;font-family:'DM Mono',monospace;white-space:nowrap">${m.name}${done?" ✓"+eolSuffix:""}</span>`;
+        }).join(""):`<span style="color:#374151;font-size:12px">No PM scheduled</span>`;
         return `<div class="cal-week${isCur?" current-wk":""}">
           <div style="text-align:center;min-width:50px">
             <div style="color:${isCur?"#FF9500":"#6B7280"};font-size:10px;font-weight:600;letter-spacing:1px">WK${w.wk}</div>
@@ -1212,7 +1439,7 @@ function renderCalendar(){
 function setQtr(q){activeQtr=q;renderCalendar();}
 
 // ══════════════════════════════════════════════════════════════════
-// HISTORY — with search & filter
+// HISTORY
 // ══════════════════════════════════════════════════════════════════
 function getFilteredHistory(){
   const search=(document.getElementById("history-search")||{}).value||"";
@@ -1226,16 +1453,13 @@ function getFilteredHistory(){
     return matchSearch&&matchWk&&matchPerson;
   });
 }
-
 function clearHistoryFilters(){
   const s=document.getElementById("history-search");if(s)s.value="";
   const w=document.getElementById("history-wk-filter");if(w)w.value="";
   const p=document.getElementById("history-person-filter");if(p)p.value="";
   renderHistory();
 }
-
 function renderHistory(){
-  // Populate person dropdown from unique names in history
   const personSel=document.getElementById("history-person-filter");
   if(personSel){
     const currentVal=personSel.value;
@@ -1243,33 +1467,33 @@ function renderHistory(){
     personSel.innerHTML=`<option value="">All technicians</option>`;
     uniquePersons.forEach(p=>{personSel.innerHTML+=`<option value="${p}"${p===currentVal?" selected":""}>${p}</option>`;});
   }
-
   const filtered=getFilteredHistory();
   const total=history.length;
   document.getElementById("history-count").textContent=filtered.length===total?`${total} records`:`${filtered.length} of ${total} records`;
   const el=document.getElementById("history-list");
-  if(!history.length){
-    el.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#4B5563"><div style="font-size:36px;margin-bottom:12px">📋</div>No PM history yet.</div>`;return;
-  }
-  if(!filtered.length){
-    el.innerHTML=`<div style="background:#111827;border-radius:12px;padding:40px;text-align:center;color:#4B5563">No records match your search. <button onclick="clearHistoryFilters()" style="background:transparent;border:none;color:#FF9500;cursor:pointer;font-size:13px;text-decoration:underline">Clear filters</button></div>`;return;
-  }
-  el.innerHTML=[...filtered].reverse().map(h=>`
-    <div class="history-row" style="flex-wrap:wrap;gap:10px;align-items:flex-start">
-      <div style="width:34px;height:34px;border-radius:8px;background:#30D15822;display:flex;align-items:center;justify-content:center;color:#30D158;flex-shrink:0;margin-top:2px">${iSVG("check",13)}</div>
+  if(!history.length){el.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#4B5563"><div style="font-size:36px;margin-bottom:12px">📋</div>No PM history yet.</div>`;return;}
+  if(!filtered.length){el.innerHTML=`<div style="background:#111827;border-radius:12px;padding:40px;text-align:center;color:#4B5563">No records match your search. <button onclick="clearHistoryFilters()" style="background:transparent;border:none;color:#FF9500;cursor:pointer;font-size:13px;text-decoration:underline">Clear filters</button></div>`;return;}
+  el.innerHTML=[...filtered].reverse().map(h=>{
+    const isEOL=h.source==="eol";
+    return `<div class="history-row" style="flex-wrap:wrap;gap:10px;align-items:flex-start${isEOL?";border-left:3px solid #3B82F6":";border-left:3px solid #30D158"}">
+      <div style="width:34px;height:34px;border-radius:8px;background:${isEOL?"#3B82F622":"#30D15822"};display:flex;align-items:center;justify-content:center;color:${isEOL?"#60A5FA":"#30D158"};flex-shrink:0;margin-top:2px;font-size:14px">${isEOL?"🔗":"✓"}</div>
       <div style="flex:1;min-width:160px">
-        <div style="font-weight:700;font-family:'DM Mono',monospace;font-size:12px">${h.moldName}</div>
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span style="font-weight:700;font-family:'DM Mono',monospace;font-size:12px">${h.moldName}</span>
+          ${isEOL?`<span class="eol-auto-badge">AUTO EOL</span>`:""}
+        </div>
         ${h.moldGroup?`<div style="color:#6B7280;font-size:11px">${h.moldGroup}</div>`:""}
         <div style="color:#9CA3AF;font-size:11px;margin-top:2px">Scheduled: <b style="color:#fff">Week ${h.scheduledWkNum||"—"}</b>${h.fiscalWeek?" (WK"+h.fiscalWeek+")":""}</div>
         ${h.notes?`<div style="color:#9CA3AF;font-size:11px;margin-top:3px;font-style:italic">"${h.notes}"</div>`:""}
       </div>
       <div style="text-align:right;flex-shrink:0">
-        <div style="color:#30D158;font-size:12px;font-weight:600">PM Completed</div>
+        <div style="color:${isEOL?"#60A5FA":"#30D158"};font-size:12px;font-weight:600">${isEOL?"Via EOL Sync":"PM Completed"}</div>
         <div style="color:#fff;font-size:12px;margin-top:1px">${h.doneDate||"—"}</div>
         <div style="color:#6B7280;font-size:11px;margin-top:1px">By: <b style="color:#9CA3AF">${h.doneBy||"—"}</b></div>
         <div style="color:#374151;font-size:10px;margin-top:1px">Recorded: ${h.recordedAt||""}</div>
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -1289,11 +1513,9 @@ function renderUsers(){
 async function doAddUser(){
   const inp=document.getElementById("new-user-name");const name=inp.value.trim();if(!name){inp.focus();return;}
   if(users.some(u=>u.name.toLowerCase()===name.toLowerCase())){alert("A user with this name already exists.");return;}
-  users.push({name,addedAt:new Date().toLocaleDateString("en-SG")});inp.value="";renderUsers();await saveToCloud();
+  users.push({name,addedAt:new Date().toLocaleDateString("en-MY")});inp.value="";renderUsers();await saveToCloud();
 }
-async function doDeleteUser(idx){
-  const u=users[idx];if(!confirm(`Remove "${u.name}"?`))return;users.splice(idx,1);renderUsers();await saveToCloud();
-}
+async function doDeleteUser(idx){const u=users[idx];if(!confirm(`Remove "${u.name}"?`))return;users.splice(idx,1);renderUsers();await saveToCloud();}
 
 // ══════════════════════════════════════════════════════════════════
 // INIT
