@@ -422,10 +422,10 @@
       <div><label class="form-label">Group / Type</label><input id="add-group" class="form-input" placeholder="e.g. QFN CU"/></div>
       <div class="two-col">
         <div><label class="form-label">Machine</label><input id="add-machine" class="form-input" placeholder="e.g. IDEAL, TOWA"/></div>
-        <div><label class="form-label">PM Interval (weeks) — Ref</label><input id="add-interval" class="form-input" type="number" min="1" max="52" placeholder="e.g. 4"/></div>
+        <div><label class="form-label">Maintenance Interval (weeks) — Ref</label><input id="add-interval" class="form-input" type="number" min="1" max="52" placeholder="e.g. 4"/></div>
       </div>
       <div>
-        <label class="form-label">Fixed PM Weeks (week numbers 1–52, repeat every year)</label>
+        <label class="form-label">Fixed Maintenance Weeks (week numbers 1–52, repeat every year)</label>
         <div class="week-tags-container" id="add-week-tags"><span style="color:#4B5563;font-size:12px" id="add-week-empty">No weeks added yet</span></div>
         <div class="week-add-row">
           <select id="add-week-select" class="form-input" style="flex:1"><option value="">— Select week number —</option></select>
@@ -451,10 +451,10 @@
       <div><label class="form-label">Group / Type</label><input id="edit-group" class="form-input"/></div>
       <div class="two-col">
         <div><label class="form-label">Machine</label><input id="edit-machine" class="form-input"/></div>
-        <div><label class="form-label">PM Interval (weeks) — Ref</label><input id="edit-interval" class="form-input" type="number" min="1" max="52"/></div>
+        <div><label class="form-label">Maintenance Interval (weeks) — Ref</label><input id="edit-interval" class="form-input" type="number" min="1" max="52"/></div>
       </div>
       <div>
-        <label class="form-label">Fixed PM Weeks (week numbers 1–52)</label>
+        <label class="form-label">Fixed Maintenance Weeks (week numbers 1–52)</label>
         <div class="week-tags-container" id="edit-week-tags"><span style="color:#4B5563;font-size:12px" id="edit-week-empty">No weeks added yet</span></div>
         <div class="week-add-row">
           <select id="edit-week-select" class="form-input" style="flex:1"><option value="">— Select week number —</option></select>
@@ -476,7 +476,7 @@
       <div style="width:36px;height:36px;border-radius:9px;background:#30D15822;display:flex;align-items:center;justify-content:center;color:#30D158;flex-shrink:0">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h2 style="font-size:17px;font-weight:700">Mark PM as Done</h2>
+      <h2 style="font-size:17px;font-weight:700">Mark Maintenance as Done</h2>
     </div>
     <p style="color:#6B7280;font-size:13px;margin-bottom:4px">Mold: <b id="pmdone-moldname" style="color:#fff"></b></p>
     <p id="pmdone-due-info" style="color:#FF9500;font-size:12px;margin-bottom:16px"></p>
@@ -485,13 +485,13 @@
     </div>
     <div style="display:grid;gap:14px">
       <div>
-        <label class="form-label">Scheduled PM Week Being Completed</label>
+        <label class="form-label">Scheduled Maintenance Week Being Completed</label>
         <select id="pmdone-sched-week" class="form-input"></select>
       </div>
       <div>
-        <label class="form-label">Actual PM Date <span style="color:#FF3B30">*</span></label>
+        <label class="form-label">Actual Maintenance Date <span style="color:#FF3B30">*</span></label>
         <input id="pmdone-date" class="form-input" type="date"/>
-        <div style="color:#6B7280;font-size:11px;margin-top:5px">Enter the date PM was actually performed.</div>
+        <div style="color:#6B7280;font-size:11px;margin-top:5px">Enter the date Maintenance was actually performed.</div>
       </div>
       <div>
         <label class="form-label">Performed By <span style="color:#FF3B30">*</span></label>
@@ -506,7 +506,7 @@
       <button onclick="closePMDoneModal()" class="btn-ghost" style="flex:1;justify-content:center">Cancel</button>
       <button onclick="doConfirmPMDone()" id="pmdone-confirm-btn" style="flex:2;background:linear-gradient(135deg,#30D158,#25a244);border:none;border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Confirm PM Done
+        Confirm Maintenance Done
       </button>
     </div>
   </div>
